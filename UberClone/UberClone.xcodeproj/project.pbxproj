@@ -11,6 +11,10 @@
 		35B7DD302EA675980025CC89 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35B7DD2C2EA675980025CC89 /* ContentView.swift */; };
 		35B7DD312EA675980025CC89 /* UberCloneApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35B7DD2D2EA675980025CC89 /* UberCloneApp.swift */; };
 		35B7DD372EA6776E0025CC89 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35B7DD362EA6776E0025CC89 /* LoginView.swift */; };
+		8419AAF22EA766E9008B50DC /* InputTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8419AAF12EA766E9008B50DC /* InputTextField.swift */; };
+		8419AAF52EA76F37008B50DC /* AppColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8419AAF42EA76F37008B50DC /* AppColors.swift */; };
+		8419AAF72EA76FAF008B50DC /* SignUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8419AAF62EA76FAF008B50DC /* SignUpView.swift */; };
+		8419AAF92EA77C52008B50DC /* CustomSegmentedPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8419AAF82EA77C52008B50DC /* CustomSegmentedPicker.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -19,6 +23,10 @@
 		35B7DD2C2EA675980025CC89 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		35B7DD2D2EA675980025CC89 /* UberCloneApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UberCloneApp.swift; sourceTree = "<group>"; };
 		35B7DD362EA6776E0025CC89 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		8419AAF12EA766E9008B50DC /* InputTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = InputTextField.swift; path = UberClone/Presentation/InputTextField.swift; sourceTree = SOURCE_ROOT; };
+		8419AAF42EA76F37008B50DC /* AppColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppColors.swift; sourceTree = "<group>"; };
+		8419AAF62EA76FAF008B50DC /* SignUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpView.swift; sourceTree = "<group>"; };
+		8419AAF82EA77C52008B50DC /* CustomSegmentedPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CustomSegmentedPicker.swift; path = UberClone/Presentation/CustomSegmentedPicker.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -51,6 +59,7 @@
 		35B7DD2E2EA675980025CC89 /* UberClone */ = {
 			isa = PBXGroup;
 			children = (
+				8419AAF32EA76F1F008B50DC /* Utilities */,
 				35B7DD352EA676050025CC89 /* Repositories */,
 				35B7DD342EA675FD0025CC89 /* Models */,
 				35B7DD332EA675F20025CC89 /* Services */,
@@ -67,6 +76,7 @@
 			children = (
 				35B7DD382EA6826A0025CC89 /* Components */,
 				35B7DD362EA6776E0025CC89 /* LoginView.swift */,
+				8419AAF62EA76FAF008B50DC /* SignUpView.swift */,
 			);
 			path = Presentation;
 			sourceTree = "<group>";
@@ -95,8 +105,18 @@
 		35B7DD382EA6826A0025CC89 /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				8419AAF12EA766E9008B50DC /* InputTextField.swift */,
+				8419AAF82EA77C52008B50DC /* CustomSegmentedPicker.swift */,
 			);
 			path = Components;
+			sourceTree = "<group>";
+		};
+		8419AAF32EA76F1F008B50DC /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				8419AAF42EA76F37008B50DC /* AppColors.swift */,
+			);
+			path = Utilities;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -171,8 +191,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8419AAF22EA766E9008B50DC /* InputTextField.swift in Sources */,
 				35B7DD372EA6776E0025CC89 /* LoginView.swift in Sources */,
 				35B7DD302EA675980025CC89 /* ContentView.swift in Sources */,
+				8419AAF52EA76F37008B50DC /* AppColors.swift in Sources */,
+				8419AAF92EA77C52008B50DC /* CustomSegmentedPicker.swift in Sources */,
+				8419AAF72EA76FAF008B50DC /* SignUpView.swift in Sources */,
 				35B7DD312EA675980025CC89 /* UberCloneApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -316,6 +340,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -344,6 +369,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

@@ -9,81 +9,59 @@ import SwiftUI
 
 struct LoginView: View {
 
-    @State var email: String = ""
-    @State var password: String = ""
+  @State var email: String = ""
+  @State var password: String = ""
+  @State var showSignUp: Bool = false
 
-    var body: some View {
-        VStack {
-            VStack {
-                Text("UBER")
-                    .foregroundStyle(.white)
-                    .font(.largeTitle)
-                    .fontWeight(.medium)
-                    .padding(.top, 48)
-                VStack {
-                    HStack {
-                        Image(systemName: "envelope")
-                            .foregroundStyle(.white)
-                        TextField("Email", text: $email)
-                            .foregroundStyle(.white)
-                    }
-                    Rectangle()
-                        .frame(height: 1)
-                        .foregroundStyle(.white)
-                }
-                .padding(.leading, 12)
-                .padding(.trailing, 12)
-                .padding(.bottom, 12)
-                VStack {
-                    HStack {
-                        Image(systemName: "lock")
-                            .foregroundStyle(.white)
-                        TextField("Password", text: $password)
-                            .foregroundStyle(.white)
-                    }
-                    Rectangle()
-                        .frame(height: 1)
-                        .foregroundStyle(.white)
-                }
-                .padding(.leading, 12)
-                .padding(.trailing, 12)
-                .padding(.bottom, 12)
-                Button {
-                    //Action
-                } label: {
-                    Text("Login")
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .fontWeight(.medium)
-                        .font(.title2)
-                        .background(Color.blue)
-                        .foregroundStyle(.white)
-                        .cornerRadius(8)
-                }
-                .padding(.horizontal, 12)
-
-            }
-            Spacer()
-            Button {
-                //Action
-            } label: {
-                HStack {
-                    Text("Don't have an account?")
-                        .foregroundStyle(.white)
-                    Text("Sign Up")
-                        .fontWeight(.medium)
-                }
-            }
-            .padding(.bottom, 24)
+  var body: some View {
+    VStack {
+      VStack {
+        Text("UBER")
+          .foregroundStyle(.white)
+          .font(.largeTitle)
+          .fontWeight(.medium)
+        InputTextField(text: $email, placeHolder: "Email", systemImage: "envelope")
+          .padding(.horizontal, 24)
+          .padding(.bottom, 32)
+        InputTextField(text: $password, placeHolder: "Password", systemImage: "lock", isSecure: true)
+          .padding(.horizontal, 24)
+        Button {
+          //Action
+        } label: {
+          Text("Login")
+            .frame(maxWidth: .infinity)
+            .padding()
+            .fontWeight(.medium)
+            .font(.title2)
+            .background(Color(uiColor: AppColors.mainBlueTint))
+            .foregroundStyle(.white)
+            .cornerRadius(8)
         }
-        .background {
-            Color.black
+        .padding(.top, 32)
+        .padding(.horizontal, 24)
+      }
+      Spacer()
+      Button {
+        showSignUp = true
+      } label: {
+        HStack {
+          Text("Don't have an account?")
+            .foregroundStyle(.white)
+          Text("Sign Up")
+            .fontWeight(.medium)
+            .foregroundStyle(Color(uiColor: AppColors.mainBlueTint))
         }
-        .ignoresSafeArea()
-
+      }
+      .safeAreaPadding(.bottom, 48)
     }
+
+    .background(Color(uiColor: AppColors.backgroundColor))
+    .navigationDestination(isPresented: $showSignUp, destination: {
+      SignUpView()
+    })
+  }
 }
 
 #Preview {
-    LoginView()
+  LoginView()
 }
