@@ -6,14 +6,18 @@
 //
 
 import SwiftUI
+import UIKit
 
 @main
 struct UberCloneApp: App {
-    var body: some Scene {
-        WindowGroup {
-          NavigationStack {
-            LoginView()
-          }
-        }
+
+  @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+
+  var body: some Scene {
+    WindowGroup {
+      NavigationStack {
+        LoginView()
+      }
     }
+  }
 }
