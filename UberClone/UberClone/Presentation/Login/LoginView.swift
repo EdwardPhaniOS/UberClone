@@ -9,9 +9,7 @@ import SwiftUI
 
 struct LoginView: View {
 
-  @State var email: String = ""
-  @State var password: String = ""
-  @State var showSignUp: Bool = false
+  @ObservedObject var viewModel: ViewModel
 
   var body: some View {
     VStack {
@@ -20,13 +18,13 @@ struct LoginView: View {
           .foregroundStyle(.white)
           .font(.largeTitle)
           .fontWeight(.medium)
-        InputTextField(text: $email, placeHolder: "Email", systemImage: "envelope")
+        InputTextField(text: $viewModel.email, placeHolder: "Email", systemImage: "envelope")
           .padding(.horizontal, 24)
           .padding(.bottom, 32)
-        InputTextField(text: $password, placeHolder: "Password", systemImage: "lock", isSecure: true)
+        InputTextField(text: $viewModel.password, placeHolder: "Password", systemImage: "lock", isSecure: true)
           .padding(.horizontal, 24)
         Button {
-          //Action
+          viewModel.handleLogin()
         } label: {
           Text("Login")
             .frame(maxWidth: .infinity)
@@ -42,7 +40,7 @@ struct LoginView: View {
       }
       Spacer()
       Button {
-        showSignUp = true
+        viewModel.showSignUp = true
       } label: {
         HStack {
           Text("Don't have an account?")
@@ -54,14 +52,20 @@ struct LoginView: View {
       }
       .safeAreaPadding(.bottom, 48)
     }
-
+    .printFileOnAppear()
     .background(Color(uiColor: AppColors.backgroundColor))
-    .navigationDestination(isPresented: $showSignUp, destination: {
-      SignUpView()
+    .navigationDestination(isPresented: $viewModel.showSignUp, destination: {
+      SignUpView(viewModel: .init())
     })
+    .alert("", isPresented: $viewModel.showAlert, actions: {
+      Button("OK", role: .cancel, action: {})
+    }, message: {
+      Text(viewModel.alertMessage)
+    })
+    .showLoadingView(isLoading: viewModel.isLoading)
   }
 }
 
 #Preview {
-  LoginView()
+  LoginView(viewModel: .init())
 }

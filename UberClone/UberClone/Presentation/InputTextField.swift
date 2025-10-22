@@ -30,6 +30,7 @@ struct InputTextField: View {
           }
         }
       }
+      .frame(height: 24)
       Rectangle()
         .frame(height: 1)
         .foregroundStyle(.white)

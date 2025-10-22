@@ -6,9 +6,7 @@ import SwiftUI
 struct SignUpView: View {
 
   @Environment(\.dismiss) private var dismiss
-  @State var email: String = ""
-  @State var password: String = ""
-  @State var selection = 0
+  @ObservedObject var viewModel: ViewModel
 
   var body: some View {
     VStack {
@@ -35,19 +33,26 @@ struct SignUpView: View {
       }
       .safeAreaPadding(.bottom, 48)
     }
+    .alert("", isPresented: $viewModel.showAlert, actions: {
+      Button("OK", role: .cancel, action: {})
+    }, message: {
+      Text(viewModel.alertMessage)
+    })
+    .showLoadingView(isLoading: viewModel.isLoading)
     .background(Color(uiColor: AppColors.backgroundColor))
     .navigationBarBackButtonHidden(true)
+    .printFileOnAppear()
   }
 
   var formContent: some View {
     VStack {
-      InputTextField(text: $email, placeHolder: "Email", systemImage: "envelope")
+      InputTextField(text: $viewModel.email, placeHolder: "Email", systemImage: "envelope")
         .padding(.horizontal, 24)
         .padding(.bottom, 32)
-      InputTextField(text: $password, placeHolder: "Full Name", systemImage: "person")
+      InputTextField(text: $viewModel.fullName, placeHolder: "Full Name", systemImage: "person")
         .padding(.horizontal, 24)
         .padding(.bottom, 32)
-      InputTextField(text: $password, placeHolder: "Password", systemImage: "lock", isSecure: true)
+      InputTextField(text: $viewModel.password, placeHolder: "Password", systemImage: "lock", isSecure: true)
         .padding(.horizontal, 24)
         .padding(.bottom, 32)
       HStack {
@@ -57,7 +62,7 @@ struct SignUpView: View {
         Spacer()
       }
       .padding(.bottom, 12)
-      CustomSegmentedPicker(selection: $selection, items: ["Rider", "Driver"])
+      CustomSegmentedPicker(selection: $viewModel.accountTypeIndex, items: ["Rider", "Driver"])
         .padding(.horizontal, 24)
         .padding(.bottom, 12)
       Rectangle()
@@ -65,7 +70,7 @@ struct SignUpView: View {
         .foregroundStyle(.white)
         .padding(.horizontal, 24)
       Button {
-        //Action
+        viewModel.handleSignUp()
       } label: {
         Text("Sign Up")
           .frame(maxWidth: .infinity)
@@ -83,5 +88,5 @@ struct SignUpView: View {
 }
 
 #Preview {
-    SignUpView()
+  SignUpView(viewModel: .init())
 }

@@ -16,7 +16,7 @@ struct UberCloneApp: App {
   var body: some Scene {
     WindowGroup {
       NavigationStack {
-        LoginView()
+        LoginView(viewModel: .init())
       }
     }
   }
