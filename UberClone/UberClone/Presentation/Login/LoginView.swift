@@ -10,6 +10,7 @@ import SwiftUI
 struct LoginView: View {
 
   @ObservedObject var viewModel: ViewModel
+  @EnvironmentObject var authViewModel: AuthViewModel
 
   var body: some View {
     VStack {
@@ -55,7 +56,7 @@ struct LoginView: View {
     .printFileOnAppear()
     .background(Color(uiColor: AppColors.backgroundColor))
     .navigationDestination(isPresented: $viewModel.showSignUp, destination: {
-      SignUpView(viewModel: .init())
+      SignUpView(viewModel: .init(authViewModel: authViewModel))
     })
     .alert("", isPresented: $viewModel.showAlert, actions: {
       Button("OK", role: .cancel, action: {})
@@ -67,5 +68,5 @@ struct LoginView: View {
 }
 
 #Preview {
-  LoginView(viewModel: .init())
+  LoginView(viewModel: .init(authViewModel: AuthViewModel()))
 }

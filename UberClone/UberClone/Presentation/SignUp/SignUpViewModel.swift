@@ -1,12 +1,13 @@
 // Created on 10/22/25.
 // Copyright (c) 2025 ABC Virtual Communications, Inc. All rights reserved.
 
-import Foundation
+import SwiftUI
 import FirebaseAuth
 import FirebaseDatabase
 
 extension SignUpView {
   class ViewModel: ObservableObject {
+    let authViewModel: AuthViewModel
     @Published var email: String = ""
     @Published var password: String = ""
     @Published var fullName: String = ""
@@ -14,6 +15,10 @@ extension SignUpView {
     @Published var showAlert: Bool = false
     @Published var isLoading: Bool = false
     @Published var accountTypeIndex = 0
+
+    init(authViewModel: AuthViewModel) {
+      self.authViewModel = authViewModel
+    }
 
     func handleSignUp() {
       let validateResult = validateInput()
@@ -42,7 +47,9 @@ extension SignUpView {
 
         let databaseURL = "https://uberclone-c3f5e-default-rtdb.asia-southeast1.firebasedatabase.app/"
         Database.database(url: databaseURL).reference().child("users").child(uid).updateChildValues(values) { error, ref in
-          print("DEBUG: Successfully registered user")
+          DispatchQueue.main.async {
+            self.authViewModel.isLoggedIn = true
+          }
         }
       }
     }

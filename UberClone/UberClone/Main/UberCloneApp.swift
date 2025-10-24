@@ -11,13 +11,13 @@ import UIKit
 @main
 struct UberCloneApp: App {
 
+  @StateObject var authViewModel = AuthViewModel()
   @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
 
   var body: some Scene {
     WindowGroup {
-      NavigationStack {
-        LoginView(viewModel: .init())
-      }
+      HomeView(viewModel: .init(authViewModel: authViewModel))
+        .environmentObject(authViewModel)
     }
   }
 }

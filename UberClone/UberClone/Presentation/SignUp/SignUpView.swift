@@ -88,5 +88,5 @@ struct SignUpView: View {
 }
 
 #Preview {
-  SignUpView(viewModel: .init())
+  SignUpView(viewModel: .init(authViewModel: AuthViewModel()))
 }

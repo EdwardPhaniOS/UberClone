@@ -1,17 +1,22 @@
 // Created on 10/22/25.
 // Copyright (c) 2025 ABC Virtual Communications, Inc. All rights reserved.
 
-import Foundation
+import SwiftUI
 import FirebaseAuth
 
 extension LoginView {
   class ViewModel: ObservableObject {
+    let authViewModel: AuthViewModel
     @Published var email: String = ""
     @Published var password: String = ""
     @Published var alertMessage: String = ""
     @Published var showAlert: Bool = false
     @Published var isLoading: Bool = false
     @Published var showSignUp: Bool = false
+
+    init(authViewModel: AuthViewModel) {
+      self.authViewModel = authViewModel
+    }
 
     func handleLogin() {
       let validateResult = validateInput()
@@ -30,7 +35,9 @@ extension LoginView {
           return
         }
 
-        showAlertOnUI(message: "Login successfully")
+        DispatchQueue.main.async {
+          self.authViewModel.isLoggedIn = true
+        }
       }
     }
 
