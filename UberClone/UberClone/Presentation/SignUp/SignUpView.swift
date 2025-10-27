@@ -46,13 +46,13 @@ struct SignUpView: View {
 
   var formContent: some View {
     VStack {
-      InputTextField(text: $viewModel.email, placeHolder: "Email", systemImage: "envelope")
+      AuthTextField(text: $viewModel.email, placeHolder: "Email", systemImage: "envelope")
         .padding(.horizontal, 24)
         .padding(.bottom, 32)
-      InputTextField(text: $viewModel.fullName, placeHolder: "Full Name", systemImage: "person")
+      AuthTextField(text: $viewModel.fullName, placeHolder: "Full Name", systemImage: "person")
         .padding(.horizontal, 24)
         .padding(.bottom, 32)
-      InputTextField(text: $viewModel.password, placeHolder: "Password", systemImage: "lock", isSecure: true)
+      AuthTextField(text: $viewModel.password, placeHolder: "Password", systemImage: "lock", isSecure: true)
         .padding(.horizontal, 24)
         .padding(.bottom, 32)
       HStack {

@@ -19,10 +19,10 @@ struct LoginView: View {
           .foregroundStyle(.white)
           .font(.largeTitle)
           .fontWeight(.medium)
-        InputTextField(text: $viewModel.email, placeHolder: "Email", systemImage: "envelope")
+        AuthTextField(text: $viewModel.email, placeHolder: "Email", systemImage: "envelope")
           .padding(.horizontal, 24)
           .padding(.bottom, 32)
-        InputTextField(text: $viewModel.password, placeHolder: "Password", systemImage: "lock", isSecure: true)
+        AuthTextField(text: $viewModel.password, placeHolder: "Password", systemImage: "lock", isSecure: true)
           .padding(.horizontal, 24)
         Button {
           viewModel.handleLogin()

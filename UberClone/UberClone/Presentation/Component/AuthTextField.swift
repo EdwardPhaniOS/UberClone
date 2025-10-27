@@ -3,7 +3,7 @@
 
 import SwiftUI
 
-struct InputTextField: View {
+struct AuthTextField: View {
 
   @Binding var text: String
   var placeHolder: String = ""
@@ -44,6 +44,6 @@ struct InputTextField: View {
   ZStack {
     Rectangle()
       .frame(height: 48)
-    InputTextField(text: $text, placeHolder: "Enter", systemImage: "envelope")
+    AuthTextField(text: $text, placeHolder: "Enter", systemImage: "envelope")
   }
 }
