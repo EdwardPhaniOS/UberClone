@@ -10,14 +10,12 @@ struct SignUpView: View {
 
   var body: some View {
     VStack {
-      VStack {
-        Text("UBER")
-          .foregroundStyle(.white)
-          .font(.largeTitle)
-          .fontWeight(.medium)
-        ScrollView {
-          formContent
-        }
+      Text("UBER")
+        .foregroundStyle(.white)
+        .font(.largeTitle)
+        .fontWeight(.medium)
+      ScrollView {
+        formContent
       }
       Spacer()
       Button {

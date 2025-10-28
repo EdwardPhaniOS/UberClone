@@ -4,6 +4,7 @@
 import SwiftUI
 import FirebaseAuth
 import FirebaseDatabase
+import GeoFire
 
 extension SignUpView {
   class ViewModel: ObservableObject {
@@ -45,11 +46,34 @@ extension SignUpView {
           "accountType": accountTypeIndex
         ]
 
-        let databaseURL = "https://uberclone-c3f5e-default-rtdb.asia-southeast1.firebasedatabase.app/"
-        Database.database(url: databaseURL).reference().child("users").child(uid).updateChildValues(values) { error, ref in
-          DispatchQueue.main.async {
-            self.authViewModel.isLoggedIn = true
-          }
+        if accountTypeIndex == 1 {
+          self.uploadDriverLocationAndData(values: values, userId: uid)
+        } else {
+          self.uploadUserDataAndShowHomeView(values: values, userId: uid)
+        }
+      }
+    }
+
+    func uploadDriverLocationAndData(values: [String: Any], userId: String) {
+      guard let location = LocationHandler.shared.location else {
+        showAlertOnUI(message: SignUpError.missingCurrentLocation.message)
+        return
+      }
+
+      let geofire = GeoFire(firebaseRef: REF_DRIVER_LOCATIONS)
+      geofire.setLocation(location, forKey: userId) { [weak self] error in
+        guard let self = self else { return }
+        if let error = error {
+          showAlertOnUI(message: error.localizedDescription)
+        }
+        self.uploadUserDataAndShowHomeView(values: values, userId: userId)
+      }
+    }
+
+    func uploadUserDataAndShowHomeView(values: [String: Any], userId: String)  {
+      REF_USERS.child(userId).updateChildValues(values) { error, ref in
+        DispatchQueue.main.async {
+          self.authViewModel.isLoggedIn = true
         }
       }
     }

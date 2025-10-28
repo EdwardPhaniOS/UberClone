@@ -15,7 +15,6 @@ struct HomeView: View {
         .onAppear {
           viewModel.checkIfUserIsLoggedIn()
           viewModel.enableLocationServices()
-          viewModel.fetchUserData()
         }
       inputView
     }
@@ -29,12 +28,31 @@ struct HomeView: View {
         LoginView(viewModel: .init(authViewModel: authViewModel))
       }
     }
+    .onChange(of: authViewModel.isLoggedIn) { _, isLoggedIn in
+      if isLoggedIn {
+        viewModel.fetchUserData()
+        viewModel.fetchDrivers()
+      }
+    }
     .printFileOnAppear()
   }
 
   var mapView: some View {
     Map(position: $viewModel.cameraPosition) {
       UserAnnotation()
+
+      ForEach(viewModel.driverAnnotations) { driver in
+        Annotation("", coordinate: driver.coordinate) {
+          ZStack {
+            RoundedRectangle(cornerRadius: 8)
+              .foregroundStyle(Color(uiColor: AppColors.backgroundColor))
+              .frame(width: 25, height: 25)
+            Image(systemName: "car")
+              .foregroundStyle(Color.white)
+              .font(.system(size: 14))
+          }
+        }
+      }
     }
     .mapControls({
       MapCompass()
@@ -52,6 +70,10 @@ struct HomeView: View {
           .padding(.horizontal, 16)
           .padding(.trailing, 50)
           .onTapGesture { viewModel.presentLocationInputView() }
+        Button("Sign Out") {
+          viewModel.signOut()
+        }
+        .opacity(viewModel.inputActivationViewIsVisable ? 1 : 0)
         Spacer()
       }
 
@@ -61,7 +83,6 @@ struct HomeView: View {
             LocationRow()
             LocationRow()
           }
-
           Section {
             ForEach(0..<10) { index in
               LocationRow()
@@ -90,7 +111,10 @@ struct HomeView: View {
   let authViewModel = AuthViewModel()
   authViewModel.isLoggedIn = true
 
-  return HomeView(viewModel: .init(authViewModel: authViewModel))
+  let viewModel = HomeView.ViewModel(authViewModel: authViewModel)
+  viewModel.driverAnnotations.append(contentsOf: DriverAnnotation.testData())
+
+  return HomeView(viewModel: viewModel)
     .environmentObject(authViewModel)
 }
 
