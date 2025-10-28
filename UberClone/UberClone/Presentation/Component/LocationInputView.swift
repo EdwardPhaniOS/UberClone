@@ -6,9 +6,12 @@ import SwiftUI
 struct LocationInputView: View {
 
   var onBackButtonPressed: (() -> Void)?
+  var onSubmit: ((String, String) -> Void)?
+
   @State var currentLocation: String = ""
   @State var destinationLocation: String = ""
   @Binding var userName: String
+
 
   var body: some View {
     ZStack {
@@ -76,6 +79,9 @@ struct LocationInputView: View {
           TextField("Enter a destination..", text: $destinationLocation)
             .padding(.horizontal, 8)
             .submitLabel(.search)
+            .onSubmit {
+              onSubmit?(currentLocation, destinationLocation)
+            }
         }
       }
       .padding(.trailing, 24)

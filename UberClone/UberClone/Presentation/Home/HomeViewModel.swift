@@ -19,6 +19,7 @@ extension HomeView {
     @Published var inputViewIsVisable: Bool = false
     @Published var userName: String = ""
     @Published var driverAnnotations: [DriverAnnotation] = []
+    @Published var placeMarks: [MKPlacemark] = []
 
     private var authViewModel: AuthViewModel
 
@@ -99,6 +100,28 @@ extension HomeView {
     func hideLocationInputView() {
       inputViewIsVisable = false
       inputActivationViewIsVisable = true
+    }
+
+    func executeSearch(query: String) {
+      var results = [MKPlacemark]()
+
+      let request = MKLocalSearch.Request()
+      request.naturalLanguageQuery = query
+      if let region = cameraPosition.region {
+        request.region = region
+      }
+
+      let searchTask = MKLocalSearch(request: request)
+      searchTask.start { response, error in
+        guard let response = response else { return }
+
+        response.mapItems.forEach { item in
+          results.append(item.placemark)
+          print("DEBUG: item placemark \(item.placemark)")
+        }
+
+        self.placeMarks = results
+      }
     }
   }
 }

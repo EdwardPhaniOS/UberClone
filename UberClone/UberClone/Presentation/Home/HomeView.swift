@@ -84,8 +84,8 @@ struct HomeView: View {
             LocationRow()
           }
           Section {
-            ForEach(0..<10) { index in
-              LocationRow()
+            ForEach(viewModel.placeMarks, id: \.self) { placeMark in
+              LocationRow(title: placeMark.name ?? "", desc: placeMark.address)
             }
           }
         }
@@ -95,6 +95,8 @@ struct HomeView: View {
         VStack {
           LocationInputView(onBackButtonPressed: {
             viewModel.hideLocationInputView()
+          }, onSubmit: { _, query in
+            viewModel.executeSearch(query: query)
           }, userName: $viewModel.userName)
           Spacer()
         }
