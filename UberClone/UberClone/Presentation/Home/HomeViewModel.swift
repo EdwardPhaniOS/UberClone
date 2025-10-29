@@ -4,22 +4,30 @@
 import SwiftUI
 import MapKit
 import FirebaseAuth
+import CoreLocation
 
 extension HomeView {
   class ViewModel: NSObject, ObservableObject, LocationHandlerDelegate {
 
+    enum InputViewState: Equatable {
+      case inactive
+      case active
+      case didSelectPlacemark
+    }
+
     @Published var cameraPosition = MapCameraPosition.region(
       MKCoordinateRegion(
         center: CLLocationCoordinate2D(latitude: 10.7769, longitude: 106.7009),
-        span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+        span: MKCoordinateSpan(latitudeDelta: 0.02, longitudeDelta: 0.02)
       )
     )
 
-    @Published var inputActivationViewIsVisable: Bool = true
-    @Published var inputViewIsVisable: Bool = false
     @Published var userName: String = ""
     @Published var driverAnnotations: [DriverAnnotation] = []
-    @Published var placeMarks: [MKPlacemark] = []
+    @Published var placemarks: [MKPlacemark] = []
+    @Published var selectedPlacemark: MKPlacemark?
+    @Published var inputViewState: InputViewState = .inactive
+    @Published var routeCoordinates: [CLLocationCoordinate2D]? = nil
 
     private var authViewModel: AuthViewModel
 
@@ -73,7 +81,7 @@ extension HomeView {
           self.authViewModel.isLoggedIn = false
         }
       } catch {
-        //Error when sign out
+        print("DEBUG: Error - \(error.localizedDescription)")
       }
     }
 
@@ -90,20 +98,21 @@ extension HomeView {
               )
           )
       }
+
+      self.fetchDrivers()
     }
 
-    func presentLocationInputView() {
-      inputViewIsVisable = true
-      inputActivationViewIsVisable = false
+    func showLocationInputView() {
+      inputViewState = .active
     }
 
-    func hideLocationInputView() {
-      inputViewIsVisable = false
-      inputActivationViewIsVisable = true
+    func showLocationInputActivationView() {
+      inputViewState = .inactive
+      placemarks = []
     }
 
     func executeSearch(query: String) {
-      var results = [MKPlacemark]()
+      self.placemarks = []
 
       let request = MKLocalSearch.Request()
       request.naturalLanguageQuery = query
@@ -112,15 +121,86 @@ extension HomeView {
       }
 
       let searchTask = MKLocalSearch(request: request)
-      searchTask.start { response, error in
+      searchTask.start { [weak self] response, error in
+        guard let self = self else { return }
         guard let response = response else { return }
 
         response.mapItems.forEach { item in
-          results.append(item.placemark)
-          print("DEBUG: item placemark \(item.placemark)")
+          DispatchQueue.main.async {
+            self.placemarks.append(item.placemark)
+          }
         }
+      }
+    }
 
-        self.placeMarks = results
+    func selectPlacemark(placemark: MKPlacemark) {
+      inputViewState = .didSelectPlacemark
+      selectedPlacemark = placemark
+      calculateRoute(to: placemark)
+    }
+
+    func calculateRoute(to placemark: MKPlacemark) {
+      guard let currentCoordinate = LocationHandler.shared.location?.coordinate else { return }
+
+      let request = MKDirections.Request()
+      request.source = MKMapItem(placemark: MKPlacemark(coordinate: currentCoordinate))
+      request.destination = MKMapItem(placemark: placemark)
+      request.transportType = .automobile
+      request.requestsAlternateRoutes = false
+
+      let directionsTask = MKDirections(request: request)
+      directionsTask.calculate { [weak self] response, error in
+        guard let self = self else { return }
+        if let route = response?.routes.first {
+          let count = route.polyline.pointCount
+          var coords = [CLLocationCoordinate2D](repeating: kCLLocationCoordinate2DInvalid, count: count)
+          route.polyline.getCoordinates(&coords, range: NSRange(location: 0, length: count))
+          DispatchQueue.main.async {
+            self.routeCoordinates = coords
+            self.zoomToRoute()
+          }
+        } else {
+          DispatchQueue.main.async {
+            self.routeCoordinates = nil
+          }
+        }
+      }
+    }
+
+    func zoomToRoute() {
+      guard let coordinates = routeCoordinates, !coordinates.isEmpty else { return }
+      var minLat = coordinates.first!.latitude
+      var maxLat = coordinates.first!.latitude
+      var minLon = coordinates.first!.longitude
+      var maxLon = coordinates.first!.longitude
+
+      for coordinate in coordinates {
+        minLat = min(minLat, coordinate.latitude)
+        maxLat = max(maxLat, coordinate.latitude)
+        minLon = min(minLon, coordinate.longitude)
+        maxLon = max(maxLon, coordinate.longitude)
+      }
+
+      let center = CLLocationCoordinate2D(latitude: (minLat + maxLat)/2,
+                                          longitude: (minLon + maxLon)/2)
+      let span = MKCoordinateSpan(latitudeDelta: max(0.01, maxLat - minLat + 0.01),
+                                  longitudeDelta: max(0.01, maxLon - minLon + 0.01))
+      DispatchQueue.main.async {
+        withAnimation(.easeInOut(duration: 0.3)) {
+          self.cameraPosition = .region(MKCoordinateRegion(center: center, span: span))
+        }
+      }
+    }
+
+    func zoomToCurrentUser() {
+      guard let currentCoordinate = LocationHandler.shared.location?.coordinate else { return }
+      let center = CLLocationCoordinate2D(latitude: currentCoordinate.latitude,
+                                          longitude: currentCoordinate.longitude)
+      let span = MKCoordinateSpan(latitudeDelta: 0.02, longitudeDelta: 0.02)
+      DispatchQueue.main.async {
+        withAnimation(.easeInOut(duration: 0.3)) {
+          self.cameraPosition = .region(MKCoordinateRegion(center: center, span: span))
+        }
       }
     }
   }

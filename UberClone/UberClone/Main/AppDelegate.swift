@@ -3,6 +3,7 @@
 
 import UIKit
 import FirebaseCore
+import FirebaseAuth
 
 class AppDelegate: NSObject, UIApplicationDelegate {
 
@@ -10,5 +11,4 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     FirebaseApp.configure()
     return true
   }
-
 }

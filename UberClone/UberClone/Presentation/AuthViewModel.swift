@@ -4,6 +4,6 @@
 import Foundation
 
 class AuthViewModel: ObservableObject {
-  @Published var isLoggedIn: Bool = false
+  @Published var isLoggedIn: Bool = true
 //  @Published var currentUser: User?
 }

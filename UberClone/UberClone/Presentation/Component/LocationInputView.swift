@@ -35,17 +35,20 @@ struct LocationInputView: View {
   var headerView: some View {
     ZStack() {
       HStack {
-        Button("", systemImage: "arrow.left") {
+        Button("", systemImage: "arrow.backward") {
+          destinationLocation = ""
           onBackButtonPressed?()
         }
         .foregroundStyle(.black)
+        .font(.system(size: 18, weight: .bold))
         .padding()
+        .padding(.top, 24)
         Spacer()
       }
       Text(userName)
         .font(.system(size: 16))
         .foregroundStyle(.secondary)
-        .padding(.top, 4)
+        .padding(.top, 26)
     }
   }
 
@@ -62,7 +65,7 @@ struct LocationInputView: View {
           .frame(width: 6, height: 6)
           .foregroundStyle(.secondary)
       }
-      .padding(.leading, 16)
+      .padding(.leading, 24)
       .padding(.trailing, 8)
       VStack {
         ZStack {

@@ -12,11 +12,8 @@ struct HomeView: View {
   var body: some View {
     ZStack {
       mapView
-        .onAppear {
-          viewModel.checkIfUserIsLoggedIn()
-          viewModel.enableLocationServices()
-        }
       inputView
+      menuButton
     }
     .fullScreenCover(
       isPresented: Binding(
@@ -27,6 +24,10 @@ struct HomeView: View {
       NavigationStack {
         LoginView(viewModel: .init(authViewModel: authViewModel))
       }
+    }
+    .onAppear {
+      viewModel.checkIfUserIsLoggedIn()
+      viewModel.enableLocationServices()
     }
     .onChange(of: authViewModel.isLoggedIn) { _, isLoggedIn in
       if isLoggedIn {
@@ -40,18 +41,43 @@ struct HomeView: View {
   var mapView: some View {
     Map(position: $viewModel.cameraPosition) {
       UserAnnotation()
-
-      ForEach(viewModel.driverAnnotations) { driver in
-        Annotation("", coordinate: driver.coordinate) {
-          ZStack {
-            RoundedRectangle(cornerRadius: 8)
-              .foregroundStyle(Color(uiColor: AppColors.backgroundColor))
-              .frame(width: 25, height: 25)
-            Image(systemName: "car")
-              .foregroundStyle(Color.white)
-              .font(.system(size: 14))
+      
+      if viewModel.inputViewState == .inactive {
+        ForEach(viewModel.driverAnnotations) { driver in
+          Annotation("", coordinate: driver.coordinate) {
+            ZStack {
+              RoundedRectangle(cornerRadius: 8)
+                .foregroundStyle(Color(uiColor: AppColors.backgroundColor))
+                .frame(width: 25, height: 25)
+              Image(systemName: "car")
+                .foregroundStyle(Color.white)
+                .font(.system(size: 14))
+            }
           }
         }
+      }
+
+      if let selectedPlacemark = viewModel.selectedPlacemark {
+        Annotation("", coordinate: selectedPlacemark.coordinate) {
+          ZStack {
+            RoundedRectangle(cornerRadius: 2)
+              .foregroundStyle(Color.orange)
+              .frame(width: 4, height: 4)
+            Image(systemName: "mappin.circle.fill")
+              .foregroundStyle(.orange)
+              .font(.system(size: 28))
+              .offset(y: -20)
+            Image(systemName: "arrowtriangle.down.fill")
+              .foregroundStyle(.orange)
+              .font(.system(size: 8))
+              .offset(y: -5)
+          }
+        }
+      }
+
+      if let coordinates = viewModel.routeCoordinates, !coordinates.isEmpty {
+        MapPolyline(coordinates: coordinates)
+          .stroke(Color(uiColor: AppColors.mainBlueTint), lineWidth: 5)
       }
     }
     .mapControls({
@@ -64,16 +90,12 @@ struct HomeView: View {
     ZStack {
       VStack {
         LocationInputActivationView()
-          .opacity(viewModel.inputActivationViewIsVisable ? 1 : 0)
-          .animation(.easeInOut(duration: 0.3), value: viewModel.inputActivationViewIsVisable)
-          .padding(.top, 2)
-          .padding(.horizontal, 16)
-          .padding(.trailing, 50)
-          .onTapGesture { viewModel.presentLocationInputView() }
-        Button("Sign Out") {
-          viewModel.signOut()
-        }
-        .opacity(viewModel.inputActivationViewIsVisable ? 1 : 0)
+          .opacity(viewModel.inputViewState == .inactive ? 1 : 0)
+          .animation(.easeInOut(duration: 0.3), value: viewModel.inputViewState)
+          .padding(.top, 58)
+          .padding(.horizontal, 32)
+          .onTapGesture { viewModel.showLocationInputView() }
+        .opacity(viewModel.inputViewState == .inactive ? 1 : 0)
         Spacer()
       }
 
@@ -84,8 +106,11 @@ struct HomeView: View {
             LocationRow()
           }
           Section {
-            ForEach(viewModel.placeMarks, id: \.self) { placeMark in
-              LocationRow(title: placeMark.name ?? "", desc: placeMark.address)
+            ForEach(viewModel.placemarks, id: \.self) { placemark in
+              LocationRow(title: placemark.name ?? "", desc: placemark.address)
+                .onTapGesture {
+                  viewModel.selectPlacemark(placemark: placemark)
+                }
             }
           }
         }
@@ -94,17 +119,50 @@ struct HomeView: View {
 
         VStack {
           LocationInputView(onBackButtonPressed: {
-            viewModel.hideLocationInputView()
+            viewModel.showLocationInputActivationView()
           }, onSubmit: { _, query in
             viewModel.executeSearch(query: query)
           }, userName: $viewModel.userName)
           Spacer()
         }
       }
-      .opacity(viewModel.inputViewIsVisable ? 1 : 0)
-      .animation(.easeInOut(duration: 0.3), value: viewModel.inputViewIsVisable)
+      .opacity(viewModel.inputViewState == .active ? 1 : 0)
+      .animation(.easeInOut(duration: 0.3), value: viewModel.inputViewState)
       .ignoresSafeArea()
     }
+  }
+
+  var menuButton: some View {
+    VStack {
+      HStack {
+        ZStack(content: {
+          Button("", systemImage: "arrow.backward") {
+            viewModel.showLocationInputActivationView()
+            viewModel.selectedPlacemark = nil
+            viewModel.routeCoordinates = nil
+            viewModel.zoomToCurrentUser()
+          }
+          .foregroundStyle(.black)
+          .font(.system(size: 18, weight: .bold))
+          .opacity(viewModel.inputViewState == .didSelectPlacemark ? 1 : 0)
+
+          Button("", image: ImageResource(name: "menu_ic", bundle: .main)) {
+            //TODO: handle menu button
+            viewModel.signOut()
+          }
+          .font(.system(size: 18, weight: .bold))
+          .opacity(viewModel.inputViewState == .inactive ? 1 : 0)
+
+        })
+        .animation(.easeInOut(duration: 0.3), value: viewModel.inputViewState)
+        .foregroundStyle(Color(uiColor: AppColors.backgroundColor))
+        .padding(.top, 4)
+        .padding(.leading, 16)
+        Spacer()
+      }
+      Spacer()
+    }
+
   }
 
 }
