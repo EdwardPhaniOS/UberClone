@@ -68,5 +68,8 @@ struct LoginView: View {
 }
 
 #Preview {
-  LoginView(viewModel: .init(authViewModel: AuthViewModel()))
+  @Previewable @State var authViewModel = AuthViewModel()
+
+  LoginView(viewModel: .init(authViewModel: authViewModel))
+    .environmentObject(authViewModel)
 }

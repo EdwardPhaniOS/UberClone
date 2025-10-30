@@ -10,8 +10,7 @@ struct LocationInputView: View {
 
   @State var currentLocation: String = ""
   @State var destinationLocation: String = ""
-  @Binding var userName: String
-
+  var userName: String
 
   var body: some View {
     ZStack {
@@ -36,7 +35,6 @@ struct LocationInputView: View {
     ZStack() {
       HStack {
         Button("", systemImage: "arrow.backward") {
-          destinationLocation = ""
           onBackButtonPressed?()
         }
         .foregroundStyle(.black)
@@ -84,6 +82,7 @@ struct LocationInputView: View {
             .submitLabel(.search)
             .onSubmit {
               onSubmit?(currentLocation, destinationLocation)
+              destinationLocation = ""
             }
         }
       }
@@ -95,5 +94,5 @@ struct LocationInputView: View {
 
 #Preview {
   @Previewable @State var userName: String = "Vinh"
-  LocationInputView(userName: $userName)
+  LocationInputView(userName: userName)
 }

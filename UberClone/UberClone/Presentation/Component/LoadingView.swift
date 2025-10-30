@@ -4,28 +4,32 @@
 import SwiftUI
 
 struct LoadingView: View {
-    var body: some View {
-      ZStack {
-        Color.black.opacity(0.4)
-        ProgressView("")
-          .progressViewStyle(CircularProgressViewStyle(tint: .white))
-          .foregroundStyle(.white)
-          .scaleEffect(1.5)
-      }
+  var message: String = ""
+
+  var body: some View {
+    ZStack {
+      Color.black.opacity(0.4)
+      ProgressView(message)
+        .progressViewStyle(CircularProgressViewStyle(tint: .white))
+        .foregroundStyle(.white)
+        .scaleEffect(1.5)
+        .font(.system(size: 14))
     }
+    .ignoresSafeArea()
+  }
 }
 
 extension View {
-  func showLoadingView(isLoading: Bool) -> some View {
+  func showLoadingView(isLoading: Bool, message: String = "") -> some View {
     ZStack {
       self.allowsHitTesting(!isLoading)
       if isLoading {
-        LoadingView()
+        LoadingView(message: message)
       }
     }
   }
 }
 
 #Preview {
-    LoadingView()
+  LoadingView(message: "Loading...")
 }

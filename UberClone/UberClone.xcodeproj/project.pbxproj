@@ -17,6 +17,11 @@
 		8419AAF72EA76FAF008B50DC /* SignUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8419AAF62EA76FAF008B50DC /* SignUpView.swift */; };
 		8419AB052EA79181008B50DC /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8419AB042EA79181008B50DC /* GoogleService-Info.plist */; };
 		8419AB122EA794C5008B50DC /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8419AB112EA794C5008B50DC /* AppDelegate.swift */; };
+		84226F312EB2F8F000223105 /* RideActionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84226F302EB2F8F000223105 /* RideActionView.swift */; };
+		84226F332EB3222300223105 /* Trip.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84226F322EB3222300223105 /* Trip.swift */; };
+		84226F352EB3420B00223105 /* PickupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84226F342EB3420B00223105 /* PickupView.swift */; };
+		84226F372EB3492000223105 /* PickupViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84226F362EB3492000223105 /* PickupViewModel.swift */; };
+		84226F392EB3505D00223105 /* PinView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84226F382EB3505D00223105 /* PinView.swift */; };
 		843023602EA8BA1B00A5EEF5 /* PrintFileOnAppearModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8430235F2EA8BA1B00A5EEF5 /* PrintFileOnAppearModifier.swift */; };
 		843023622EA8C2BE00A5EEF5 /* SignUpError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 843023612EA8C2BE00A5EEF5 /* SignUpError.swift */; };
 		843023642EA8C44300A5EEF5 /* Result+Helper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 843023632EA8C44300A5EEF5 /* Result+Helper.swift */; };
@@ -54,6 +59,11 @@
 		8419AAF62EA76FAF008B50DC /* SignUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpView.swift; sourceTree = "<group>"; };
 		8419AB042EA79181008B50DC /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "UberClone/GoogleService-Info.plist"; sourceTree = SOURCE_ROOT; };
 		8419AB112EA794C5008B50DC /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		84226F302EB2F8F000223105 /* RideActionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RideActionView.swift; sourceTree = "<group>"; };
+		84226F322EB3222300223105 /* Trip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Trip.swift; sourceTree = "<group>"; };
+		84226F342EB3420B00223105 /* PickupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PickupView.swift; sourceTree = "<group>"; };
+		84226F362EB3492000223105 /* PickupViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PickupViewModel.swift; sourceTree = "<group>"; };
+		84226F382EB3505D00223105 /* PinView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinView.swift; sourceTree = "<group>"; };
 		8430235F2EA8BA1B00A5EEF5 /* PrintFileOnAppearModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrintFileOnAppearModifier.swift; sourceTree = "<group>"; };
 		843023612EA8C2BE00A5EEF5 /* SignUpError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpError.swift; sourceTree = "<group>"; };
 		843023632EA8C44300A5EEF5 /* Result+Helper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Result+Helper.swift"; sourceTree = "<group>"; };
@@ -128,6 +138,8 @@
 				843023692EA8DCEE00A5EEF5 /* SignUp */,
 				84FD32AC2EB07EC90089DD38 /* Home */,
 				84321DCF2EAB682D0094D1A1 /* AuthViewModel.swift */,
+				84226F342EB3420B00223105 /* PickupView.swift */,
+				84226F362EB3492000223105 /* PickupViewModel.swift */,
 			);
 			path = Presentation;
 			sourceTree = "<group>";
@@ -191,6 +203,8 @@
 				84172E502EAF064B000383E1 /* LocationInputActivationView.swift */,
 				84172E542EAF1C99000383E1 /* LocationInputView.swift */,
 				84C35FE02EAF63730044EBCF /* LocationRow.swift */,
+				84226F302EB2F8F000223105 /* RideActionView.swift */,
+				84226F382EB3505D00223105 /* PinView.swift */,
 			);
 			path = Component;
 			sourceTree = "<group>";
@@ -207,6 +221,7 @@
 			children = (
 				84C35FE62EAF73260044EBCF /* User.swift */,
 				84FD32AD2EB09FF70089DD38 /* DriverAnnotation.swift */,
+				84226F322EB3222300223105 /* Trip.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -319,18 +334,23 @@
 				84321DCE2EAB57DA0094D1A1 /* HomeView.swift in Sources */,
 				8419AAF52EA76F37008B50DC /* AppColors.swift in Sources */,
 				843023642EA8C44300A5EEF5 /* Result+Helper.swift in Sources */,
+				84226F372EB3492000223105 /* PickupViewModel.swift in Sources */,
 				8430236D2EA8E01200A5EEF5 /* LoginError.swift in Sources */,
 				843023602EA8BA1B00A5EEF5 /* PrintFileOnAppearModifier.swift in Sources */,
 				84C35FE32EAF66630044EBCF /* Service.swift in Sources */,
 				8430236B2EA8DFA700A5EEF5 /* LoginViewModel.swift in Sources */,
+				84226F332EB3222300223105 /* Trip.swift in Sources */,
 				8419AB122EA794C5008B50DC /* AppDelegate.swift in Sources */,
 				84172E552EAF1C99000383E1 /* LocationInputView.swift in Sources */,
 				84321DD02EAB682D0094D1A1 /* AuthViewModel.swift in Sources */,
 				84172E512EAF064B000383E1 /* LocationInputActivationView.swift in Sources */,
 				8419AAF72EA76FAF008B50DC /* SignUpView.swift in Sources */,
 				84FD32AE2EB09FF70089DD38 /* DriverAnnotation.swift in Sources */,
+				84226F392EB3505D00223105 /* PinView.swift in Sources */,
 				84321DD72EAB72230094D1A1 /* LoadingView.swift in Sources */,
 				84321DD82EAB72230094D1A1 /* CustomSegmentedPicker.swift in Sources */,
+				84226F312EB2F8F000223105 /* RideActionView.swift in Sources */,
+				84226F352EB3420B00223105 /* PickupView.swift in Sources */,
 				84321DD92EAB72230094D1A1 /* AuthTextField.swift in Sources */,
 				84C35FE12EAF63730044EBCF /* LocationRow.swift in Sources */,
 				843023662EA8CF4B00A5EEF5 /* SignUpViewModel.swift in Sources */,

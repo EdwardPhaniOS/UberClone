@@ -10,11 +10,14 @@ extension HomeView {
   class ViewModel: NSObject, ObservableObject, LocationHandlerDelegate {
 
     enum InputViewState: Equatable {
+      case notAvailable
       case inactive
       case active
       case didSelectPlacemark
     }
 
+    //MARK: - Variables
+    
     @Published var cameraPosition = MapCameraPosition.region(
       MKCoordinateRegion(
         center: CLLocationCoordinate2D(latitude: 10.7769, longitude: 106.7009),
@@ -26,10 +29,18 @@ extension HomeView {
     @Published var driverAnnotations: [DriverAnnotation] = []
     @Published var placemarks: [MKPlacemark] = []
     @Published var selectedPlacemark: MKPlacemark?
-    @Published var inputViewState: InputViewState = .inactive
+    @Published var inputViewState: InputViewState = .notAvailable
     @Published var routeCoordinates: [CLLocationCoordinate2D]? = nil
+    @Published var showPickupView: Bool = false
+    @Published var showConfirmRideView: Bool = false
+    @Published var isLoading: Bool = false
+    @Published var loadingMessage: String = ""
+
+    var trip: Trip?
 
     private var authViewModel: AuthViewModel
+
+    //MARK: - Init
 
     init(authViewModel: AuthViewModel) {
       self.authViewModel = authViewModel
@@ -37,11 +48,36 @@ extension HomeView {
       LocationHandler.shared.delegate = self
     }
 
+    //MARK: - APIs
+
+    func observerCurrentTrip() {
+      Service.shared.observeCurrentTrip { [weak self] trip in
+        guard let self = self else { return }
+        self.trip = trip
+
+        if trip.state == .accepted {
+          self.isLoading = false
+        }
+      }
+    }
+
     func fetchUserData() {
       guard let currentUserId = Auth.auth().currentUser?.uid else { return }
       Service.shared.fetchUserData(userId: currentUserId) { [weak self] user in
+        guard let self = self else { return }
+
         DispatchQueue.main.async {
-          self?.userName = user.fullName
+          self.userName = user.fullName
+        }
+
+        self.driverAnnotations = []
+        if user.accountType == .passenger {
+          fetchDrivers()
+          inputViewState = .inactive
+          observerCurrentTrip()
+        } else {
+          observeTrip()
+          inputViewState = .notAvailable
         }
       }
     }
@@ -85,6 +121,46 @@ extension HomeView {
       }
     }
 
+    func uploadTrip() {
+      guard let pickupCoordinate = LocationHandler.shared.location?.coordinate else { return }
+      guard let destinationCoordinate = selectedPlacemark?.coordinate else { return }
+
+      isLoading = true
+      loadingMessage = "Finding your ride now.."
+      Service.shared.uploadTrip(pickupCoordinate: pickupCoordinate, destinationCoordinate: destinationCoordinate) { [weak self] err, ref in
+        guard let self = self else { return }
+
+        if let err = err {
+          print("DEBUG: Error - \(err.localizedDescription)")
+        }
+
+        self.showConfirmRideView = false
+      }
+    }
+
+    func observeTrip() {
+      Service.shared.observeTrip { [weak self] trip in
+        guard let self = self else { return }
+
+        DispatchQueue.main.async {
+          self.showPickupView = true
+          self.trip = trip
+        }
+      }
+    }
+
+    func acceptTrip() {
+      guard trip != nil else { return }
+      Service.shared.acceptTrip(trip: trip!) { [weak self] error, ref in
+        guard let self = self else { return }
+
+        self.trip?.state = .accepted
+        self.trip?.driverUid = Auth.auth().currentUser?.uid
+      }
+    }
+
+    //MARK: - Location Handling
+
     func enableLocationServices() {
       LocationHandler.shared.enableLocationServices()
     }
@@ -99,8 +175,10 @@ extension HomeView {
           )
       }
 
-      self.fetchDrivers()
+      self.fetchUserData()
     }
+
+    //MARK: - Location Input & Search Management
 
     func showLocationInputView() {
       inputViewState = .active
@@ -111,7 +189,15 @@ extension HomeView {
       placemarks = []
     }
 
-    func executeSearch(query: String) {
+    func clearRouteAndLocationSelection() {
+      showLocationInputActivationView()
+      showConfirmRideView = false
+      selectedPlacemark = nil
+      routeCoordinates = nil
+      zoomToCurrentUser()
+    }
+
+    func searchPlacemarks(query: String) {
       self.placemarks = []
 
       let request = MKLocalSearch.Request()
@@ -135,9 +221,12 @@ extension HomeView {
 
     func selectPlacemark(placemark: MKPlacemark) {
       inputViewState = .didSelectPlacemark
+      showConfirmRideView = true
       selectedPlacemark = placemark
       calculateRoute(to: placemark)
     }
+
+    //MARK: - Map & Route Handling
 
     func calculateRoute(to placemark: MKPlacemark) {
       guard let currentCoordinate = LocationHandler.shared.location?.coordinate else { return }
@@ -169,6 +258,7 @@ extension HomeView {
 
     func zoomToRoute() {
       guard let coordinates = routeCoordinates, !coordinates.isEmpty else { return }
+
       var minLat = coordinates.first!.latitude
       var maxLat = coordinates.first!.latitude
       var minLon = coordinates.first!.longitude
@@ -181,9 +271,10 @@ extension HomeView {
         maxLon = max(maxLon, coordinate.longitude)
       }
 
+      let bottomInset: Double = 0.01
       let center = CLLocationCoordinate2D(latitude: (minLat + maxLat)/2,
                                           longitude: (minLon + maxLon)/2)
-      let span = MKCoordinateSpan(latitudeDelta: max(0.01, maxLat - minLat + 0.01),
+      let span = MKCoordinateSpan(latitudeDelta: max(0.01, maxLat - minLat + 0.01 + bottomInset),
                                   longitudeDelta: max(0.01, maxLon - minLon + 0.01))
       DispatchQueue.main.async {
         withAnimation(.easeInOut(duration: 0.3)) {
@@ -204,4 +295,5 @@ extension HomeView {
       }
     }
   }
+
 }

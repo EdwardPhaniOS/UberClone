@@ -14,7 +14,9 @@ struct HomeView: View {
       mapView
       inputView
       menuButton
+      confirmRidePopup
     }
+    .showLoadingView(isLoading: viewModel.isLoading, message: viewModel.loadingMessage)
     .fullScreenCover(
       isPresented: Binding(
         get: { !authViewModel.isLoggedIn },
@@ -25,6 +27,14 @@ struct HomeView: View {
         LoginView(viewModel: .init(authViewModel: authViewModel))
       }
     }
+    .fullScreenCover(isPresented: $viewModel.showPickupView, content: {
+      PickupView(viewModel: .init(trip: viewModel.trip!), onCloseButtonPressed: {
+        viewModel.showPickupView = false
+      }, onAcceptButtonPressed: {
+        viewModel.acceptTrip()
+        viewModel.showPickupView = false
+      })
+    })
     .onAppear {
       viewModel.checkIfUserIsLoggedIn()
       viewModel.enableLocationServices()
@@ -32,7 +42,6 @@ struct HomeView: View {
     .onChange(of: authViewModel.isLoggedIn) { _, isLoggedIn in
       if isLoggedIn {
         viewModel.fetchUserData()
-        viewModel.fetchDrivers()
       }
     }
     .printFileOnAppear()
@@ -59,19 +68,7 @@ struct HomeView: View {
 
       if let selectedPlacemark = viewModel.selectedPlacemark {
         Annotation("", coordinate: selectedPlacemark.coordinate) {
-          ZStack {
-            RoundedRectangle(cornerRadius: 2)
-              .foregroundStyle(Color.orange)
-              .frame(width: 4, height: 4)
-            Image(systemName: "mappin.circle.fill")
-              .foregroundStyle(.orange)
-              .font(.system(size: 28))
-              .offset(y: -20)
-            Image(systemName: "arrowtriangle.down.fill")
-              .foregroundStyle(.orange)
-              .font(.system(size: 8))
-              .offset(y: -5)
-          }
+          PinView()
         }
       }
 
@@ -121,8 +118,8 @@ struct HomeView: View {
           LocationInputView(onBackButtonPressed: {
             viewModel.showLocationInputActivationView()
           }, onSubmit: { _, query in
-            viewModel.executeSearch(query: query)
-          }, userName: $viewModel.userName)
+            viewModel.searchPlacemarks(query: query)
+          }, userName: viewModel.userName)
           Spacer()
         }
       }
@@ -137,10 +134,7 @@ struct HomeView: View {
       HStack {
         ZStack(content: {
           Button("", systemImage: "arrow.backward") {
-            viewModel.showLocationInputActivationView()
-            viewModel.selectedPlacemark = nil
-            viewModel.routeCoordinates = nil
-            viewModel.zoomToCurrentUser()
+            viewModel.clearRouteAndLocationSelection()
           }
           .foregroundStyle(.black)
           .font(.system(size: 18, weight: .bold))
@@ -151,7 +145,7 @@ struct HomeView: View {
             viewModel.signOut()
           }
           .font(.system(size: 18, weight: .bold))
-          .opacity(viewModel.inputViewState == .inactive ? 1 : 0)
+          .opacity((viewModel.inputViewState == .inactive || viewModel.inputViewState == .notAvailable) ? 1 : 0)
 
         })
         .animation(.easeInOut(duration: 0.3), value: viewModel.inputViewState)
@@ -162,7 +156,20 @@ struct HomeView: View {
       }
       Spacer()
     }
+  }
 
+  var confirmRidePopup: some View {
+    VStack {
+      Spacer()
+      RideActionView(destination: viewModel.selectedPlacemark, onConfirmButtonPressed: {
+        viewModel.uploadTrip()
+      }, onCancelButtonPressed: {
+        viewModel.clearRouteAndLocationSelection()
+      })
+    }
+    .ignoresSafeArea()
+    .opacity(viewModel.showConfirmRideView ? 1 : 0)
+    .animation(.easeInOut(duration: 0.3), value: viewModel.showConfirmRideView)
   }
 
 }
