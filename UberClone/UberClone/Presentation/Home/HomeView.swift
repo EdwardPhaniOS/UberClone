@@ -50,7 +50,7 @@ struct HomeView: View {
   var mapView: some View {
     Map(position: $viewModel.cameraPosition) {
       UserAnnotation()
-      
+
       if viewModel.inputViewState == .inactive {
         ForEach(viewModel.driverAnnotations) { driver in
           Annotation("", coordinate: driver.coordinate) {
@@ -92,7 +92,7 @@ struct HomeView: View {
           .padding(.top, 58)
           .padding(.horizontal, 32)
           .onTapGesture { viewModel.showLocationInputView() }
-        .opacity(viewModel.inputViewState == .inactive ? 1 : 0)
+          .opacity(viewModel.inputViewState == .inactive ? 1 : 0)
         Spacer()
       }
 
@@ -119,7 +119,7 @@ struct HomeView: View {
             viewModel.showLocationInputActivationView()
           }, onSubmit: { _, query in
             viewModel.searchPlacemarks(query: query)
-          }, userName: viewModel.userName)
+          }, userName: viewModel.user?.fullName ?? "")
           Spacer()
         }
       }
@@ -143,6 +143,7 @@ struct HomeView: View {
           Button("", image: ImageResource(name: "menu_ic", bundle: .main)) {
             //TODO: handle menu button
             viewModel.signOut()
+            viewModel.clearRouteAndLocationSelection()
           }
           .font(.system(size: 18, weight: .bold))
           .opacity((viewModel.inputViewState == .inactive || viewModel.inputViewState == .notAvailable) ? 1 : 0)
@@ -161,15 +162,22 @@ struct HomeView: View {
   var confirmRidePopup: some View {
     VStack {
       Spacer()
-      RideActionView(destination: viewModel.selectedPlacemark, onConfirmButtonPressed: {
-        viewModel.uploadTrip()
+      RideActionView(state: viewModel.rideActionViewState, destination: viewModel.selectedPlacemark, user: viewModel.rideActionUser, onConfirmButtonPressed: {
+        if viewModel.rideActionViewState == .requestRide {
+          viewModel.uploadTrip()
+        }
       }, onCancelButtonPressed: {
-        viewModel.clearRouteAndLocationSelection()
+        if viewModel.rideActionViewState == .requestRide {
+          viewModel.clearRouteAndLocationSelection()
+        } else {
+          //Test123
+          viewModel.clearRouteAndLocationSelection()
+        }
       })
     }
     .ignoresSafeArea()
-    .opacity(viewModel.showConfirmRideView ? 1 : 0)
-    .animation(.easeInOut(duration: 0.3), value: viewModel.showConfirmRideView)
+    .opacity(viewModel.rideActionViewState != .notAvailable ? 1 : 0)
+    .animation(.easeInOut(duration: 0.3), value: viewModel.rideActionViewState)
   }
 
 }

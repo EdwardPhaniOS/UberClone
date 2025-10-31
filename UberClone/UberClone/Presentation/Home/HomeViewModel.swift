@@ -25,14 +25,15 @@ extension HomeView {
       )
     )
 
-    @Published var userName: String = ""
+    @Published var user: User?
+    @Published var rideActionUser: User?
     @Published var driverAnnotations: [DriverAnnotation] = []
     @Published var placemarks: [MKPlacemark] = []
     @Published var selectedPlacemark: MKPlacemark?
     @Published var inputViewState: InputViewState = .notAvailable
+    @Published var rideActionViewState: RideActionViewState = .notAvailable
     @Published var routeCoordinates: [CLLocationCoordinate2D]? = nil
     @Published var showPickupView: Bool = false
-    @Published var showConfirmRideView: Bool = false
     @Published var isLoading: Bool = false
     @Published var loadingMessage: String = ""
 
@@ -56,7 +57,15 @@ extension HomeView {
         self.trip = trip
 
         if trip.state == .accepted {
-          self.isLoading = false
+          guard let driverUid = trip.driverUid else {
+            self.isLoading = false
+            return
+          }
+          Service.shared.fetchUserData(userId: driverUid) { driver in
+            self.isLoading = false
+            self.rideActionUser = driver
+            self.rideActionViewState = .tripAccepted
+          }
         }
       }
     }
@@ -67,7 +76,7 @@ extension HomeView {
         guard let self = self else { return }
 
         DispatchQueue.main.async {
-          self.userName = user.fullName
+          self.user = user
         }
 
         self.driverAnnotations = []
@@ -134,7 +143,7 @@ extension HomeView {
           print("DEBUG: Error - \(err.localizedDescription)")
         }
 
-        self.showConfirmRideView = false
+        self.rideActionViewState = .notAvailable
       }
     }
 
@@ -151,11 +160,32 @@ extension HomeView {
 
     func acceptTrip() {
       guard trip != nil else { return }
+
+      isLoading = true
       Service.shared.acceptTrip(trip: trip!) { [weak self] error, ref in
         guard let self = self else { return }
 
         self.trip?.state = .accepted
         self.trip?.driverUid = Auth.auth().currentUser?.uid
+
+        let pickupCoordinates = trip!.pickupCoordinates!
+        let location = CLLocation(latitude: pickupCoordinates.latitude, longitude: pickupCoordinates.longitude)
+        CLGeocoder().reverseGeocodeLocation(location) { [weak self] placemarks, error in
+          guard let self = self else { return }
+          self.isLoading = false
+
+          if let placeMark = placemarks?.first {
+            let mapKitPlacemark = MKPlacemark(placemark: placeMark)
+
+
+            Service.shared.fetchUserData(userId: trip!.passengerUid) { user in
+              self.rideActionUser = user
+              self.selectedPlacemark = mapKitPlacemark
+              self.rideActionViewState = .tripAccepted
+              self.calculateRoute(to: mapKitPlacemark)
+            }
+          }
+        }
       }
     }
 
@@ -191,7 +221,7 @@ extension HomeView {
 
     func clearRouteAndLocationSelection() {
       showLocationInputActivationView()
-      showConfirmRideView = false
+      rideActionViewState = .notAvailable
       selectedPlacemark = nil
       routeCoordinates = nil
       zoomToCurrentUser()
@@ -220,9 +250,9 @@ extension HomeView {
     }
 
     func selectPlacemark(placemark: MKPlacemark) {
-      inputViewState = .didSelectPlacemark
-      showConfirmRideView = true
       selectedPlacemark = placemark
+      inputViewState = .didSelectPlacemark
+      rideActionViewState = .requestRide
       calculateRoute(to: placemark)
     }
 

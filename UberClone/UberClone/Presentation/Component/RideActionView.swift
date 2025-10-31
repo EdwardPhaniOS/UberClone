@@ -4,9 +4,17 @@
 import SwiftUI
 import MapKit
 
+enum RideActionViewState: Equatable {
+  case notAvailable
+  case requestRide
+  case tripAccepted
+}
+
 struct RideActionView: View {
 
+  var state: RideActionViewState = .notAvailable
   var destination: MKPlacemark?
+  var user: User?
 
   var onConfirmButtonPressed: (() -> Void)?
   var onCancelButtonPressed: (() -> Void)?
@@ -20,27 +28,29 @@ struct RideActionView: View {
         .offset(y: 28)
 
       VStack {
-        Text(destination?.name ?? "")
+        Text(title)
           .font(.title2)
-        Text(destination?.address ?? "")
+        Text(description)
           .font(.system(size: 16))
           .foregroundStyle(.secondary)
           .padding(.horizontal, 16)
         Button {
-          onCancelButtonPressed?()
+          if state == .requestRide {
+            onCancelButtonPressed?()
+          }
         } label: {
           ZStack {
             RoundedRectangle(cornerRadius: 24)
               .frame(width: 48, height: 48)
               .foregroundStyle(Color.black)
-            Text("X")
+            Text(infoText)
               .foregroundStyle(Color.white)
               .font(.system(size: 24))
           }
         }
         .padding(.top, 8)
 
-        Text("UberX")
+        Text(state == .requestRide ? "UberX" : "\(user?.fullName ?? "")")
 
         Rectangle()
           .frame(maxWidth: .infinity, maxHeight: 0.5)
@@ -48,7 +58,7 @@ struct RideActionView: View {
         Button {
           onConfirmButtonPressed?()
         } label: {
-          Text("CONFIRM UBERX")
+          Text(buttonTitle)
             .padding(.vertical, 8)
             .frame(maxWidth: .infinity, minHeight: 48)
             .foregroundStyle(Color.white)
@@ -59,8 +69,41 @@ struct RideActionView: View {
       }
     }
   }
+
+  var infoText: String {
+    switch state {
+    case .requestRide:
+      return "X"
+    case .tripAccepted:
+      return "\(user?.fullName.first ?? "X")"
+    case .notAvailable:
+      return ""
+    }
+  }
+
+  var title: String {
+    switch state {
+    case .notAvailable, .requestRide:
+      return destination?.name ?? ""
+    case .tripAccepted:
+      return user?.accountType == .driver ? "Driver En Route" : "En Route To Passenger"
+    }
+  }
+
+  var description: String {
+    return destination?.address ?? ""
+  }
+
+  var buttonTitle: String {
+    switch state {
+    case .notAvailable, .requestRide:
+      return "CONFIRM UBERX"
+    case .tripAccepted:
+      return user?.accountType == .driver ?  "CANCEL DRIVE" : "GET DIRECTIONS"
+    }
+  }
 }
 
 #Preview {
-  RideActionView(destination: nil)
+  RideActionView(state: .requestRide)
 }
