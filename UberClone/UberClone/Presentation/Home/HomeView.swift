@@ -16,6 +16,16 @@ struct HomeView: View {
       menuButton
       confirmRidePopup
     }
+    .onAppear {
+      viewModel.checkIfUserIsLoggedIn()
+      viewModel.enableLocationServices()
+    }
+    .onChange(of: authViewModel.isLoggedIn) { _, isLoggedIn in
+      if isLoggedIn {
+        viewModel.fetchUserData()
+      }
+    }
+    .printFileOnAppear()
     .showLoadingView(isLoading: viewModel.isLoading, message: viewModel.loadingMessage)
     .fullScreenCover(
       isPresented: Binding(
@@ -35,16 +45,11 @@ struct HomeView: View {
         viewModel.showPickupView = false
       })
     })
-    .onAppear {
-      viewModel.checkIfUserIsLoggedIn()
-      viewModel.enableLocationServices()
+    .alert("", isPresented: $viewModel.showAlert) { 
+      Button("OK", role: .cancel, action: {})
+    } message: {
+      Text(viewModel.alertMessage)
     }
-    .onChange(of: authViewModel.isLoggedIn) { _, isLoggedIn in
-      if isLoggedIn {
-        viewModel.fetchUserData()
-      }
-    }
-    .printFileOnAppear()
   }
 
   var mapView: some View {
@@ -162,16 +167,23 @@ struct HomeView: View {
   var confirmRidePopup: some View {
     VStack {
       Spacer()
-      RideActionView(state: viewModel.rideActionViewState, destination: viewModel.selectedPlacemark, user: viewModel.rideActionUser, onConfirmButtonPressed: {
-        if viewModel.rideActionViewState == .requestRide {
+      RideActionView(state: viewModel.rideActionViewState, destination: viewModel.selectedPlacemark, user: viewModel.rideActionUser, onConfirmButtonPressed: { buttonAction in
+
+        switch buttonAction {
+        case .requestRide:
           viewModel.uploadTrip()
-        }
-      }, onCancelButtonPressed: {
-        if viewModel.rideActionViewState == .requestRide {
-          viewModel.clearRouteAndLocationSelection()
-        } else {
-          //Test123
-          viewModel.clearRouteAndLocationSelection()
+        case .cancel:
+          viewModel.cancelTrip()
+        case .getDirections:
+          print("DEBUG - getDirections")
+        case .pickup:
+          print("DEBUG - pickup")
+        case .inProgress:
+          print("DEBUG - inProgress")
+        case .arrived:
+          print("DEBUG - arrived")
+        case .dropOff:
+          print("DEBUG - dropOff")
         }
       })
     }

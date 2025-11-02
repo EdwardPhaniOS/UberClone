@@ -36,6 +36,8 @@ extension HomeView {
     @Published var showPickupView: Bool = false
     @Published var isLoading: Bool = false
     @Published var loadingMessage: String = ""
+    @Published var showAlert: Bool = false
+    @Published var alertMessage: String = ""
 
     var trip: Trip?
 
@@ -157,6 +159,20 @@ extension HomeView {
         }
       }
     }
+    
+    func observeCancelledTrip(trip: Trip) {
+      Service.shared.observeTripCancelled(trip: trip) { [weak self] in
+        guard let self = self else { return }
+        
+        rideActionViewState = .notAvailable
+        selectedPlacemark = nil
+        routeCoordinates = nil
+        zoomToCurrentUser()
+        
+        showAlert = true
+        alertMessage = "The passenger has decided to cancel this ride. Press OK to continue"
+      }
+    }
 
     func acceptTrip() {
       guard trip != nil else { return }
@@ -167,6 +183,8 @@ extension HomeView {
 
         self.trip?.state = .accepted
         self.trip?.driverUid = Auth.auth().currentUser?.uid
+        
+        self.observeCancelledTrip(trip: trip!)
 
         let pickupCoordinates = trip!.pickupCoordinates!
         let location = CLLocation(latitude: pickupCoordinates.latitude, longitude: pickupCoordinates.longitude)
@@ -177,7 +195,6 @@ extension HomeView {
           if let placeMark = placemarks?.first {
             let mapKitPlacemark = MKPlacemark(placemark: placeMark)
 
-
             Service.shared.fetchUserData(userId: trip!.passengerUid) { user in
               self.rideActionUser = user
               self.selectedPlacemark = mapKitPlacemark
@@ -186,6 +203,17 @@ extension HomeView {
             }
           }
         }
+      }
+    }
+    
+    func cancelTrip() {
+      isLoading = true
+      Service.shared.deleteTrip { [weak self] error, ref in
+        guard let self = self else { return }
+        isLoading = false
+        
+        self.trip?.state = .denied
+        self.clearRouteAndLocationSelection()
       }
     }
 
