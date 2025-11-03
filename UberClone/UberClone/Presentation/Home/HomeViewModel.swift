@@ -232,6 +232,10 @@ extension HomeView {
               )
           )
       }
+      
+      if user?.accountType == .driver {
+        Service.shared.updateDriverLocation(location: location)
+      }
 
       self.fetchUserData()
     }
