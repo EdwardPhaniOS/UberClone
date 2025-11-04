@@ -6,7 +6,7 @@ import SwiftUI
 struct SignUpView: View {
 
   @Environment(\.dismiss) private var dismiss
-  @ObservedObject var viewModel: ViewModel
+  @ObservedObject var viewModel: SignUpVM
 
   var body: some View {
     VStack {

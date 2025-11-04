@@ -3,6 +3,7 @@
 
 import Foundation
 
+@MainActor
 class AuthViewModel: ObservableObject {
   @Published var isLoggedIn: Bool = true
 }

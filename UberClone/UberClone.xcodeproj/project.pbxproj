@@ -11,7 +11,7 @@
 		35B7DD312EA675980025CC89 /* UberCloneApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35B7DD2D2EA675980025CC89 /* UberCloneApp.swift */; };
 		35B7DD372EA6776E0025CC89 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35B7DD362EA6776E0025CC89 /* LoginView.swift */; };
 		84172E512EAF064B000383E1 /* LocationInputActivationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84172E502EAF064B000383E1 /* LocationInputActivationView.swift */; };
-		84172E532EAF0B6F000383E1 /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84172E522EAF0B6F000383E1 /* HomeViewModel.swift */; };
+		84172E532EAF0B6F000383E1 /* HomeViewVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84172E522EAF0B6F000383E1 /* HomeViewVM.swift */; };
 		84172E552EAF1C99000383E1 /* LocationInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84172E542EAF1C99000383E1 /* LocationInputView.swift */; };
 		8419AAF52EA76F37008B50DC /* AppColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8419AAF42EA76F37008B50DC /* AppColors.swift */; };
 		8419AAF72EA76FAF008B50DC /* SignUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8419AAF62EA76FAF008B50DC /* SignUpView.swift */; };
@@ -25,8 +25,8 @@
 		843023602EA8BA1B00A5EEF5 /* PrintFileOnAppearModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8430235F2EA8BA1B00A5EEF5 /* PrintFileOnAppearModifier.swift */; };
 		843023622EA8C2BE00A5EEF5 /* SignUpError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 843023612EA8C2BE00A5EEF5 /* SignUpError.swift */; };
 		843023642EA8C44300A5EEF5 /* Result+Helper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 843023632EA8C44300A5EEF5 /* Result+Helper.swift */; };
-		843023662EA8CF4B00A5EEF5 /* SignUpViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 843023652EA8CF4B00A5EEF5 /* SignUpViewModel.swift */; };
-		8430236B2EA8DFA700A5EEF5 /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8430236A2EA8DFA700A5EEF5 /* LoginViewModel.swift */; };
+		843023662EA8CF4B00A5EEF5 /* SignUpVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 843023652EA8CF4B00A5EEF5 /* SignUpVM.swift */; };
+		8430236B2EA8DFA700A5EEF5 /* LoginViewVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8430236A2EA8DFA700A5EEF5 /* LoginViewVM.swift */; };
 		8430236D2EA8E01200A5EEF5 /* LoginError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8430236C2EA8E01200A5EEF5 /* LoginError.swift */; };
 		84321DCE2EAB57DA0094D1A1 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84321DCD2EAB57DA0094D1A1 /* HomeView.swift */; };
 		84321DD02EAB682D0094D1A1 /* AuthViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84321DCF2EAB682D0094D1A1 /* AuthViewModel.swift */; };
@@ -53,7 +53,7 @@
 		35B7DD2D2EA675980025CC89 /* UberCloneApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UberCloneApp.swift; sourceTree = "<group>"; };
 		35B7DD362EA6776E0025CC89 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		84172E502EAF064B000383E1 /* LocationInputActivationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationInputActivationView.swift; sourceTree = "<group>"; };
-		84172E522EAF0B6F000383E1 /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
+		84172E522EAF0B6F000383E1 /* HomeViewVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewVM.swift; sourceTree = "<group>"; };
 		84172E542EAF1C99000383E1 /* LocationInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationInputView.swift; sourceTree = "<group>"; };
 		8419AAF42EA76F37008B50DC /* AppColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppColors.swift; sourceTree = "<group>"; };
 		8419AAF62EA76FAF008B50DC /* SignUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpView.swift; sourceTree = "<group>"; };
@@ -67,8 +67,8 @@
 		8430235F2EA8BA1B00A5EEF5 /* PrintFileOnAppearModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrintFileOnAppearModifier.swift; sourceTree = "<group>"; };
 		843023612EA8C2BE00A5EEF5 /* SignUpError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpError.swift; sourceTree = "<group>"; };
 		843023632EA8C44300A5EEF5 /* Result+Helper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Result+Helper.swift"; sourceTree = "<group>"; };
-		843023652EA8CF4B00A5EEF5 /* SignUpViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpViewModel.swift; sourceTree = "<group>"; };
-		8430236A2EA8DFA700A5EEF5 /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
+		843023652EA8CF4B00A5EEF5 /* SignUpVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpVM.swift; sourceTree = "<group>"; };
+		8430236A2EA8DFA700A5EEF5 /* LoginViewVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewVM.swift; sourceTree = "<group>"; };
 		8430236C2EA8E01200A5EEF5 /* LoginError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginError.swift; sourceTree = "<group>"; };
 		84321DCD2EAB57DA0094D1A1 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		84321DCF2EAB682D0094D1A1 /* AuthViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewModel.swift; sourceTree = "<group>"; };
@@ -100,6 +100,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		358CAF232EB9F51400C912B3 /* Pickup */ = {
+			isa = PBXGroup;
+			children = (
+				84226F342EB3420B00223105 /* PickupView.swift */,
+				84226F362EB3492000223105 /* PickupViewModel.swift */,
+			);
+			path = Pickup;
+			sourceTree = "<group>";
+		};
 		35B7DD142EA675880025CC89 = {
 			isa = PBXGroup;
 			children = (
@@ -137,9 +146,7 @@
 				8430236E2EA8E61100A5EEF5 /* Login */,
 				843023692EA8DCEE00A5EEF5 /* SignUp */,
 				84FD32AC2EB07EC90089DD38 /* Home */,
-				84321DCF2EAB682D0094D1A1 /* AuthViewModel.swift */,
-				84226F342EB3420B00223105 /* PickupView.swift */,
-				84226F362EB3492000223105 /* PickupViewModel.swift */,
+				358CAF232EB9F51400C912B3 /* Pickup */,
 			);
 			path = Presentation;
 			sourceTree = "<group>";
@@ -169,7 +176,7 @@
 			isa = PBXGroup;
 			children = (
 				8419AAF62EA76FAF008B50DC /* SignUpView.swift */,
-				843023652EA8CF4B00A5EEF5 /* SignUpViewModel.swift */,
+				843023652EA8CF4B00A5EEF5 /* SignUpVM.swift */,
 				843023612EA8C2BE00A5EEF5 /* SignUpError.swift */,
 			);
 			path = SignUp;
@@ -179,8 +186,9 @@
 			isa = PBXGroup;
 			children = (
 				35B7DD362EA6776E0025CC89 /* LoginView.swift */,
-				8430236A2EA8DFA700A5EEF5 /* LoginViewModel.swift */,
+				8430236A2EA8DFA700A5EEF5 /* LoginViewVM.swift */,
 				8430236C2EA8E01200A5EEF5 /* LoginError.swift */,
+				84321DCF2EAB682D0094D1A1 /* AuthViewModel.swift */,
 			);
 			path = Login;
 			sourceTree = "<group>";
@@ -238,7 +246,7 @@
 			isa = PBXGroup;
 			children = (
 				84321DCD2EAB57DA0094D1A1 /* HomeView.swift */,
-				84172E522EAF0B6F000383E1 /* HomeViewModel.swift */,
+				84172E522EAF0B6F000383E1 /* HomeViewVM.swift */,
 			);
 			path = Home;
 			sourceTree = "<group>";
@@ -328,7 +336,7 @@
 			files = (
 				35B7DD372EA6776E0025CC89 /* LoginView.swift in Sources */,
 				849DD6272EB06FB3001A8FB0 /* LocationHandler.swift in Sources */,
-				84172E532EAF0B6F000383E1 /* HomeViewModel.swift in Sources */,
+				84172E532EAF0B6F000383E1 /* HomeViewVM.swift in Sources */,
 				84FD32B22EB0D37F0089DD38 /* MKPlacemark+Address.swift in Sources */,
 				843023622EA8C2BE00A5EEF5 /* SignUpError.swift in Sources */,
 				84321DCE2EAB57DA0094D1A1 /* HomeView.swift in Sources */,
@@ -338,7 +346,7 @@
 				8430236D2EA8E01200A5EEF5 /* LoginError.swift in Sources */,
 				843023602EA8BA1B00A5EEF5 /* PrintFileOnAppearModifier.swift in Sources */,
 				84C35FE32EAF66630044EBCF /* Service.swift in Sources */,
-				8430236B2EA8DFA700A5EEF5 /* LoginViewModel.swift in Sources */,
+				8430236B2EA8DFA700A5EEF5 /* LoginViewVM.swift in Sources */,
 				84226F332EB3222300223105 /* Trip.swift in Sources */,
 				8419AB122EA794C5008B50DC /* AppDelegate.swift in Sources */,
 				84172E552EAF1C99000383E1 /* LocationInputView.swift in Sources */,
@@ -353,7 +361,7 @@
 				84226F352EB3420B00223105 /* PickupView.swift in Sources */,
 				84321DD92EAB72230094D1A1 /* AuthTextField.swift in Sources */,
 				84C35FE12EAF63730044EBCF /* LocationRow.swift in Sources */,
-				843023662EA8CF4B00A5EEF5 /* SignUpViewModel.swift in Sources */,
+				843023662EA8CF4B00A5EEF5 /* SignUpVM.swift in Sources */,
 				35B7DD312EA675980025CC89 /* UberCloneApp.swift in Sources */,
 				84C35FE72EAF73260044EBCF /* User.swift in Sources */,
 			);

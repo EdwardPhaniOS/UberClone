@@ -5,7 +5,7 @@ import SwiftUI
 import MapKit
 
 struct PickupView: View {
-  @ObservedObject var viewModel: ViewModel
+  @ObservedObject var viewModel: PickupViewVM
 
   var onCloseButtonPressed: (() -> Void)?
   var onAcceptButtonPressed: (() -> Void)?
@@ -56,6 +56,6 @@ struct PickupView: View {
 }
 
 #Preview {
-  @Previewable @StateObject var viewModel: PickupView.ViewModel = .init(trip: Trip.testData())
+  @Previewable @StateObject var viewModel: PickupViewVM = .init(trip: Trip.testData())
   PickupView(viewModel: viewModel)
 }

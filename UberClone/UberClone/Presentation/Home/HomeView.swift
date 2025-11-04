@@ -6,7 +6,7 @@ import FirebaseAuth
 import MapKit
 
 struct HomeView: View {
-  @ObservedObject var viewModel: ViewModel
+  @ObservedObject var viewModel: HomeViewVM
   @EnvironmentObject var authViewModel: AuthViewModel
 
   var body: some View {
@@ -198,7 +198,7 @@ struct HomeView: View {
   let authViewModel = AuthViewModel()
   authViewModel.isLoggedIn = true
 
-  let viewModel = HomeView.ViewModel(authViewModel: authViewModel)
+  let viewModel = HomeViewVM(authViewModel: authViewModel)
   viewModel.driverAnnotations.append(contentsOf: DriverAnnotation.testData())
 
   return HomeView(viewModel: viewModel)
