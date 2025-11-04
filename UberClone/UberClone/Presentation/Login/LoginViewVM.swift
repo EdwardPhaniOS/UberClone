@@ -6,7 +6,7 @@ import FirebaseAuth
 
 @MainActor
 class LoginViewVM: ObservableObject {
-  let authViewModel: AuthViewModel
+  let authViewModel: AuthVM
   @Published var email: String = ""
   @Published var password: String = ""
   @Published var alertMessage: String = ""
@@ -14,7 +14,7 @@ class LoginViewVM: ObservableObject {
   @Published var isLoading: Bool = false
   @Published var showSignUp: Bool = false
 
-  init(authViewModel: AuthViewModel) {
+  init(authViewModel: AuthVM) {
     self.authViewModel = authViewModel
   }
 

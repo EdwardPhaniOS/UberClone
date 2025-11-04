@@ -11,12 +11,13 @@ import UIKit
 @main
 struct UberCloneApp: App {
 
-  @StateObject var authViewModel: AuthViewModel
+  @StateObject var authViewModel: AuthVM
   @StateObject var homeViewVM: HomeViewVM
+  
   @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
 
   init() {
-    let authVM = AuthViewModel()
+    let authVM = AuthVM()
     _authViewModel = StateObject(wrappedValue: authVM)
     _homeViewVM = StateObject(wrappedValue: HomeViewVM(authViewModel: authVM))
    }

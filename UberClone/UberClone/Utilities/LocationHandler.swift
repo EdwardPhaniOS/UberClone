@@ -5,6 +5,8 @@ import CoreLocation
 
 protocol LocationHandlerDelegate: AnyObject {
   func didUpdateLocations(location: CLLocation)
+  func didStartMonitoringFor(region: CLRegion)
+  func didEnterRegion(region: CLRegion)
 }
 
 class LocationHandler: NSObject, CLLocationManagerDelegate {
@@ -56,6 +58,14 @@ class LocationHandler: NSObject, CLLocationManagerDelegate {
     guard let location = locations.last else { return }
     self.location = location
     delegate?.didUpdateLocations(location: location)
+  }
+  
+  func locationManager(_ manager: CLLocationManager, didStartMonitoringFor region: CLRegion) {
+    delegate?.didStartMonitoringFor(region: region)
+  }
+  
+  func locationManager(_ manager: CLLocationManager, didEnterRegion region: CLRegion) {
+    delegate?.didEnterRegion(region: region)
   }
 
 }

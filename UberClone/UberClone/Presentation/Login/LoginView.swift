@@ -10,7 +10,7 @@ import SwiftUI
 struct LoginView: View {
 
   @ObservedObject var viewModel: LoginViewVM
-  @EnvironmentObject var authViewModel: AuthViewModel
+  @EnvironmentObject var authViewModel: AuthVM
 
   var body: some View {
     VStack {
@@ -68,7 +68,7 @@ struct LoginView: View {
 }
 
 #Preview {
-  @Previewable @State var authViewModel = AuthViewModel()
+  @Previewable @State var authViewModel = AuthVM()
 
   LoginView(viewModel: .init(authViewModel: authViewModel))
     .environmentObject(authViewModel)

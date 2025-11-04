@@ -8,7 +8,7 @@ import CoreLocation
 
 @MainActor
 class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
-
+ 
   enum InputViewState: Equatable {
     case notAvailable
     case inactive
@@ -41,11 +41,11 @@ class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
 
   var trip: Trip?
 
-  private var authViewModel: AuthViewModel
+  private var authViewModel: AuthVM
 
   //MARK: - Init
 
-  init(authViewModel: AuthViewModel) {
+  init(authViewModel: AuthVM) {
     self.authViewModel = authViewModel
     super.init()
     LocationHandler.shared.delegate = self
@@ -57,8 +57,15 @@ class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
     Service.shared.observeCurrentTrip { [weak self] trip in
       guard let self = self else { return }
       self.trip = trip
-
-      if trip.state == .accepted {
+      
+      guard let state = trip.state else { return }
+      
+      switch state {
+      case .requested:
+        break
+      case .denied:
+        break
+      case .accepted:
         guard let driverUid = trip.driverUid else {
           self.isLoading = false
           return
@@ -68,6 +75,15 @@ class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
           self.rideActionUser = driver
           self.rideActionViewState = .tripAccepted
         }
+      case .driverArrived:
+        self.isLoading = false
+        self.rideActionViewState = .driverArrived
+      case .inProgress:
+        break
+      case .completed:
+        break
+      @unknown default:
+        break
       }
     }
   }
@@ -151,10 +167,8 @@ class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
     Service.shared.observeTrip { [weak self] trip in
       guard let self = self else { return }
 
-      DispatchQueue.main.async {
-        self.showPickupView = true
-        self.trip = trip
-      }
+      self.showPickupView = trip.state == .requested
+      self.trip = trip
     }
   }
   
@@ -183,6 +197,8 @@ class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
       self.trip?.driverUid = Auth.auth().currentUser?.uid
       
       self.observeCancelledTrip(trip: trip!)
+      
+      self.setCustomRegion(withCoordinates: trip!.pickupCoordinates)
 
       let pickupCoordinates = trip!.pickupCoordinates!
       let location = CLLocation(latitude: pickupCoordinates.latitude, longitude: pickupCoordinates.longitude)
@@ -221,19 +237,33 @@ class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
     LocationHandler.shared.enableLocationServices()
   }
 
-  func didUpdateLocations(location: CLLocation) {
-    self.cameraPosition = .region(
-        MKCoordinateRegion(
-            center: location.coordinate,
-            span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
-        )
-    )
-    
-    if user?.accountType == .driver {
-      Service.shared.updateDriverLocation(location: location)
+  nonisolated func didUpdateLocations(location: CLLocation) {
+      DispatchQueue.main.async { [self] in
+          self.cameraPosition = .region(
+              MKCoordinateRegion(
+                  center: location.coordinate,
+                  span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+              )
+          )
+          if self.user?.accountType == .driver {
+              Service.shared.updateDriverLocation(location: location)
+          }
+          self.fetchUserData()
+      }
+  }
+  
+  nonisolated func didStartMonitoringFor(region: CLRegion) {
+    print("DEBUG - didStartMonitoringFor region \(region)")
+  }
+  
+  nonisolated func didEnterRegion(region: CLRegion) {
+    DispatchQueue.main.async {
+      self.rideActionViewState = .pickupPassenger
+      
+      if let trip = self.trip {
+        Service.shared.updateTripState(trip: trip, state: .driverArrived)
+      }
     }
-
-    self.fetchUserData()
   }
 
   //MARK: - Location Input & Search Management
@@ -344,4 +374,10 @@ class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
       self.cameraPosition = .region(MKCoordinateRegion(center: center, span: span))
     }
   }
+  
+  func setCustomRegion(withCoordinates coordinates: CLLocationCoordinate2D) {
+    let region = CLCircularRegion(center: coordinates, radius: 100, identifier: "pickup")
+    LocationHandler.shared.locationManager.startMonitoring(for: region)
+  }
+  
 }

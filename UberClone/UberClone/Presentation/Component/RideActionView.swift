@@ -8,6 +8,7 @@ enum RideActionViewState: Equatable {
   case notAvailable
   case requestRide
   case tripAccepted
+  case driverArrived
   case pickupPassenger
   case tripInProgress
   case endTrip
@@ -104,16 +105,25 @@ struct RideActionView: View {
       return destination?.name ?? ""
     case .tripAccepted:
       return user?.accountType == .driver ? "Driver En Route" : "En Route To Passenger"
+    case .driverArrived:
+      return user?.accountType == .driver ? "Driver Has Arrived" : "Arrived At Passenger Location"
     case .pickupPassenger:
       return "Arrived At Passenger Location"
     case .tripInProgress:
       return "En Route To Destination"
     case .endTrip:
       return "Arrived At Destination"
+  
     }
   }
   
   var description: String {
+    if state == .driverArrived {
+      return "Please meet driver at pickup location"
+    } else if state == .pickupPassenger {
+      return ""
+    }
+    
     return destination?.address ?? ""
   }
   
@@ -131,15 +141,17 @@ struct RideActionView: View {
       return user?.accountType == .passenger ? .getDirections : .cancel
     case .pickupPassenger:
       return .pickup
+    case .driverArrived:
+      return .cancel
     case .tripInProgress:
       return user?.accountType == .driver ? .inProgress : .getDirections
     case .endTrip:
       return user?.accountType == .driver ? .arrived : .dropOff
-    default:
-      break
+    case .notAvailable, .requestRide:
+      return .requestRide
+    @unknown default:
+      return .requestRide
     }
-    
-    return .requestRide
   }
 }
 

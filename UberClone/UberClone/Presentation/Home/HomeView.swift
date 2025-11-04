@@ -7,7 +7,7 @@ import MapKit
 
 struct HomeView: View {
   @ObservedObject var viewModel: HomeViewVM
-  @EnvironmentObject var authViewModel: AuthViewModel
+  @EnvironmentObject var authViewModel: AuthVM
 
   var body: some View {
     ZStack {
@@ -195,7 +195,7 @@ struct HomeView: View {
 }
 
 #Preview("Home View") {
-  let authViewModel = AuthViewModel()
+  let authViewModel = AuthVM()
   authViewModel.isLoggedIn = true
 
   let viewModel = HomeViewVM(authViewModel: authViewModel)

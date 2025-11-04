@@ -8,7 +8,7 @@ import GeoFire
 
 @MainActor
 class SignUpVM: ObservableObject {
-  let authViewModel: AuthViewModel
+  let authViewModel: AuthVM
   @Published var email: String = ""
   @Published var password: String = ""
   @Published var fullName: String = ""
@@ -17,7 +17,7 @@ class SignUpVM: ObservableObject {
   @Published var isLoading: Bool = false
   @Published var accountTypeIndex = 0
 
-  init(authViewModel: AuthViewModel) {
+  init(authViewModel: AuthVM) {
     self.authViewModel = authViewModel
   }
 
