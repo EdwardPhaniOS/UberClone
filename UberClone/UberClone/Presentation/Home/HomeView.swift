@@ -56,7 +56,7 @@ struct HomeView: View {
     Map(position: $viewModel.cameraPosition) {
       UserAnnotation()
 
-      if viewModel.inputViewState == .inactive {
+      if viewModel.inputViewState != .notAvailable {
         ForEach(viewModel.driverAnnotations) { driver in
           Annotation("", coordinate: driver.coordinate) {
             ZStack {

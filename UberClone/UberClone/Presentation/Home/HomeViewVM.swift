@@ -70,6 +70,12 @@ class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
           self.isLoading = false
           return
         }
+        
+        if let selectedDriver = driverAnnotations.first(where: { $0.uuid == driverUid }) {
+          driverAnnotations = [selectedDriver]
+          zoomToFit(coordinates: [selectedDriver.coordinate, trip.pickupCoordinates])
+        }
+        
         Service.shared.fetchUserData(userId: driverUid) { driver in
           self.isLoading = false
           self.rideActionUser = driver
@@ -88,7 +94,7 @@ class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
     }
   }
 
-  func fetchUserData() {
+  func fetchUserData(completion: (() -> Void)? = nil) {
     guard let currentUserId = Auth.auth().currentUser?.uid else { return }
     Service.shared.fetchUserData(userId: currentUserId) { [weak self] user in
       guard let self = self else { return }
@@ -97,13 +103,13 @@ class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
       
       self.driverAnnotations = []
       if user.accountType == .passenger {
-        fetchDrivers()
         inputViewState = .inactive
         observerCurrentTrip()
       } else {
         observeTrip()
         inputViewState = .notAvailable
       }
+      completion?()
     }
   }
 
@@ -112,35 +118,38 @@ class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
     Service.shared.fetchDrivers(location: location) { [weak self] driver in
       guard let self = self else { return }
       guard let coordinate = driver.location?.coordinate else { return }
-
+      
+      let tripIsActive = trip?.driverUid != nil
+      
+      if tripIsActive {
+        if driver.uuid != trip?.driverUid {
+          return
+        }
+        
+        if let pickupCoordinates = trip?.pickupCoordinates, let driverCoordinates = driver.location?.coordinate {
+          zoomToFit(coordinates: [pickupCoordinates, driverCoordinates])
+        }
+      }
+      
       let annotation = DriverAnnotation(uuid: driver.uuid, coordinate: coordinate)
 
       if let index = self.driverAnnotations.firstIndex(where: { $0.uuid == annotation.uuid }) {
-        DispatchQueue.main.async {
-          self.driverAnnotations[index] = annotation
-        }
-
+        self.driverAnnotations[index] = annotation
       } else {
-        DispatchQueue.main.async {
-          self.driverAnnotations.append(annotation)
-        }
+        self.driverAnnotations.append(annotation)
       }
     }
   }
 
   func checkIfUserIsLoggedIn() {
     let isLoggedIn = Auth.auth().currentUser?.uid != nil
-    DispatchQueue.main.async {
-      self.authViewModel.isLoggedIn = isLoggedIn
-    }
+    self.authViewModel.isLoggedIn = isLoggedIn
   }
 
   func signOut() {
     do {
       try Auth.auth().signOut()
-      DispatchQueue.main.async {
-        self.authViewModel.isLoggedIn = false
-      }
+      self.authViewModel.isLoggedIn = false
     } catch {
       print("DEBUG: Error - \(error.localizedDescription)")
     }
@@ -227,7 +236,9 @@ class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
       isLoading = false
       
       self.trip?.state = .denied
+      self.trip?.driverUid = nil
       self.clearRouteAndLocationSelection()
+      self.fetchDrivers()
     }
   }
 
@@ -238,18 +249,33 @@ class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
   }
 
   nonisolated func didUpdateLocations(location: CLLocation) {
-      DispatchQueue.main.async { [self] in
-          self.cameraPosition = .region(
-              MKCoordinateRegion(
-                  center: location.coordinate,
-                  span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
-              )
-          )
-          if self.user?.accountType == .driver {
-              Service.shared.updateDriverLocation(location: location)
+    DispatchQueue.main.async { [weak self] in
+      guard let self = self else { return }
+      self.cameraPosition = .region(
+        MKCoordinateRegion(
+          center: location.coordinate,
+          span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+        )
+      )
+      
+      guard let user = self.user else {
+        self.fetchUserData { [weak self] in
+          guard let self = self, let user = self.user else { return }
+          if user.accountType == .driver {
+            Service.shared.updateDriverLocation(location: location)
+          } else {
+            self.fetchDrivers()
           }
-          self.fetchUserData()
+        }
+        return
       }
+      
+      if user.accountType == .driver {
+        Service.shared.updateDriverLocation(location: location)
+      } else {
+        self.fetchDrivers()
+      }
+    }
   }
   
   nonisolated func didStartMonitoringFor(region: CLRegion) {
@@ -333,15 +359,17 @@ class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
         var coords = [CLLocationCoordinate2D](repeating: kCLLocationCoordinate2DInvalid, count: count)
         route.polyline.getCoordinates(&coords, range: NSRange(location: 0, length: count))
         self.routeCoordinates = coords
-        self.zoomToRoute()
+        self.zoomToFit(coordinates: coords)
       } else {
         self.routeCoordinates = nil
       }
     }
   }
-
-  func zoomToRoute() {
-    guard let coordinates = routeCoordinates, !coordinates.isEmpty else { return }
+  
+  func zoomToFit(coordinates: [CLLocationCoordinate2D]) {
+    if coordinates.isEmpty {
+      return
+    }
 
     var minLat = coordinates.first!.latitude
     var maxLat = coordinates.first!.latitude
@@ -355,7 +383,7 @@ class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
       maxLon = max(maxLon, coordinate.longitude)
     }
 
-    let bottomInset: Double = 0.01
+    let bottomInset: Double = 0.05
     let center = CLLocationCoordinate2D(latitude: (minLat + maxLat)/2,
                                         longitude: (minLon + maxLon)/2)
     let span = MKCoordinateSpan(latitudeDelta: max(0.01, maxLat - minLat + 0.01 + bottomInset),
