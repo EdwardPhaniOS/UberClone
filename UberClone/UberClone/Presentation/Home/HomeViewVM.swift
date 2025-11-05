@@ -15,6 +15,11 @@ class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
     case active
     case didSelectPlacemark
   }
+  
+  enum AnnotationType: String {
+    case pickup
+    case destination
+  }
 
   //MARK: - Variables
   
@@ -53,7 +58,7 @@ class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
 
   //MARK: - APIs
 
-  func observerCurrentTrip() {
+  func passengerObserverCurrentTrip() {
     Service.shared.observeCurrentTrip { [weak self] trip in
       guard let self = self else { return }
       self.trip = trip
@@ -61,9 +66,7 @@ class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
       guard let state = trip.state else { return }
       
       switch state {
-      case .requested:
-        break
-      case .denied:
+      case .requested, .denied:
         break
       case .accepted:
         guard let driverUid = trip.driverUid else {
@@ -85,9 +88,16 @@ class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
         self.isLoading = false
         self.rideActionViewState = .driverArrived
       case .inProgress:
-        break
+        self.rideActionViewState = .tripInProgress
+      case .arrivedAtDestination:
+        self.rideActionViewState = .endTrip
       case .completed:
-        break
+        Service.shared.deleteTrip { _, _ in
+          self.clearRouteAndLocationSelection()
+          self.fetchDrivers()
+          self.showAlert = true
+          self.alertMessage = "Trip Completed"
+        }
       @unknown default:
         break
       }
@@ -104,9 +114,9 @@ class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
       self.driverAnnotations = []
       if user.accountType == .passenger {
         inputViewState = .inactive
-        observerCurrentTrip()
+        passengerObserverCurrentTrip()
       } else {
-        observeTrip()
+        driverObserveTrip()
         inputViewState = .notAvailable
       }
       completion?()
@@ -172,12 +182,19 @@ class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
     }
   }
 
-  func observeTrip() {
+  func driverObserveTrip() {
     Service.shared.observeTrip { [weak self] trip in
       guard let self = self else { return }
 
       self.showPickupView = trip.state == .requested
       self.trip = trip
+      
+      if trip.state == .accepted {
+        driverAcceptTrip()
+        
+        guard let location = LocationHandler.shared.location else { return }
+        Service.shared.updateDriverLocation(location: location)
+      }
     }
   }
   
@@ -195,7 +212,7 @@ class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
     }
   }
 
-  func acceptTrip() {
+  func driverAcceptTrip() {
     guard trip != nil else { return }
 
     isLoading = true
@@ -207,7 +224,7 @@ class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
       
       self.observeCancelledTrip(trip: trip!)
       
-      self.setCustomRegion(withCoordinates: trip!.pickupCoordinates)
+      self.setCustomRegion(withAnnotationType: .pickup, withCoordinates: trip!.pickupCoordinates)
 
       let pickupCoordinates = trip!.pickupCoordinates!
       let location = CLLocation(latitude: pickupCoordinates.latitude, longitude: pickupCoordinates.longitude)
@@ -239,6 +256,52 @@ class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
       self.trip?.driverUid = nil
       self.clearRouteAndLocationSelection()
       self.fetchDrivers()
+    }
+  }
+  
+  func startTrip() {
+    guard let trip = self.trip else { return }
+    
+    isLoading = true
+    Service.shared.updateTripState(trip: trip, state: .inProgress) { [weak self] err, ref in
+      guard let self = self,
+            let destinationCoordinates = trip.destinationCoordinates,
+            let driverCoordinates = LocationHandler.shared.location?.coordinate
+      else {
+        self?.isLoading = false
+        return
+      }
+      
+      let location = CLLocation(latitude: destinationCoordinates.latitude, longitude: destinationCoordinates.longitude)
+      CLGeocoder().reverseGeocodeLocation(location) { [weak self] placemarks, error in
+        guard let self = self else { return }
+        self.isLoading = false
+
+        if let placeMark = placemarks?.first {
+          let mapKitPlacemark = MKPlacemark(placemark: placeMark)
+          self.rideActionViewState = .tripInProgress
+          self.selectedPlacemark = mapKitPlacemark
+          self.calculateRoute(to: mapKitPlacemark)
+          self.setCustomRegion(withAnnotationType: .destination, withCoordinates: destinationCoordinates)
+          self.zoomToFit(coordinates: [driverCoordinates, destinationCoordinates])
+        }
+      }
+    }
+  }
+  
+  func dropOff() {
+    guard let trip = self.trip else { return }
+    
+    isLoading = true
+    self.trip?.state = .completed
+    Service.shared.updateTripState(trip: trip, state: .completed) { [weak self] err, ref in
+      guard let self = self else { return }
+      self.isLoading = false
+      
+      rideActionViewState = .notAvailable
+      selectedPlacemark = nil
+      routeCoordinates = nil
+      zoomToCurrentUser()
     }
   }
 
@@ -279,16 +342,31 @@ class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
   }
   
   nonisolated func didStartMonitoringFor(region: CLRegion) {
-    print("DEBUG - didStartMonitoringFor region \(region)")
+    print("DEBUG - didStartMonitoringFor region.identifier: \(region.identifier)")
   }
   
   nonisolated func didEnterRegion(region: CLRegion) {
+    let regionId = region.identifier
+    
     DispatchQueue.main.async {
-      self.rideActionViewState = .pickupPassenger
+      guard let trip = self.trip else { return }
       
-      if let trip = self.trip {
-        Service.shared.updateTripState(trip: trip, state: .driverArrived)
+      if regionId == AnnotationType.pickup.rawValue {
+        Service.shared.updateTripState(trip: trip, state: .driverArrived) { err, ref in
+          DispatchQueue.main.async {
+            self.rideActionViewState = .pickupPassenger
+          }
+        }
       }
+      
+      if regionId == AnnotationType.destination.rawValue {
+        Service.shared.updateTripState(trip: trip, state: .arrivedAtDestination) { err, ref in
+          DispatchQueue.main.async {
+            self.rideActionViewState = .endTrip
+          }
+        }
+      }
+      
     }
   }
 
@@ -403,8 +481,8 @@ class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
     }
   }
   
-  func setCustomRegion(withCoordinates coordinates: CLLocationCoordinate2D) {
-    let region = CLCircularRegion(center: coordinates, radius: 100, identifier: "pickup")
+  func setCustomRegion(withAnnotationType type: AnnotationType, withCoordinates coordinates: CLLocationCoordinate2D) {
+    let region = CLCircularRegion(center: coordinates, radius: 100, identifier: type.rawValue)
     LocationHandler.shared.locationManager.startMonitoring(for: region)
   }
   

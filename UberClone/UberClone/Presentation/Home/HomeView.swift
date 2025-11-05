@@ -41,7 +41,7 @@ struct HomeView: View {
       PickupView(viewModel: .init(trip: viewModel.trip!), onCloseButtonPressed: {
         viewModel.showPickupView = false
       }, onAcceptButtonPressed: {
-        viewModel.acceptTrip()
+        viewModel.driverAcceptTrip()
         viewModel.showPickupView = false
       })
     })
@@ -139,7 +139,7 @@ struct HomeView: View {
       HStack {
         ZStack(content: {
           Button("", systemImage: "arrow.backward") {
-            viewModel.clearRouteAndLocationSelection()
+            viewModel.cancelTrip()
           }
           .foregroundStyle(.black)
           .font(.system(size: 18, weight: .bold))
@@ -175,15 +175,15 @@ struct HomeView: View {
         case .cancel:
           viewModel.cancelTrip()
         case .getDirections:
-          print("DEBUG - getDirections")
+          break
         case .pickup:
-          print("DEBUG - pickup")
+          viewModel.startTrip()
         case .inProgress:
-          print("DEBUG - inProgress")
+          break
         case .arrived:
-          print("DEBUG - arrived")
+          break
         case .dropOff:
-          print("DEBUG - dropOff")
+          viewModel.dropOff()
         }
       })
     }

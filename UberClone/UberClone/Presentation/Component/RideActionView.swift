@@ -24,15 +24,15 @@ enum RideActionViewButtonAction {
   case dropOff
   
   var description: String {
-      switch self {
-      case .requestRide: return "CONFIRM UBERX"
-      case .cancel: return "CANCEL RIDE"
-      case .getDirections: return "GET DIRECTIONS"
-      case .pickup: return "PICKUP PASSENGER"
-      case .dropOff: return "DROP OFF PASSENGER"
-      case .inProgress: return "TRIP IN PROGRESS"
-      case .arrived: return "ARRIVED AT DESTINATION"
-      }
+    switch self {
+    case .requestRide: return "CONFIRM UBERX"
+    case .cancel: return "CANCEL RIDE"
+    case .getDirections: return "GET DIRECTIONS"
+    case .pickup: return "PICKUP PASSENGER"
+    case .dropOff: return "DROP OFF PASSENGER"
+    case .inProgress: return "TRIP IN PROGRESS"
+    case .arrived: return "ARRIVED AT DESTINATION"
+    }
   }
 }
 
@@ -113,7 +113,7 @@ struct RideActionView: View {
       return "En Route To Destination"
     case .endTrip:
       return "Arrived At Destination"
-  
+      
     }
   }
   
@@ -128,7 +128,7 @@ struct RideActionView: View {
   }
   
   var enableButton: Bool {
-    if buttonAction == .inProgress || buttonAction == .arrived {
+    if buttonAction == .inProgress || buttonAction == .arrived || buttonAction == .getDirections {
       return true
     }
     
