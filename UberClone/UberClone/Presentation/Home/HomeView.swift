@@ -198,7 +198,7 @@ struct HomeView: View {
   let authViewModel = AuthVM()
   authViewModel.isLoggedIn = true
 
-  let viewModel = HomeViewVM(authViewModel: authViewModel)
+  let viewModel = HomeViewVM(diContainer: DIContainer.preview, authViewModel: authViewModel)
   viewModel.driverAnnotations.append(contentsOf: DriverAnnotation.testData())
 
   return HomeView(viewModel: viewModel)

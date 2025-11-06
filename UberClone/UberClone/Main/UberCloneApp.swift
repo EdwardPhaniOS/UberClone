@@ -10,21 +10,26 @@ import UIKit
 
 @main
 struct UberCloneApp: App {
-
+  
   @StateObject var authViewModel: AuthVM
   @StateObject var homeViewVM: HomeViewVM
+  let diContainer: DIContainer = DIContainer()
   
   @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
-
+  
   init() {
     let authVM = AuthVM()
     _authViewModel = StateObject(wrappedValue: authVM)
-    _homeViewVM = StateObject(wrappedValue: HomeViewVM(authViewModel: authVM))
-   }
-
+    
+    let homeVM = HomeViewVM(diContainer: diContainer, authViewModel: authVM)
+    _homeViewVM = StateObject(wrappedValue: homeVM)
+  }
+  
   var body: some Scene {
     WindowGroup {
       HomeView(viewModel: homeViewVM)
-    }.environmentObject(authViewModel)
+    }
+    .environmentObject(authViewModel)
+    .environment(\.diContainer, diContainer)
   }
 }

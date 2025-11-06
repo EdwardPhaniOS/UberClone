@@ -9,6 +9,7 @@ import GeoFire
 @MainActor
 class SignUpVM: ObservableObject {
   let authViewModel: AuthVM
+  let diContainer: DIContainer
   @Published var email: String = ""
   @Published var password: String = ""
   @Published var fullName: String = ""
@@ -17,8 +18,9 @@ class SignUpVM: ObservableObject {
   @Published var isLoading: Bool = false
   @Published var accountTypeIndex = 0
 
-  init(authViewModel: AuthVM) {
+  init(authViewModel: AuthVM, diContainer: DIContainer) {
     self.authViewModel = authViewModel
+    self.diContainer = diContainer
   }
 
   func handleSignUp() {
@@ -59,9 +61,8 @@ class SignUpVM: ObservableObject {
       showAlertOnUI(message: SignUpError.missingCurrentLocation.message)
       return
     }
-
-    let geofire = GeoFire(firebaseRef: REF_DRIVER_LOCATIONS)
-    geofire.setLocation(location, forKey: userId) { [weak self] error in
+    
+    diContainer.driverService.updateDriverLocation(location: location) { [weak self] error in
       guard let self = self else { return }
       if let error = error {
         showAlertOnUI(message: error.localizedDescription)
@@ -71,7 +72,11 @@ class SignUpVM: ObservableObject {
   }
 
   func uploadUserDataAndShowHomeView(values: [String: Any], userId: String)  {
-    REF_USERS.child(userId).updateChildValues(values) { error, ref in
+    diContainer.userService.updateUserData(userId: userId, values: values) { [weak self] error, _ in
+      guard let self = self else { return }
+      if let error = error {
+        showAlertOnUI(message: error.localizedDescription)
+      }
       self.authViewModel.isLoggedIn = true
     }
   }

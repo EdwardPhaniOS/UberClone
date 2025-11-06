@@ -11,6 +11,7 @@ struct LoginView: View {
 
   @ObservedObject var viewModel: LoginViewVM
   @EnvironmentObject var authViewModel: AuthVM
+  @Environment(\.diContainer) var diContainer: DIContainer
 
   var body: some View {
     VStack {
@@ -56,7 +57,7 @@ struct LoginView: View {
     .printFileOnAppear()
     .background(Color(uiColor: AppColors.backgroundColor))
     .navigationDestination(isPresented: $viewModel.showSignUp, destination: {
-      SignUpView(viewModel: .init(authViewModel: authViewModel))
+      SignUpView(viewModel: .init(authViewModel: authViewModel, diContainer: diContainer))
     })
     .alert("", isPresented: $viewModel.showAlert, actions: {
       Button("OK", role: .cancel, action: {})

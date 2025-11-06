@@ -24,14 +24,14 @@
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
             uuid = "650B09FC-9B4B-4F82-BF1E-3BD6781738B1"
-            shouldBeEnabled = "No"
+            shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "UberClone/Presentation/Home/HomeViewVM.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "127"
-            endingLineNumber = "127"
+            startingLineNumber = "129"
+            endingLineNumber = "129"
             landmarkName = "fetchDrivers()"
             landmarkType = "7">
          </BreakpointContent>
@@ -39,17 +39,47 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "951549C0-C0E6-4605-8B72-DF34170B551F"
-            shouldBeEnabled = "No"
+            uuid = "BE940CCC-02EB-4D23-8268-9CA1A4A9CADF"
+            shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "UberClone/Presentation/Home/HomeViewVM.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "114"
-            endingLineNumber = "114"
-            landmarkName = "fetchUserData(completion:)"
+            startingLineNumber = "68"
+            endingLineNumber = "68"
+            landmarkName = "passengerObserverCurrentTrip()"
             landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "BE940CCC-02EB-4D23-8268-9CA1A4A9CADF - a2fdf8864cd58751"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 (UberClone.Trip) -&gt; () in UberClone.HomeViewVM.passengerObserverCurrentTrip() -&gt; ()"
+                  moduleName = "UberClone.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/vinhphan/Documents/UberClone/UberClone/UberClone/Presentation/Home/HomeViewVM.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "68"
+                  endingLineNumber = "68">
+               </Location>
+               <Location
+                  uuid = "BE940CCC-02EB-4D23-8268-9CA1A4A9CADF - a2fdf8864cd58751"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 (UberClone.Trip) -&gt; () in UberClone.HomeViewVM.passengerObserverCurrentTrip() -&gt; ()"
+                  moduleName = "UberClone.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/vinhphan/Documents/UberClone/UberClone/UberClone/Presentation/Home/HomeViewVM.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "68"
+                  endingLineNumber = "68">
+               </Location>
+            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

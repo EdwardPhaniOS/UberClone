@@ -88,6 +88,6 @@ struct SignUpView: View {
 #Preview {
   @Previewable @State var authViewModel = AuthVM()
 
-  SignUpView(viewModel: .init(authViewModel: authViewModel))
+  SignUpView(viewModel: .init(authViewModel: authViewModel, diContainer: DIContainer.preview))
     .environmentObject(authViewModel)
 }
