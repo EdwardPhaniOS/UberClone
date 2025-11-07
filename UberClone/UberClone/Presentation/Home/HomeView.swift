@@ -6,8 +6,15 @@ import FirebaseAuth
 import MapKit
 
 struct HomeView: View {
-  @ObservedObject var viewModel: HomeViewVM
-  @EnvironmentObject var authViewModel: AuthVM
+  @StateObject var viewModel: HomeViewVM
+  var user: User?
+  var onMenuButtonPressed: (() -> Void)?
+  
+  init(diContainer: DIContainer, user: User?, onMenuButtonPressed: (() -> Void)? = nil) {
+    self.user = user
+    _viewModel = StateObject(wrappedValue: HomeViewVM(diContainer: diContainer, user: user))
+    self.onMenuButtonPressed = onMenuButtonPressed
+  }
 
   var body: some View {
     ZStack {
@@ -17,28 +24,18 @@ struct HomeView: View {
       confirmRidePopup
     }
     .onAppear {
-      viewModel.checkIfUserIsLoggedIn()
-      viewModel.enableLocationServices()
+      viewModel.setUpForCurrentUser()
     }
-    .onChange(of: authViewModel.isLoggedIn) { _, isLoggedIn in
-      if isLoggedIn {
-        viewModel.fetchUserData()
+    .onChange(of: user, { _, newUser in
+      if newUser != nil {
+        viewModel.user = newUser
+        viewModel.setUpForCurrentUser()
       }
-    }
+    })
     .printFileOnAppear()
     .showLoadingView(isLoading: viewModel.isLoading, message: viewModel.loadingMessage)
-    .fullScreenCover(
-      isPresented: Binding(
-        get: { !authViewModel.isLoggedIn },
-        set: { _ in }
-      )
-    ) {
-      NavigationStack {
-        LoginView(viewModel: .init(authViewModel: authViewModel))
-      }
-    }
     .fullScreenCover(isPresented: $viewModel.showPickupView, content: {
-      PickupView(viewModel: .init(trip: viewModel.trip!), onCloseButtonPressed: {
+      PickupView(trip: viewModel.trip!, onCloseButtonPressed: {
         viewModel.showPickupView = false
       }, onAcceptButtonPressed: {
         viewModel.driverAcceptTrip()
@@ -146,9 +143,7 @@ struct HomeView: View {
           .opacity(viewModel.inputViewState == .didSelectPlacemark ? 1 : 0)
 
           Button("", image: ImageResource(name: "menu_ic", bundle: .main)) {
-            //TODO: handle menu button
-            viewModel.signOut()
-            viewModel.clearRouteAndLocationSelection()
+            onMenuButtonPressed?()
           }
           .font(.system(size: 18, weight: .bold))
           .opacity((viewModel.inputViewState == .inactive || viewModel.inputViewState == .notAvailable) ? 1 : 0)
@@ -195,13 +190,6 @@ struct HomeView: View {
 }
 
 #Preview("Home View") {
-  let authViewModel = AuthVM()
-  authViewModel.isLoggedIn = true
-
-  let viewModel = HomeViewVM(diContainer: DIContainer.preview, authViewModel: authViewModel)
-  viewModel.driverAnnotations.append(contentsOf: DriverAnnotation.testData())
-
-  return HomeView(viewModel: viewModel)
-    .environmentObject(authViewModel)
+  HomeView(diContainer: DIContainer.preview, user: User.sample, onMenuButtonPressed: nil)
 }
 

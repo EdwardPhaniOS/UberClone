@@ -8,7 +8,7 @@ import GeoFire
 
 @MainActor
 class SignUpVM: ObservableObject {
-  let authViewModel: AuthVM
+  let authStore: AuthStore
   let diContainer: DIContainer
   @Published var email: String = ""
   @Published var password: String = ""
@@ -18,9 +18,9 @@ class SignUpVM: ObservableObject {
   @Published var isLoading: Bool = false
   @Published var accountTypeIndex = 0
 
-  init(authViewModel: AuthVM, diContainer: DIContainer) {
-    self.authViewModel = authViewModel
+  init(diContainer: DIContainer) {
     self.diContainer = diContainer
+    self.authStore = diContainer.authStore
   }
 
   func handleSignUp() {
@@ -77,7 +77,7 @@ class SignUpVM: ObservableObject {
       if let error = error {
         showAlertOnUI(message: error.localizedDescription)
       }
-      self.authViewModel.isLoggedIn = true
+      self.authStore.isLoggedIn = true
     }
   }
 

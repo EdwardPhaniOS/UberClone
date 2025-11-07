@@ -6,7 +6,11 @@ import SwiftUI
 struct SignUpView: View {
 
   @Environment(\.dismiss) private var dismiss
-  @ObservedObject var viewModel: SignUpVM
+  @StateObject var viewModel: SignUpVM
+  
+  init(diContainer: DIContainer) {
+    _viewModel = StateObject(wrappedValue: SignUpVM(diContainer: diContainer))
+  }
 
   var body: some View {
     VStack {
@@ -86,8 +90,5 @@ struct SignUpView: View {
 }
 
 #Preview {
-  @Previewable @State var authViewModel = AuthVM()
-
-  SignUpView(viewModel: .init(authViewModel: authViewModel, diContainer: DIContainer.preview))
-    .environmentObject(authViewModel)
+  SignUpView(diContainer: DIContainer.preview)
 }

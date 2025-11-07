@@ -4,6 +4,6 @@
 import Foundation
 
 @MainActor
-class AuthVM: ObservableObject {
+class AuthStore: ObservableObject {
   @Published var isLoggedIn: Bool = true
 }

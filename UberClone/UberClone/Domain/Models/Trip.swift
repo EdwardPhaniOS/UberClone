@@ -47,7 +47,7 @@ struct Trip {
 }
 
 extension Trip {
-  static func testData() -> Trip {
+  static func sample() -> Trip {
     var trip = Trip(passengerUid: UUID().uuidString, dict: [:])
     trip.state = .requested
     trip.destinationCoordinates = CLLocationCoordinate2D(latitude: 15.7769, longitude: 116.7009)

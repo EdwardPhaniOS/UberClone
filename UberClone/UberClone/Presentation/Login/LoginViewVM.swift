@@ -6,16 +6,18 @@ import FirebaseAuth
 
 @MainActor
 class LoginViewVM: ObservableObject {
-  let authViewModel: AuthVM
+  var authStore: AuthStore
   @Published var email: String = ""
   @Published var password: String = ""
   @Published var alertMessage: String = ""
   @Published var showAlert: Bool = false
   @Published var isLoading: Bool = false
   @Published var showSignUp: Bool = false
+  var diContainer: DIContainer
 
-  init(authViewModel: AuthVM) {
-    self.authViewModel = authViewModel
+  init(diContainer: DIContainer) {
+    self.diContainer = diContainer
+    self.authStore = diContainer.authStore
   }
 
   func handleLogin() {
@@ -35,7 +37,7 @@ class LoginViewVM: ObservableObject {
         return
       }
 
-      authViewModel.isLoggedIn = true
+      authStore.isLoggedIn = true
     }
   }
 

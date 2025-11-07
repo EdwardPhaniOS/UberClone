@@ -26,3 +26,19 @@ struct User {
     }
   }
 }
+
+extension User: Equatable {
+  static func == (lhs: User, rhs: User) -> Bool {
+    return lhs.uuid == rhs.uuid
+  }
+}
+
+extension User {
+  static var sample: User {
+    let dict: [String: Any] = [
+      "fullName": "Vinh Phan",
+      "email": "Vinh@nomail.com"
+    ]
+    return User(uuid: UUID().uuidString, dict: dict)
+  }
+}

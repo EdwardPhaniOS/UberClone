@@ -8,18 +8,22 @@
 import Foundation
 import SwiftUICore
 
+@MainActor
 struct DIContainer {
   
   let userService: UserService
   let passengerService: PassengerService
   let driverService: DriverService
   
+  let authStore: AuthStore
+  
   static let preview: DIContainer = DIContainer()
   
-  init(userService: UserService, passengerService: PassengerService, driverService: DriverService) {
+  init(userService: UserService, passengerService: PassengerService, driverService: DriverService, authStore: AuthStore) {
     self.userService = userService
     self.passengerService = passengerService
     self.driverService = driverService
+    self.authStore = authStore
   }
  
   init() {
@@ -27,11 +31,14 @@ struct DIContainer {
     self.userService = userService
     self.passengerService = DefaultPassengerService(userSerivce: userService)
     self.driverService = DefaultDriverService()
+    self.authStore = AuthStore()
   }
   
 }
 
-private struct DIContainerKey: EnvironmentKey {
+private struct DIContainerKey: @preconcurrency EnvironmentKey {
+
+  @MainActor
   static let defaultValue: DIContainer = DIContainer()
 }
 

@@ -8,7 +8,7 @@ import CoreLocation
 
 @MainActor
 class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
- 
+  
   enum InputViewState: Equatable {
     case notAvailable
     case inactive
@@ -20,7 +20,7 @@ class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
     case pickup
     case destination
   }
-
+  
   //MARK: - Variables
   
   @Published var cameraPosition = MapCameraPosition.region(
@@ -29,7 +29,7 @@ class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
       span: MKCoordinateSpan(latitudeDelta: 0.02, longitudeDelta: 0.02)
     )
   )
-
+  
   @Published var user: User?
   @Published var rideActionUser: User?
   @Published var driverAnnotations: [DriverAnnotation] = []
@@ -43,23 +43,22 @@ class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
   @Published var loadingMessage: String = ""
   @Published var showAlert: Bool = false
   @Published var alertMessage: String = ""
-
+  
   var trip: Trip?
-
-  private var authViewModel: AuthVM
+  
   private var diContainer: DIContainer
-
+  
   //MARK: - Init
-
-  init(diContainer: DIContainer, authViewModel: AuthVM, ) {
-    self.authViewModel = authViewModel
+  
+  init(diContainer: DIContainer, user: User?) {
     self.diContainer = diContainer
+    self.user = user
     super.init()
     LocationHandler.shared.delegate = self
   }
-
+  
   //MARK: - APIs
-
+  
   func passengerObserverCurrentTrip() {
     diContainer.passengerService.observeCurrentTrip { [weak self] trip in
       guard let self = self else { return }
@@ -105,26 +104,21 @@ class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
       }
     }
   }
-
-  func fetchUserData(completion: (() -> Void)? = nil) {
-    guard let currentUserId = Auth.auth().currentUser?.uid else { return }
-    diContainer.userService.fetchUserData(userId: currentUserId) { [weak self] user in
-      guard let self = self else { return }
-
-      self.user = user
-      
-      self.driverAnnotations = []
-      if user.accountType == .passenger {
-        inputViewState = .inactive
-        passengerObserverCurrentTrip()
-      } else {
-        driverObserveTrip()
-        inputViewState = .notAvailable
-      }
-      completion?()
+  
+  func setUpForCurrentUser() {
+    guard let user = user else { return }
+    
+    self.driverAnnotations = []
+    if user.accountType == .passenger {
+      inputViewState = .inactive
+      passengerObserverCurrentTrip()
+      fetchDrivers()
+    } else {
+      driverObserveTrip()
+      inputViewState = .notAvailable
     }
   }
-
+  
   func fetchDrivers() {
     guard let location = LocationHandler.shared.location else { return }
     diContainer.passengerService.fetchDrivers(location: location) { [weak self] driver in
@@ -144,7 +138,7 @@ class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
       }
       
       let annotation = DriverAnnotation(uuid: driver.uuid, coordinate: coordinate)
-
+      
       if let index = self.driverAnnotations.firstIndex(where: { $0.uuid == annotation.uuid }) {
         self.driverAnnotations[index] = annotation
       } else {
@@ -152,42 +146,28 @@ class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
       }
     }
   }
-
-  func checkIfUserIsLoggedIn() {
-    let isLoggedIn = Auth.auth().currentUser?.uid != nil
-    self.authViewModel.isLoggedIn = isLoggedIn
-  }
-
-  func signOut() {
-    do {
-      try Auth.auth().signOut()
-      self.authViewModel.isLoggedIn = false
-    } catch {
-      print("DEBUG: Error - \(error.localizedDescription)")
-    }
-  }
-
+  
   func uploadTrip() {
     guard let pickupCoordinate = LocationHandler.shared.location?.coordinate else { return }
     guard let destinationCoordinate = selectedPlacemark?.coordinate else { return }
-
+    
     isLoading = true
     loadingMessage = "Finding your ride now.."
     diContainer.passengerService.uploadTrip(pickupCoordinate: pickupCoordinate, destinationCoordinate: destinationCoordinate) { [weak self] err, ref in
       guard let self = self else { return }
-
+      
       if let err = err {
         print("DEBUG: Error - \(err.localizedDescription)")
       }
-
+      
       self.rideActionViewState = .notAvailable
     }
   }
-
+  
   func driverObserveTrip() {
     diContainer.driverService.observeTrip { [weak self] trip in
       guard let self = self else { return }
-
+      
       self.showPickupView = trip.state == .requested
       self.trip = trip
       
@@ -213,30 +193,30 @@ class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
       alertMessage = "The passenger has decided to cancel this ride. Press OK to continue"
     }
   }
-
+  
   func driverAcceptTrip() {
     guard trip != nil else { return }
-
+    
     isLoading = true
     diContainer.driverService.acceptTrip(trip: trip!) { [weak self] error, ref in
       guard let self = self else { return }
-
+      
       self.trip?.state = .accepted
       self.trip?.driverUid = Auth.auth().currentUser?.uid
       
       self.observeCancelledTrip(trip: trip!)
       
       self.setCustomRegion(withAnnotationType: .pickup, withCoordinates: trip!.pickupCoordinates)
-
+      
       let pickupCoordinates = trip!.pickupCoordinates!
       let location = CLLocation(latitude: pickupCoordinates.latitude, longitude: pickupCoordinates.longitude)
       CLGeocoder().reverseGeocodeLocation(location) { [weak self] placemarks, error in
         guard let self = self else { return }
         self.isLoading = false
-
+        
         if let placeMark = placemarks?.first {
           let mapKitPlacemark = MKPlacemark(placemark: placeMark)
-
+          
           diContainer.userService.fetchUserData(userId: trip!.passengerUid) { user in
             self.rideActionUser = user
             self.selectedPlacemark = mapKitPlacemark
@@ -278,7 +258,7 @@ class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
       CLGeocoder().reverseGeocodeLocation(location) { [weak self] placemarks, error in
         guard let self = self else { return }
         self.isLoading = false
-
+        
         if let placeMark = placemarks?.first {
           let mapKitPlacemark = MKPlacemark(placemark: placeMark)
           self.rideActionViewState = .tripInProgress
@@ -306,13 +286,13 @@ class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
       zoomToCurrentUser()
     }
   }
-
+  
   //MARK: - Location Handling
-
+  
   func enableLocationServices() {
     LocationHandler.shared.enableLocationServices()
   }
-
+  
   nonisolated func didUpdateLocations(location: CLLocation) {
     DispatchQueue.main.async { [weak self] in
       guard let self = self else { return }
@@ -323,19 +303,7 @@ class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
         )
       )
       
-      guard let user = self.user else {
-        self.fetchUserData { [weak self] in
-          guard let self = self, let user = self.user else { return }
-          if user.accountType == .driver {
-            diContainer.driverService.updateDriverLocation(location: location, completion: { _ in })
-          } else {
-            self.fetchDrivers()
-          }
-        }
-        return
-      }
-      
-      if user.accountType == .driver {
+      if user?.accountType == .driver {
         diContainer.driverService.updateDriverLocation(location: location, completion: { _ in })
       } else {
         self.fetchDrivers()
@@ -371,18 +339,18 @@ class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
       
     }
   }
-
+  
   //MARK: - Location Input & Search Management
-
+  
   func showLocationInputView() {
     inputViewState = .active
   }
-
+  
   func showLocationInputActivationView() {
     inputViewState = .inactive
     placemarks = []
   }
-
+  
   func clearRouteAndLocationSelection() {
     showLocationInputActivationView()
     rideActionViewState = .notAvailable
@@ -390,21 +358,21 @@ class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
     routeCoordinates = nil
     zoomToCurrentUser()
   }
-
+  
   func searchPlacemarks(query: String) {
     self.placemarks = []
-
+    
     let request = MKLocalSearch.Request()
     request.naturalLanguageQuery = query
     if let region = cameraPosition.region {
       request.region = region
     }
-
+    
     let searchTask = MKLocalSearch(request: request)
     searchTask.start { [weak self] response, error in
       guard let self = self else { return }
       guard let response = response else { return }
-
+      
       response.mapItems.forEach { item in
         DispatchQueue.main.async {
           self.placemarks.append(item.placemark)
@@ -412,25 +380,25 @@ class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
       }
     }
   }
-
+  
   func selectPlacemark(placemark: MKPlacemark) {
     selectedPlacemark = placemark
     inputViewState = .didSelectPlacemark
     rideActionViewState = .requestRide
     calculateRoute(to: placemark)
   }
-
+  
   //MARK: - Map & Route Handling
-
+  
   func calculateRoute(to placemark: MKPlacemark) {
     guard let currentCoordinate = LocationHandler.shared.location?.coordinate else { return }
-
+    
     let request = MKDirections.Request()
     request.source = MKMapItem(placemark: MKPlacemark(coordinate: currentCoordinate))
     request.destination = MKMapItem(placemark: placemark)
     request.transportType = .automobile
     request.requestsAlternateRoutes = false
-
+    
     let directionsTask = MKDirections(request: request)
     directionsTask.calculate { [weak self] response, error in
       guard let self = self else { return }
@@ -450,19 +418,19 @@ class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
     if coordinates.isEmpty {
       return
     }
-
+    
     var minLat = coordinates.first!.latitude
     var maxLat = coordinates.first!.latitude
     var minLon = coordinates.first!.longitude
     var maxLon = coordinates.first!.longitude
-
+    
     for coordinate in coordinates {
       minLat = min(minLat, coordinate.latitude)
       maxLat = max(maxLat, coordinate.latitude)
       minLon = min(minLon, coordinate.longitude)
       maxLon = max(maxLon, coordinate.longitude)
     }
-
+    
     let bottomInset: Double = 0.05
     let center = CLLocationCoordinate2D(latitude: (minLat + maxLat)/2,
                                         longitude: (minLon + maxLon)/2)
@@ -472,7 +440,7 @@ class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
       self.cameraPosition = .region(MKCoordinateRegion(center: center, span: span))
     }
   }
-
+  
   func zoomToCurrentUser() {
     guard let currentCoordinate = LocationHandler.shared.location?.coordinate else { return }
     let center = CLLocationCoordinate2D(latitude: currentCoordinate.latitude,

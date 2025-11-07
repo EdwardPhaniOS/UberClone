@@ -5,10 +5,15 @@ import SwiftUI
 import MapKit
 
 struct PickupView: View {
-  @ObservedObject var viewModel: PickupViewVM
-
+  @StateObject var viewModel: PickupViewVM
   var onCloseButtonPressed: (() -> Void)?
   var onAcceptButtonPressed: (() -> Void)?
+  
+  init(trip: Trip, onCloseButtonPressed: (() -> Void)? = nil, onAcceptButtonPressed: (() -> Void)? = nil) {
+    _viewModel = StateObject(wrappedValue: PickupViewVM(trip: trip))
+    self.onCloseButtonPressed = onCloseButtonPressed
+    self.onAcceptButtonPressed = onAcceptButtonPressed
+  }
 
   var body: some View {
     VStack {
@@ -56,6 +61,5 @@ struct PickupView: View {
 }
 
 #Preview {
-  @Previewable @StateObject var viewModel: PickupViewVM = .init(trip: Trip.testData())
-  PickupView(viewModel: viewModel)
+  PickupView(trip: Trip.sample())
 }
