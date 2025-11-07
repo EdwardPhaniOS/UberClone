@@ -30,9 +30,7 @@ struct ContainerView: View {
         Color.black.opacity(0.3)
           .ignoresSafeArea()
           .onTapGesture {
-            withAnimation {
-              isMenuOpen = false
-            }
+            isMenuOpen = false
           }
         SideMenuView(user: viewModel.user, selectedOptionCallback: { option in
           
@@ -78,6 +76,7 @@ struct ContainerView: View {
       ])
     }
     .statusBarHidden(isMenuOpen)
+    .showLoadingView(isLoading: viewModel.isLoading)
   }
 }
 

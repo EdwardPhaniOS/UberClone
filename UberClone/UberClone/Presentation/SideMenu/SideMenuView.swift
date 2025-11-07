@@ -22,11 +22,12 @@ enum MenuOption: Int, CaseIterable, CustomStringConvertible {
 }
 
 struct SideMenuView: View {
-  @StateObject var viewModel: SideMenuViewVM
+  
+  var user: User?
   var selectedOptionCallback: ((MenuOption) -> Void)? = nil
 
   init(user: User?, selectedOptionCallback: ((MenuOption) -> Void)? = nil) {
-    _viewModel = StateObject(wrappedValue: SideMenuViewVM(user: user))
+    self.user = user
     self.selectedOptionCallback = selectedOptionCallback
   }
   
@@ -49,10 +50,10 @@ struct SideMenuView: View {
             }
             .padding()
             VStack(alignment: .leading) {
-              Text(viewModel.userName)
+              Text(user?.fullName ?? "")
                 .foregroundStyle(.white)
                 .font(.title3)
-              Text(verbatim: viewModel.userEmail)
+              Text(verbatim: user?.email ?? "")
                 .foregroundStyle(.gray)
                 .font(.subheadline)
             }

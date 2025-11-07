@@ -12,6 +12,8 @@ import Firebase
 class ContainerViewVM: NSObject, ObservableObject {
   
   @Published var user: User?
+  @Published var isLoading: Bool = false
+  
   var authStore: AuthStore
   var diContainer: DIContainer
   
@@ -30,8 +32,11 @@ class ContainerViewVM: NSObject, ObservableObject {
   
   func fetchUserData() {
     guard let currentUserId = Auth.auth().currentUser?.uid else { return }
+    
+    isLoading = true
     diContainer.userService.fetchUserData(userId: currentUserId) { [weak self] user in
       guard let self = self else { return }
+      self.isLoading = false
       self.user = user
     }
   }

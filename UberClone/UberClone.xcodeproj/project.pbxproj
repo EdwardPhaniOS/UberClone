@@ -19,7 +19,6 @@
 		35CF14BC2EBC919800C316A7 /* DIContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CF14BB2EBC919800C316A7 /* DIContainer.swift */; };
 		35CF14BE2EBC962F00C316A7 /* DriverService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CF14BD2EBC962F00C316A7 /* DriverService.swift */; };
 		35CF14C02EBC96D800C316A7 /* FirebaseREF.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CF14BF2EBC96D800C316A7 /* FirebaseREF.swift */; };
-		35CF15592EBCB9D300C316A7 /* SideMenuViewVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CF15582EBCB9D300C316A7 /* SideMenuViewVM.swift */; };
 		35CF155E2EBCC11400C316A7 /* ContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CF155D2EBCC11400C316A7 /* ContainerView.swift */; };
 		35CF15622EBCC12A00C316A7 /* ContainerViewVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CF15612EBCC12A00C316A7 /* ContainerViewVM.swift */; };
 		84172E512EAF064B000383E1 /* LocationInputActivationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84172E502EAF064B000383E1 /* LocationInputActivationView.swift */; };
@@ -72,7 +71,6 @@
 		35CF14BB2EBC919800C316A7 /* DIContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DIContainer.swift; sourceTree = "<group>"; };
 		35CF14BD2EBC962F00C316A7 /* DriverService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DriverService.swift; sourceTree = "<group>"; };
 		35CF14BF2EBC96D800C316A7 /* FirebaseREF.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseREF.swift; sourceTree = "<group>"; };
-		35CF15582EBCB9D300C316A7 /* SideMenuViewVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SideMenuViewVM.swift; sourceTree = "<group>"; };
 		35CF155D2EBCC11400C316A7 /* ContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerView.swift; sourceTree = "<group>"; };
 		35CF15612EBCC12A00C316A7 /* ContainerViewVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerViewVM.swift; sourceTree = "<group>"; };
 		84172E502EAF064B000383E1 /* LocationInputActivationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationInputActivationView.swift; sourceTree = "<group>"; };
@@ -235,7 +233,6 @@
 		35CF155A2EBCB9D900C316A7 /* SideMenu */ = {
 			isa = PBXGroup;
 			children = (
-				35CF15582EBCB9D300C316A7 /* SideMenuViewVM.swift */,
 				358CAFAD2EBA10A800C912B3 /* SideMenuView.swift */,
 			);
 			path = SideMenu;
@@ -418,7 +415,6 @@
 				35B7DD372EA6776E0025CC89 /* LoginView.swift in Sources */,
 				849DD6272EB06FB3001A8FB0 /* LocationHandler.swift in Sources */,
 				84172E532EAF0B6F000383E1 /* HomeViewVM.swift in Sources */,
-				35CF15592EBCB9D300C316A7 /* SideMenuViewVM.swift in Sources */,
 				84FD32B22EB0D37F0089DD38 /* MKPlacemark+Address.swift in Sources */,
 				843023622EA8C2BE00A5EEF5 /* SignUpError.swift in Sources */,
 				84321DCE2EAB57DA0094D1A1 /* HomeView.swift in Sources */,
