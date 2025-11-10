@@ -443,11 +443,9 @@ class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
   
   func zoomToCurrentUser() {
     guard let currentCoordinate = LocationHandler.shared.location?.coordinate else { return }
-    let center = CLLocationCoordinate2D(latitude: currentCoordinate.latitude,
-                                        longitude: currentCoordinate.longitude)
     let span = MKCoordinateSpan(latitudeDelta: 0.02, longitudeDelta: 0.02)
     withAnimation(.easeInOut(duration: 0.3)) {
-      self.cameraPosition = .region(MKCoordinateRegion(center: center, span: span))
+      self.cameraPosition = .region(MKCoordinateRegion(center: currentCoordinate, span: span))
     }
   }
   

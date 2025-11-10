@@ -80,5 +80,5 @@ struct SideMenuView: View {
 }
 
 #Preview {
-  SideMenuView(user: User.sample, selectedOptionCallback: nil)
+  SideMenuView(user: User.mock, selectedOptionCallback: nil)
 }

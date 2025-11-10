@@ -90,5 +90,5 @@ struct SignUpView: View {
 }
 
 #Preview {
-  SignUpView(diContainer: DIContainer.preview)
+  SignUpView(diContainer: DIContainer.mock)
 }

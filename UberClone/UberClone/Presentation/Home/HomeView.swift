@@ -190,6 +190,6 @@ struct HomeView: View {
 }
 
 #Preview("Home View") {
-  HomeView(diContainer: DIContainer.preview, user: User.sample, onMenuButtonPressed: nil)
+  HomeView(diContainer: DIContainer.mock, user: User.mock, onMenuButtonPressed: nil)
 }
 

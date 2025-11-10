@@ -71,5 +71,5 @@ struct LoginView: View {
 }
 
 #Preview {
-  LoginView(diContainer: DIContainer.preview)
+  LoginView(diContainer: DIContainer.mock)
 }

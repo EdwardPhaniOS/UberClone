@@ -9,15 +9,13 @@ import Foundation
 import SwiftUICore
 
 @MainActor
-struct DIContainer {
+class DIContainer: ObservableObject {
   
   let userService: UserService
   let passengerService: PassengerService
   let driverService: DriverService
   
   let authStore: AuthStore
-  
-  static let preview: DIContainer = DIContainer()
   
   init(userService: UserService, passengerService: PassengerService, driverService: DriverService, authStore: AuthStore) {
     self.userService = userService
@@ -33,7 +31,10 @@ struct DIContainer {
     self.driverService = DefaultDriverService()
     self.authStore = AuthStore()
   }
-  
+}
+
+extension DIContainer {
+  static let mock: DIContainer = DIContainer()
 }
 
 private struct DIContainerKey: @preconcurrency EnvironmentKey {

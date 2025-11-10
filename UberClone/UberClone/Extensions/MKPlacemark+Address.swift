@@ -13,7 +13,18 @@ extension MKPlacemark {
       administrativeArea,
       postalCode,
     ].compactMap { $0 }
+    
+    var seen: Set<String> = []
+    var uniqueLines: [String] = []
+    for line in lines {
+      if seen.contains(line) {
+        continue
+      }
+      
+      seen.insert(line)
+      uniqueLines.append(line)
+    }
 
-    return lines.joined(separator: ", ")
+    return uniqueLines.joined(separator: ", ")
   }
 }

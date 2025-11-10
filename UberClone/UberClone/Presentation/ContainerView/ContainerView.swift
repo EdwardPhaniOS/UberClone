@@ -13,9 +13,9 @@ struct ContainerView: View {
   @StateObject var authStore: AuthStore
   @State var isMenuOpen: Bool = false
   @State var showConfirmLogout: Bool = false
+  @State var showSettings: Bool = false
   
-  init() {
-    let diContainer = DIContainer()
+  init(diContainer: DIContainer) {
     _authStore = StateObject(wrappedValue: diContainer.authStore)
     _viewModel = StateObject(wrappedValue: ContainerViewVM(diContainer: diContainer))
   }
@@ -33,10 +33,12 @@ struct ContainerView: View {
             isMenuOpen = false
           }
         SideMenuView(user: viewModel.user, selectedOptionCallback: { option in
+          isMenuOpen = false
           
           if option == .logout {
-            isMenuOpen = false
             showConfirmLogout = true
+          } else if option == .settings {
+            showSettings = true
           }
         })
         .transition(.move(edge: .leading))
@@ -67,6 +69,10 @@ struct ContainerView: View {
         LoginView(diContainer: viewModel.diContainer)
       }
     }
+    .fullScreenCover(isPresented: $showSettings, content: {
+      SettingsView(user: viewModel.user)
+    })
+    
     .actionSheet(isPresented: $showConfirmLogout) {
       ActionSheet(title: Text("Are your sure you want to logout?"), buttons: [
         .destructive(Text("Logout"), action: {
@@ -81,5 +87,5 @@ struct ContainerView: View {
 }
 
 #Preview {
-  ContainerView()
+  ContainerView(diContainer: .mock)
 }

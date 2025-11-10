@@ -10,10 +10,16 @@ import SwiftUI
 struct SettingsView: View {
   
   @Environment(\.dismiss) private var dismiss
+  @Environment(\.diContainer) var diContainer: DIContainer
+  @StateObject var viewModel: SettingsViewVM
+  
+  init(user: User?) {
+    _viewModel = StateObject(wrappedValue: SettingsViewVM(user: user))
+  }
   
   var body: some View {
     NavigationView {
-      VStack(spacing: 0) {
+      VStack() {
         HStack {
           ZStack {
             RoundedRectangle(cornerRadius: 36)
@@ -25,34 +31,52 @@ struct SettingsView: View {
           }
           .padding(.top)
           .padding(.leading)
+          
           VStack(alignment: .leading) {
-            Text("Vinh")
+            Text(viewModel.userName)
               .foregroundStyle(.black)
               .font(.title3)
-            Text(verbatim: "Vinh@nomail.com")
+            Text(verbatim: viewModel.userEmail)
               .foregroundStyle(.gray)
               .font(.subheadline)
           }
           .padding(.leading, 4)
           .padding(.top, 12)
+          
           Spacer()
         }
-        List {
-          Section {
-            Text("Sample 1")
-            Text("Sample 2")
-          } header: {
-            Text("Favorites")
-              .font(.title2).bold()
-              .frame(maxWidth: .infinity, alignment: .leading)
-              .padding(.horizontal)
-              .padding(.vertical, 8)
-              .background(Color(uiColor: AppColors.backgroundColor))
-              .foregroundColor(.white)
-              .listRowInsets(EdgeInsets())
+        
+        VStack(spacing: 0) {
+          Text("Favorites")
+            .font(.title2).bold()
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal)
+            .padding(.vertical, 8)
+            .background(Color(uiColor: AppColors.backgroundColor))
+            .foregroundColor(.white)
+            .listRowInsets(EdgeInsets())
+          
+          List {
+            Section {
+              ForEach(viewModel.locationTypeList, id: \.self) { type in
+                Button {
+                  viewModel.selectedLocationType = type
+                  viewModel.showAddLocation = true
+                } label: {
+                  VStack(alignment: .leading) {
+                    Text(viewModel.getLocationTitle(type: type))
+                      .foregroundStyle(.black)
+                      .font(.title3)
+                    Text(viewModel.getLocationSubTitle(type: type))
+                      .foregroundStyle(.gray)
+                      .font(.subheadline)
+                  }
+                }
+              }
+            }
           }
+          .listStyle(.plain)
         }
-        .listStyle(.plain)
       }
       .navigationTitle("Settings")
       .toolbarBackground(Color(uiColor: AppColors.backgroundColor), for: .navigationBar)
@@ -66,6 +90,11 @@ struct SettingsView: View {
           .foregroundStyle(.white)
         }
       }
+      .fullScreenCover(isPresented: $viewModel.showAddLocation) {
+        AddLocationView(diContainer: diContainer, locationType: viewModel.selectedLocationType) { type, address in
+          viewModel.updateSavedLocation(type: type, address: address)
+        }
+      }
     }
     
    
@@ -73,5 +102,6 @@ struct SettingsView: View {
 }
 
 #Preview {
-  SettingsView()
+  SettingsView(user: User.mock)
 }
+

@@ -12,10 +12,12 @@ import UIKit
 struct UberCloneApp: App {
   
   @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+  @StateObject var diContainer: DIContainer = DIContainer()
   
   var body: some Scene {
     WindowGroup {
-      ContainerView()
+      ContainerView(diContainer: diContainer)
+        .environmentObject(diContainer)
     }
   }
 }

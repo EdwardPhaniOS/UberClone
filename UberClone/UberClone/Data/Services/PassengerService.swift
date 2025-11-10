@@ -14,6 +14,7 @@ protocol PassengerService {
   func uploadTrip(pickupCoordinate: CLLocationCoordinate2D, destinationCoordinate: CLLocationCoordinate2D, completion: @escaping (Error?, DatabaseReference) -> Void)
   func observeCurrentTrip(completion: @escaping (Trip) -> Void)
   func deleteTrip(completion: @escaping (Error?, DatabaseReference) -> Void)
+  func saveLocation(type: LocationType, location: String, completion: @escaping (Error?, DatabaseReference) -> Void)
 }
 
 struct DefaultPassengerService: PassengerService {
@@ -66,4 +67,12 @@ struct DefaultPassengerService: PassengerService {
     guard let uid = Auth.auth().currentUser?.uid else { return }
     FirebaseREF.trips.child(uid).removeValue(completionBlock: completion)
   }
+  
+  func saveLocation(type: LocationType, location: String, completion: @escaping (Error?, DatabaseReference) -> Void) {
+    guard let uid = Auth.auth().currentUser?.uid else { return }
+    let key: String = type == .home ? "homeLocation" : "workLocation"
+    FirebaseREF.users.child(uid).child(key).setValue(location, withCompletionBlock: completion)
+  }
+  
+  
 }

@@ -15,6 +15,8 @@ struct User {
   let email: String
   let fullName: String
   var location: CLLocation?
+  var homeLocation: String?
+  var workLocation: String?
 
   init(uuid: String, dict: [String: Any]) {
     self.uuid = uuid
@@ -23,6 +25,14 @@ struct User {
 
     if let type = dict["accountType"] as? Int {
       self.accountType = AccountType(rawValue: type) ?? .passenger
+    }
+    
+    if let homeLocation = dict["homeLocation"] as? String {
+      self.homeLocation = homeLocation
+    }
+    
+    if let workLocation = dict["workLocation"] as? String {
+      self.workLocation = workLocation
     }
   }
 }
@@ -34,7 +44,7 @@ extension User: Equatable {
 }
 
 extension User {
-  static var sample: User {
+  static var mock: User {
     let dict: [String: Any] = [
       "fullName": "Vinh Phan",
       "email": "Vinh@nomail.com"
