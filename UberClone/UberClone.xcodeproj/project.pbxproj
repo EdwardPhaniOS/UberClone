@@ -7,9 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		35866CFC2EBE3BA7001C99AD /* DefaultUserService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35866CFB2EBE3BA7001C99AD /* DefaultUserService.swift */; };
-		35866CFE2EBE3BDB001C99AD /* DefaultPassengerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35866CFD2EBE3BDB001C99AD /* DefaultPassengerService.swift */; };
-		35866D002EBE3BF5001C99AD /* DefaultDriverService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35866CFF2EBE3BF5001C99AD /* DefaultDriverService.swift */; };
+		3543DE7B2EBF9E6500B940C0 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3543DE7A2EBF9E6500B940C0 /* SettingsView.swift */; };
 		358CAFAE2EBA10A800C912B3 /* SideMenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 358CAFAD2EBA10A800C912B3 /* SideMenuView.swift */; };
 		35B7DD2F2EA675980025CC89 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 35B7DD2B2EA675980025CC89 /* Assets.xcassets */; };
 		35B7DD312EA675980025CC89 /* UberCloneApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35B7DD2D2EA675980025CC89 /* UberCloneApp.swift */; };
@@ -58,9 +56,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		35866CFB2EBE3BA7001C99AD /* DefaultUserService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultUserService.swift; sourceTree = "<group>"; };
-		35866CFD2EBE3BDB001C99AD /* DefaultPassengerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultPassengerService.swift; sourceTree = "<group>"; };
-		35866CFF2EBE3BF5001C99AD /* DefaultDriverService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultDriverService.swift; sourceTree = "<group>"; };
+		3543DE7A2EBF9E6500B940C0 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		358CAFAD2EBA10A800C912B3 /* SideMenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SideMenuView.swift; sourceTree = "<group>"; };
 		35B7DD1D2EA675880025CC89 /* UberClone.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = UberClone.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		35B7DD2B2EA675980025CC89 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -148,22 +144,12 @@
 			path = Extensions;
 			sourceTree = "<group>";
 		};
-		35866CF92EBE3B2B001C99AD /* Services */ = {
-			isa = PBXGroup;
-			children = (
-				35CF14B72EBC905800C316A7 /* UserService.swift */,
-				35CF14B92EBC90D600C316A7 /* PassengerService.swift */,
-				35CF14BD2EBC962F00C316A7 /* DriverService.swift */,
-			);
-			path = Services;
-			sourceTree = "<group>";
-		};
 		35866CFA2EBE3B8D001C99AD /* Services */ = {
 			isa = PBXGroup;
 			children = (
-				35866CFB2EBE3BA7001C99AD /* DefaultUserService.swift */,
-				35866CFD2EBE3BDB001C99AD /* DefaultPassengerService.swift */,
-				35866CFF2EBE3BF5001C99AD /* DefaultDriverService.swift */,
+				35CF14BD2EBC962F00C316A7 /* DriverService.swift */,
+				35CF14B92EBC90D600C316A7 /* PassengerService.swift */,
+				35CF14B72EBC905800C316A7 /* UserService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -218,6 +204,7 @@
 				358CAF232EB9F51400C912B3 /* Pickup */,
 				35CF155A2EBCB9D900C316A7 /* SideMenu */,
 				35090DF62EBCEEC300F11A2E /* ContainerView */,
+				3543DE7A2EBF9E6500B940C0 /* SettingsView.swift */,
 			);
 			path = Presentation;
 			sourceTree = "<group>";
@@ -305,7 +292,6 @@
 		84321DDB2EAB72520094D1A1 /* Domain */ = {
 			isa = PBXGroup;
 			children = (
-				35866CF92EBE3B2B001C99AD /* Services */,
 				35866CF72EBE3A76001C99AD /* Models */,
 			);
 			path = Domain;
@@ -417,12 +403,12 @@
 				84172E532EAF0B6F000383E1 /* HomeViewVM.swift in Sources */,
 				84FD32B22EB0D37F0089DD38 /* MKPlacemark+Address.swift in Sources */,
 				843023622EA8C2BE00A5EEF5 /* SignUpError.swift in Sources */,
+				3543DE7B2EBF9E6500B940C0 /* SettingsView.swift in Sources */,
 				84321DCE2EAB57DA0094D1A1 /* HomeView.swift in Sources */,
 				35CF15622EBCC12A00C316A7 /* ContainerViewVM.swift in Sources */,
 				8419AAF52EA76F37008B50DC /* AppColors.swift in Sources */,
 				358CAFAE2EBA10A800C912B3 /* SideMenuView.swift in Sources */,
 				843023642EA8C44300A5EEF5 /* Result+Helper.swift in Sources */,
-				35866D002EBE3BF5001C99AD /* DefaultDriverService.swift in Sources */,
 				84226F372EB3492000223105 /* PickupViewVM.swift in Sources */,
 				8430236D2EA8E01200A5EEF5 /* LoginError.swift in Sources */,
 				843023602EA8BA1B00A5EEF5 /* PrintFileOnAppearModifier.swift in Sources */,
@@ -442,11 +428,9 @@
 				84226F312EB2F8F000223105 /* RideActionView.swift in Sources */,
 				84226F352EB3420B00223105 /* PickupView.swift in Sources */,
 				84321DD92EAB72230094D1A1 /* AuthTextField.swift in Sources */,
-				35866CFE2EBE3BDB001C99AD /* DefaultPassengerService.swift in Sources */,
 				84C35FE12EAF63730044EBCF /* LocationRow.swift in Sources */,
 				35CF14BC2EBC919800C316A7 /* DIContainer.swift in Sources */,
 				35CF14C02EBC96D800C316A7 /* FirebaseREF.swift in Sources */,
-				35866CFC2EBE3BA7001C99AD /* DefaultUserService.swift in Sources */,
 				35CF14BE2EBC962F00C316A7 /* DriverService.swift in Sources */,
 				35CF14B82EBC905800C316A7 /* UserService.swift in Sources */,
 				843023662EA8CF4B00A5EEF5 /* SignUpVM.swift in Sources */,

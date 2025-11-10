@@ -58,7 +58,6 @@ struct SideMenuView: View {
                 .font(.subheadline)
             }
             Spacer()
-            
           }
         }
         
