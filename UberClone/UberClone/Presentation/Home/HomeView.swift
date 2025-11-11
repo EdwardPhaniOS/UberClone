@@ -35,7 +35,7 @@ struct HomeView: View {
     .printFileOnAppear()
     .showLoadingView(isLoading: viewModel.isLoading, message: viewModel.loadingMessage)
     .fullScreenCover(isPresented: $viewModel.showPickupView, content: {
-      PickupView(trip: viewModel.trip!, onCloseButtonPressed: {
+      PickupView(diContainer: viewModel.diContainer, trip: viewModel.trip!, onCloseButtonPressed: {
         viewModel.showPickupView = false
       }, onAcceptButtonPressed: {
         viewModel.driverAcceptTrip()
@@ -108,7 +108,7 @@ struct HomeView: View {
                 }
             }
           }
-          Section {
+          Section("Results") {
             ForEach(viewModel.placemarks, id: \.self) { placemark in
               LocationRow(title: placemark.name ?? "", desc: placemark.address)
                 .onTapGesture {

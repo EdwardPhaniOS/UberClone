@@ -9,8 +9,8 @@ struct PickupView: View {
   var onCloseButtonPressed: (() -> Void)?
   var onAcceptButtonPressed: (() -> Void)?
   
-  init(trip: Trip, onCloseButtonPressed: (() -> Void)? = nil, onAcceptButtonPressed: (() -> Void)? = nil) {
-    _viewModel = StateObject(wrappedValue: PickupViewVM(trip: trip))
+  init(diContainer: DIContainer, trip: Trip, onCloseButtonPressed: (() -> Void)? = nil, onAcceptButtonPressed: (() -> Void)? = nil) {
+    _viewModel = StateObject(wrappedValue: PickupViewVM(diContainer: diContainer, trip: trip))
     self.onCloseButtonPressed = onCloseButtonPressed
     self.onAcceptButtonPressed = onAcceptButtonPressed
   }
@@ -19,6 +19,7 @@ struct PickupView: View {
     VStack {
       HStack{
         Button("", systemImage: "xmark") {
+          viewModel.denyTrip()
           onCloseButtonPressed?()
         }
         .font(.system(size: 18, weight: .bold))
@@ -44,11 +45,12 @@ struct PickupView: View {
       Button {
         onAcceptButtonPressed?()
       } label: {
-        Text("ACCEPT TRIP")
+        Text("ACCEPT TRIP (\(viewModel.countdown)s)")
           .frame(maxWidth: .infinity, minHeight: 48)
           .foregroundStyle(.black)
           .font(.system(size: 20, weight: .bold))
       }
+      .frame(height: 48)
       .background()
       .padding(.horizontal, 24)
 
@@ -57,9 +59,14 @@ struct PickupView: View {
     .frame(maxWidth: .infinity)
     .printFileOnAppear()
     .background(Color(uiColor: AppColors.backgroundColor))
+    .onAppear {
+      viewModel.countDownToAcceptTrip {
+        onCloseButtonPressed?()
+      }
+    }
   }
 }
 
 #Preview {
-  PickupView(trip: Trip.sample())
+  PickupView(diContainer: DIContainer.mock, trip: Trip.sample())
 }

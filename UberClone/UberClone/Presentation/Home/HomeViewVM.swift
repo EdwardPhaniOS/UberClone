@@ -47,7 +47,7 @@ class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
   
   var trip: Trip?
   
-  private var diContainer: DIContainer
+  var diContainer: DIContainer
   
   //MARK: - Init
   
@@ -68,8 +68,16 @@ class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
       guard let state = trip.state else { return }
       
       switch state {
-      case .requested, .denied:
+      case .requested:
         break
+      case .denied:
+        diContainer.passengerService.deleteTrip { _, _ in
+          self.clearRouteAndLocationSelection()
+          self.fetchDrivers()
+          self.isLoading = false
+          self.showAlert = true
+          self.alertMessage = "Trip was denied"
+        }
       case .accepted:
         guard let driverUid = trip.driverUid else {
           self.isLoading = false
@@ -290,33 +298,6 @@ class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
   
   //MARK: - Location Handling
   
-  func updateSavedLocation() {
-    savedPlacemarks = []
-    
-    if let homeAddress = user?.homeLocation {
-      geocodeAddressString(address: homeAddress)
-    }
-    
-    if let workAddress = user?.workLocation {
-      geocodeAddressString(address: workAddress)
-    }
-  }
-  
-  func geocodeAddressString(address: String) {
-    let geocoder = CLGeocoder()
-    geocoder.geocodeAddressString(address) { [weak self] placemarks, error in
-      guard let self = self else { return }
-      if let error = error {
-        print("DEBUG - Geocoding error: \(error.localizedDescription)")
-        return
-      }
-      
-      if let placemark = placemarks?.first {
-        savedPlacemarks.append(MKPlacemark(placemark: placemark))
-      }
-    }
-  }
-  
   func enableLocationServices() {
     LocationHandler.shared.enableLocationServices()
   }
@@ -373,6 +354,33 @@ class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
   func showLocationInputView() {
     inputViewState = .active
     updateSavedLocation()
+  }
+  
+  func updateSavedLocation() {
+    savedPlacemarks = []
+    
+    if let homeAddress = user?.homeLocation {
+      geocodeAddressString(address: homeAddress)
+    }
+    
+    if let workAddress = user?.workLocation {
+      geocodeAddressString(address: workAddress)
+    }
+  }
+  
+  private func geocodeAddressString(address: String) {
+    let geocoder = CLGeocoder()
+    geocoder.geocodeAddressString(address) { [weak self] placemarks, error in
+      guard let self = self else { return }
+      if let error = error {
+        print("DEBUG - Geocoding error: \(error.localizedDescription)")
+        return
+      }
+      
+      if let placemark = placemarks?.first {
+        savedPlacemarks.append(MKPlacemark(placemark: placemark))
+      }
+    }
   }
   
   func showLocationInputActivationView() {
