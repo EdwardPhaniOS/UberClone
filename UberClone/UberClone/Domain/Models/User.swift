@@ -9,7 +9,7 @@ enum AccountType: Int {
   case driver
 }
 
-struct User {
+class User {
   let uuid: String
   var accountType: AccountType!
   let email: String

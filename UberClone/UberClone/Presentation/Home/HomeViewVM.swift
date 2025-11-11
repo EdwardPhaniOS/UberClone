@@ -34,6 +34,7 @@ class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
   @Published var rideActionUser: User?
   @Published var driverAnnotations: [DriverAnnotation] = []
   @Published var placemarks: [MKPlacemark] = []
+  @Published var savedPlacemarks: [MKPlacemark] = []
   @Published var selectedPlacemark: MKPlacemark?
   @Published var inputViewState: InputViewState = .notAvailable
   @Published var rideActionViewState: RideActionViewState = .notAvailable
@@ -289,6 +290,33 @@ class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
   
   //MARK: - Location Handling
   
+  func updateSavedLocation() {
+    savedPlacemarks = []
+    
+    if let homeAddress = user?.homeLocation {
+      geocodeAddressString(address: homeAddress)
+    }
+    
+    if let workAddress = user?.workLocation {
+      geocodeAddressString(address: workAddress)
+    }
+  }
+  
+  func geocodeAddressString(address: String) {
+    let geocoder = CLGeocoder()
+    geocoder.geocodeAddressString(address) { [weak self] placemarks, error in
+      guard let self = self else { return }
+      if let error = error {
+        print("DEBUG - Geocoding error: \(error.localizedDescription)")
+        return
+      }
+      
+      if let placemark = placemarks?.first {
+        savedPlacemarks.append(MKPlacemark(placemark: placemark))
+      }
+    }
+  }
+  
   func enableLocationServices() {
     LocationHandler.shared.enableLocationServices()
   }
@@ -344,6 +372,7 @@ class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
   
   func showLocationInputView() {
     inputViewState = .active
+    updateSavedLocation()
   }
   
   func showLocationInputActivationView() {

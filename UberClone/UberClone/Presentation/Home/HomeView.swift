@@ -101,8 +101,12 @@ struct HomeView: View {
       Group {
         List {
           Section("Saved Locations") {
-            LocationRow()
-            LocationRow()
+            ForEach(viewModel.savedPlacemarks, id: \.self) { placemark in
+              LocationRow(title: placemark.name ?? "", desc: placemark.address)
+                .onTapGesture {
+                  viewModel.selectPlacemark(placemark: placemark)
+                }
+            }
           }
           Section {
             ForEach(viewModel.placemarks, id: \.self) { placemark in
