@@ -8,7 +8,7 @@ import GeoFire
 
 @MainActor
 class SignUpVM: ObservableObject {
-  let authStore: AuthStore
+  let authService: AuthService
   let diContainer: DIContainer
   @Published var email: String = ""
   @Published var password: String = ""
@@ -20,7 +20,7 @@ class SignUpVM: ObservableObject {
 
   init(diContainer: DIContainer) {
     self.diContainer = diContainer
-    self.authStore = diContainer.authStore
+    self.authService = diContainer.authService
   }
 
   func handleSignUp() {
@@ -31,27 +31,29 @@ class SignUpVM: ObservableObject {
     }
 
     isLoading = true
-    Auth.auth().createUser(withEmail: email, password: password) { [weak self] result, error in
-      guard let self = self else { return }
-      isLoading = false
+    
+    Task {
+      do {
+        let authResult = try await authService.signUp(withEmail: email, password: password)
+        isLoading = false
+        
+        let uid = authResult.uid
 
-      if let error = error {
+        let values: [String: Any] = [
+          "email": email,
+          "fullName": fullName,
+          "accountType": accountTypeIndex
+        ]
+
+        if accountTypeIndex == 1 {
+          self.uploadDriverLocationAndData(values: values, userId: uid)
+        } else {
+          self.uploadUserDataAndShowHomeView(values: values, userId: uid)
+        }
+        
+      } catch {
         self.showAlertOnUI(message: "Failed to register user with error: \(error.localizedDescription)")
-        return
-      }
-
-      guard let uid = result?.user.uid else { return }
-
-      let values: [String: Any] = [
-        "email": email,
-        "fullName": fullName,
-        "accountType": accountTypeIndex
-      ]
-
-      if accountTypeIndex == 1 {
-        self.uploadDriverLocationAndData(values: values, userId: uid)
-      } else {
-        self.uploadUserDataAndShowHomeView(values: values, userId: uid)
+        isLoading = false
       }
     }
   }
@@ -77,7 +79,6 @@ class SignUpVM: ObservableObject {
       if let error = error {
         showAlertOnUI(message: error.localizedDescription)
       }
-      self.authStore.isLoggedIn = true
     }
   }
 

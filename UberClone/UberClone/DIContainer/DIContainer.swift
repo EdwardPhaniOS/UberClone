@@ -15,13 +15,13 @@ class DIContainer: ObservableObject {
   let passengerService: PassengerService
   let driverService: DriverService
   
-  let authStore: AuthStore
+  let authService: AuthService
   
-  init(userService: UserService, passengerService: PassengerService, driverService: DriverService, authStore: AuthStore) {
+  init(userService: UserService, passengerService: PassengerService, driverService: DriverService, AuthService: AuthService) {
     self.userService = userService
     self.passengerService = passengerService
     self.driverService = driverService
-    self.authStore = authStore
+    self.authService = AuthService
   }
  
   init() {
@@ -29,7 +29,7 @@ class DIContainer: ObservableObject {
     self.userService = userService
     self.passengerService = DefaultPassengerService(userSerivce: userService)
     self.driverService = DefaultDriverService()
-    self.authStore = AuthStore()
+    self.authService = DefaultAuthService()
   }
 }
 

@@ -7,27 +7,45 @@
 
 import Foundation
 import Firebase
+import Combine
 
 @MainActor
 class ContainerViewVM: NSObject, ObservableObject {
   
   @Published var user: User?
   @Published var isLoading: Bool = false
+  @Published var showLogin: Bool = false
+  @Published var appState = AppState.auth
   
-  var authStore: AuthStore
+  var authService: AuthService
   var diContainer: DIContainer
+  
+  private var cancellables = Set<AnyCancellable>()
   
   //MARK: - Init
 
   init(diContainer: DIContainer) {
     self.diContainer = diContainer
-    self.authStore = diContainer.authStore
+    self.authService = diContainer.authService
     super.init()
   }
   
-  func checkIfUserIsLoggedIn() {
-    let isLoggedIn = Auth.auth().currentUser?.uid != nil
-    self.authStore.isLoggedIn = isLoggedIn
+  func setUpSubcription() {
+    authService.authUpdatePublisher
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] _ in
+        guard let self = self else { return }
+        updateAppState()
+      }
+      .store(in: &cancellables)
+  }
+  
+  func updateAppState() {
+    let newAppState = authService.getAuthenticatedUser() == nil ? AppState.auth : AppState.app
+    if newAppState != appState {
+      appState = newAppState
+      showLogin = appState == .auth
+    }
   }
   
   func fetchUserData() {
@@ -42,11 +60,12 @@ class ContainerViewVM: NSObject, ObservableObject {
   }
 
   func signOut() {
-    do {
-      try Auth.auth().signOut()
-      self.authStore.isLoggedIn = false
-    } catch {
-      print("DEBUG: Error - \(error.localizedDescription)")
+    Task {
+      do {
+        try await authService.signOut()
+      } catch {
+        print("DEBUG: Error - \(error.localizedDescription)")
+      }
     }
   }
   

@@ -6,7 +6,7 @@ import FirebaseAuth
 
 @MainActor
 class LoginViewVM: ObservableObject {
-  var authStore: AuthStore
+  var authService: AuthService
   @Published var email: String = ""
   @Published var password: String = ""
   @Published var alertMessage: String = ""
@@ -17,7 +17,7 @@ class LoginViewVM: ObservableObject {
 
   init(diContainer: DIContainer) {
     self.diContainer = diContainer
-    self.authStore = diContainer.authStore
+    self.authService = diContainer.authService
   }
 
   func handleLogin() {
@@ -27,17 +27,15 @@ class LoginViewVM: ObservableObject {
       return
     }
 
-    isLoading = true
-    Auth.auth().signIn(withEmail: email, password: password) { [weak self] result, error in
-      guard let self = self else { return }
-      isLoading = false
-
-      if let error = error {
+    Task {
+      do {
+        isLoading = true
+        try await authService.signIn(withEmail: email, password: password)
+        isLoading = false
+      } catch {
         showAlertOnUI(message: error.localizedDescription)
-        return
+        isLoading = false
       }
-
-      authStore.isLoggedIn = true
     }
   }
 

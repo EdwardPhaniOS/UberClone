@@ -10,13 +10,11 @@ import SwiftUI
 struct ContainerView: View {
   
   @StateObject var viewModel: ContainerViewVM
-  @StateObject var authStore: AuthStore
   @State var isMenuOpen: Bool = false
   @State var showConfirmLogout: Bool = false
   @State var showSettings: Bool = false
   
   init(diContainer: DIContainer) {
-    _authStore = StateObject(wrappedValue: diContainer.authStore)
     _viewModel = StateObject(wrappedValue: ContainerViewVM(diContainer: diContainer))
   }
   
@@ -46,25 +44,16 @@ struct ContainerView: View {
     }
     .animation(.easeInOut(duration: 0.3), value: isMenuOpen)
     .onAppear {
-      viewModel.checkIfUserIsLoggedIn()
       viewModel.enableLocationServices()
-      
-      if viewModel.authStore.isLoggedIn {
+      viewModel.setUpSubcription()
+    }
+    .onChange(of: viewModel.appState, { _, newValue in
+      if newValue == .app {
         viewModel.fetchUserData()
       }
-    }
-    .onChange(of: viewModel.authStore.isLoggedIn) { _, isLoggedIn in
-      if isLoggedIn {
-        viewModel.fetchUserData()
-      }
-    }
+    })
     .printFileOnAppear()
-    .fullScreenCover(
-      isPresented: Binding(
-        get: { !viewModel.authStore.isLoggedIn },
-        set: { _ in }
-      )
-    ) {
+    .fullScreenCover(isPresented: $viewModel.showLogin) {
       NavigationStack {
         LoginView(diContainer: viewModel.diContainer)
       }
