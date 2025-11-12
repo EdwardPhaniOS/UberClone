@@ -17,6 +17,8 @@ class User {
   var location: CLLocation?
   var homeLocation: String?
   var workLocation: String?
+  
+  var firstInitial: String { return String(fullName.prefix(1)) }
 
   init(uuid: String, dict: [String: Any]) {
     self.uuid = uuid

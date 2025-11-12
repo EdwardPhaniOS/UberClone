@@ -43,10 +43,10 @@ struct SideMenuView: View {
             ZStack {
               RoundedRectangle(cornerRadius: 36)
                 .frame(width: 72, height: 72)
+                .foregroundStyle(.black)
+              Text(user?.firstInitial ?? "")
                 .foregroundStyle(.white)
-              Image(systemName: "person")
-                .foregroundStyle(.gray)
-                .font(.system(size: 24))
+                .font(.system(size: 36))
             }
             .padding()
             VStack(alignment: .leading) {
@@ -77,6 +77,7 @@ struct SideMenuView: View {
       Spacer()
     }
   }
+ 
 }
 
 #Preview {

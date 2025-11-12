@@ -6,9 +6,6 @@ import UIKit
 struct AppColors {
   static let backgroundColor = UIColor(hex: "#191919")
   static let mainBlueTint = UIColor(hex: "#119AED")
-  static let outlineStrokeColor = UIColor(hex: "#EA2E6F")
-  static let trackStrokeColor = UIColor(hex: "#381931")
-  static let pulsatingFillColor = UIColor(hex: "#561E3F")
 }
 
 extension UIColor {

@@ -24,10 +24,10 @@ struct SettingsView: View {
           ZStack {
             RoundedRectangle(cornerRadius: 36)
               .frame(width: 72, height: 72)
-              .foregroundStyle(.gray)
-            Image(systemName: "person")
+              .foregroundStyle(.black)
+            Text(viewModel.user?.firstInitial ?? "")
               .foregroundStyle(.white)
-              .font(.system(size: 24))
+              .font(.system(size: 36))
           }
           .padding(.top)
           .padding(.leading)
