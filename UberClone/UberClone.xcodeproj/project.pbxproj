@@ -11,6 +11,8 @@
 		3543DE7B2EBF9E6500B940C0 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3543DE7A2EBF9E6500B940C0 /* SettingsView.swift */; };
 		356038242EC48A240069EB79 /* AuthData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 356038232EC48A240069EB79 /* AuthData.swift */; };
 		356038AF2EC490170069EB79 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 356038AE2EC490170069EB79 /* AppState.swift */; };
+		356038B32EC499610069EB79 /* Colors.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 356038B22EC499610069EB79 /* Colors.xcassets */; };
+		356038B52EC49C210069EB79 /* View+Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 356038B42EC49C210069EB79 /* View+Colors.swift */; };
 		358CAFAE2EBA10A800C912B3 /* SideMenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 358CAFAD2EBA10A800C912B3 /* SideMenuView.swift */; };
 		35B7DD2F2EA675980025CC89 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 35B7DD2B2EA675980025CC89 /* Assets.xcassets */; };
 		35B7DD312EA675980025CC89 /* UberCloneApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35B7DD2D2EA675980025CC89 /* UberCloneApp.swift */; };
@@ -28,7 +30,6 @@
 		84172E512EAF064B000383E1 /* LocationInputActivationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84172E502EAF064B000383E1 /* LocationInputActivationView.swift */; };
 		84172E532EAF0B6F000383E1 /* HomeViewVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84172E522EAF0B6F000383E1 /* HomeViewVM.swift */; };
 		84172E552EAF1C99000383E1 /* LocationInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84172E542EAF1C99000383E1 /* LocationInputView.swift */; };
-		8419AAF52EA76F37008B50DC /* AppColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8419AAF42EA76F37008B50DC /* AppColors.swift */; };
 		8419AAF72EA76FAF008B50DC /* SignUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8419AAF62EA76FAF008B50DC /* SignUpView.swift */; };
 		8419AB052EA79181008B50DC /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8419AB042EA79181008B50DC /* GoogleService-Info.plist */; };
 		8419AB122EA794C5008B50DC /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8419AB112EA794C5008B50DC /* AppDelegate.swift */; };
@@ -66,6 +67,8 @@
 		3543DE7A2EBF9E6500B940C0 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		356038232EC48A240069EB79 /* AuthData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthData.swift; sourceTree = "<group>"; };
 		356038AE2EC490170069EB79 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
+		356038B22EC499610069EB79 /* Colors.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Colors.xcassets; sourceTree = "<group>"; };
+		356038B42EC49C210069EB79 /* View+Colors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+Colors.swift"; sourceTree = "<group>"; };
 		358CAFAD2EBA10A800C912B3 /* SideMenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SideMenuView.swift; sourceTree = "<group>"; };
 		35B7DD1D2EA675880025CC89 /* UberClone.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = UberClone.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		35B7DD2B2EA675980025CC89 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -84,7 +87,6 @@
 		84172E502EAF064B000383E1 /* LocationInputActivationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationInputActivationView.swift; sourceTree = "<group>"; };
 		84172E522EAF0B6F000383E1 /* HomeViewVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewVM.swift; sourceTree = "<group>"; };
 		84172E542EAF1C99000383E1 /* LocationInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationInputView.swift; sourceTree = "<group>"; };
-		8419AAF42EA76F37008B50DC /* AppColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppColors.swift; sourceTree = "<group>"; };
 		8419AAF62EA76FAF008B50DC /* SignUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpView.swift; sourceTree = "<group>"; };
 		8419AB042EA79181008B50DC /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "UberClone/GoogleService-Info.plist"; sourceTree = SOURCE_ROOT; };
 		8419AB112EA794C5008B50DC /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -154,6 +156,7 @@
 			children = (
 				843023632EA8C44300A5EEF5 /* Result+Helper.swift */,
 				84FD32B12EB0D37F0089DD38 /* MKPlacemark+Address.swift */,
+				356038B42EC49C210069EB79 /* View+Colors.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -258,7 +261,7 @@
 			children = (
 				35B7DD2B2EA675980025CC89 /* Assets.xcassets */,
 				8419AB042EA79181008B50DC /* GoogleService-Info.plist */,
-				8419AAF42EA76F37008B50DC /* AppColors.swift */,
+				356038B22EC499610069EB79 /* Colors.xcassets */,
 			);
 			path = Resource;
 			sourceTree = "<group>";
@@ -404,6 +407,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				356038B32EC499610069EB79 /* Colors.xcassets in Resources */,
 				35B7DD2F2EA675980025CC89 /* Assets.xcassets in Resources */,
 				8419AB052EA79181008B50DC /* GoogleService-Info.plist in Resources */,
 			);
@@ -422,9 +426,9 @@
 				84FD32B22EB0D37F0089DD38 /* MKPlacemark+Address.swift in Sources */,
 				843023622EA8C2BE00A5EEF5 /* SignUpError.swift in Sources */,
 				3543DE7B2EBF9E6500B940C0 /* SettingsView.swift in Sources */,
+				356038B52EC49C210069EB79 /* View+Colors.swift in Sources */,
 				84321DCE2EAB57DA0094D1A1 /* HomeView.swift in Sources */,
 				35CF15622EBCC12A00C316A7 /* ContainerViewVM.swift in Sources */,
-				8419AAF52EA76F37008B50DC /* AppColors.swift in Sources */,
 				356038242EC48A240069EB79 /* AuthData.swift in Sources */,
 				358CAFAE2EBA10A800C912B3 /* SideMenuView.swift in Sources */,
 				843023642EA8C44300A5EEF5 /* Result+Helper.swift in Sources */,

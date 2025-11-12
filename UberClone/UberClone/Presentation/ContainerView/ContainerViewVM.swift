@@ -44,8 +44,8 @@ class ContainerViewVM: NSObject, ObservableObject {
     let newAppState = authService.getAuthenticatedUser() == nil ? AppState.auth : AppState.app
     if newAppState != appState {
       appState = newAppState
-      showLogin = appState == .auth
     }
+    showLogin = appState == .auth
   }
   
   func fetchUserData() {

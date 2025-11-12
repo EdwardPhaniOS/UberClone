@@ -37,7 +37,7 @@ struct SideMenuView: View {
         ZStack {
           Rectangle()
             .frame(height: 200)
-            .background(Color(uiColor: AppColors.backgroundColor))
+            .background(Color.appTheme.viewBackground)
           
           HStack {
             ZStack {
@@ -45,16 +45,16 @@ struct SideMenuView: View {
                 .frame(width: 72, height: 72)
                 .foregroundStyle(.black)
               Text(user?.firstInitial ?? "")
-                .foregroundStyle(.white)
+                .foregroundStyle(Color.appTheme.accentContrastText)
                 .font(.system(size: 36))
             }
             .padding()
             VStack(alignment: .leading) {
               Text(user?.fullName ?? "")
-                .foregroundStyle(.white)
+                .foregroundStyle(Color.appTheme.accentContrastText)
                 .font(.title3)
               Text(verbatim: user?.email ?? "")
-                .foregroundStyle(.gray)
+                .foregroundStyle(Color.appTheme.info)
                 .font(.subheadline)
             }
             Spacer()

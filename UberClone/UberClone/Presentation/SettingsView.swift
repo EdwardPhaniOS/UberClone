@@ -26,7 +26,7 @@ struct SettingsView: View {
               .frame(width: 72, height: 72)
               .foregroundStyle(.black)
             Text(viewModel.user?.firstInitial ?? "")
-              .foregroundStyle(.white)
+              .foregroundStyle(Color.appTheme.accentContrastText)
               .font(.system(size: 36))
           }
           .padding(.top)
@@ -34,10 +34,10 @@ struct SettingsView: View {
           
           VStack(alignment: .leading) {
             Text(viewModel.userName)
-              .foregroundStyle(.black)
+              .foregroundStyle(Color.appTheme.alternateText)
               .font(.title3)
             Text(verbatim: viewModel.userEmail)
-              .foregroundStyle(.gray)
+              .foregroundStyle(Color.appTheme.info)
               .font(.subheadline)
           }
           .padding(.leading, 4)
@@ -52,8 +52,8 @@ struct SettingsView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal)
             .padding(.vertical, 8)
-            .background(Color(uiColor: AppColors.backgroundColor))
-            .foregroundColor(.white)
+            .background(Color.appTheme.viewBackground)
+            .foregroundColor(Color.appTheme.text)
             .listRowInsets(EdgeInsets())
           
           List {
@@ -65,10 +65,10 @@ struct SettingsView: View {
                 } label: {
                   VStack(alignment: .leading) {
                     Text(viewModel.getLocationTitle(type: type))
-                      .foregroundStyle(.black)
+                      .foregroundStyle(Color.appTheme.alternateText)
                       .font(.title3)
                     Text(viewModel.getLocationSubTitle(type: type))
-                      .foregroundStyle(.gray)
+                      .foregroundStyle(Color.appTheme.info)
                       .font(.subheadline)
                   }
                 }
@@ -79,7 +79,7 @@ struct SettingsView: View {
         }
       }
       .navigationTitle("Settings")
-      .toolbarBackground(Color(uiColor: AppColors.backgroundColor), for: .navigationBar)
+      .toolbarBackground(Color.appTheme.viewBackground, for: .navigationBar)
       .toolbarBackground(.visible, for: .navigationBar)
       .toolbarColorScheme(.dark, for: .navigationBar)
       .toolbar {

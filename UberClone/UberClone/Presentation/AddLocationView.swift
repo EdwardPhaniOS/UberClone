@@ -50,7 +50,7 @@ struct AddLocationView: View {
       }, message: {
         Text(viewModel.alertMessage)
       })
-      .toolbarBackground(Color(uiColor: AppColors.backgroundColor), for: .navigationBar)
+      .toolbarBackground(Color.appTheme.viewBackground, for: .navigationBar)
       .toolbarBackground(.visible, for: .navigationBar)
       .toolbarColorScheme(.dark, for: .navigationBar)
       .toolbar {

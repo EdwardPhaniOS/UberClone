@@ -35,7 +35,7 @@ struct LoginView: View {
             .padding()
             .fontWeight(.medium)
             .font(.title2)
-            .background(Color(uiColor: AppColors.mainBlueTint))
+            .background(Color.appTheme.accent)
             .foregroundStyle(.white)
             .cornerRadius(8)
         }
@@ -51,13 +51,13 @@ struct LoginView: View {
             .foregroundStyle(.white)
           Text("Sign Up")
             .fontWeight(.medium)
-            .foregroundStyle(Color(uiColor: AppColors.mainBlueTint))
+            .foregroundStyle(Color.appTheme.accent)
         }
       }
       .safeAreaPadding(.bottom, 48)
     }
     .printFileOnAppear()
-    .background(Color(uiColor: AppColors.backgroundColor))
+    .background(Color.appTheme.viewBackground)
     .navigationDestination(isPresented: $viewModel.showSignUp, destination: {
       SignUpView(diContainer: viewModel.diContainer)
     })

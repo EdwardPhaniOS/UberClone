@@ -58,7 +58,7 @@ struct PickupView: View {
     }
     .frame(maxWidth: .infinity)
     .printFileOnAppear()
-    .background(Color(uiColor: AppColors.backgroundColor))
+    .background(Color.appTheme.viewBackground)
     .onAppear {
       viewModel.countDownToAcceptTrip {
         onCloseButtonPressed?()

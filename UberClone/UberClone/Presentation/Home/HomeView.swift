@@ -58,7 +58,7 @@ struct HomeView: View {
           Annotation("", coordinate: driver.coordinate) {
             ZStack {
               RoundedRectangle(cornerRadius: 8)
-                .foregroundStyle(Color(uiColor: AppColors.backgroundColor))
+                .foregroundStyle(Color.appTheme.viewBackground)
                 .frame(width: 25, height: 25)
               Image(systemName: "car")
                 .foregroundStyle(Color.white)
@@ -76,7 +76,7 @@ struct HomeView: View {
 
       if let coordinates = viewModel.routeCoordinates, !coordinates.isEmpty {
         MapPolyline(coordinates: coordinates)
-          .stroke(Color(uiColor: AppColors.mainBlueTint), lineWidth: 5)
+          .stroke(Color.appTheme.accent, lineWidth: 5)
       }
     }
     .mapControls({
@@ -154,7 +154,7 @@ struct HomeView: View {
 
         })
         .animation(.easeInOut(duration: 0.3), value: viewModel.inputViewState)
-        .foregroundStyle(Color(uiColor: AppColors.backgroundColor))
+        .foregroundStyle(Color.appTheme.viewBackground)
         .padding(.top, 4)
         .padding(.leading, 16)
         Spacer()
