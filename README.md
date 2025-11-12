@@ -1,30 +1,39 @@
-🚗 UberClone
+# 🚗 UberClone
 
-A simplified Uber-like ride-hailing app built with Swift and UIKit. This project demonstrates core concepts such as map integration, location tracking, ride request flow, and basic UI for drivers and riders.
+A simplified Uber-like ride-hailing app built with Swift and UIKit. Demonstrates core concepts such as map integration, location tracking, ride request flow, and basic driver & rider UI.
 
+[![Swift](https://img.shields.io/badge/language-Swift-orange.svg)]() [![iOS](https://img.shields.io/badge/iOS-15%2B-blue.svg)]() <!-- optional badges -->
 
-📦 Features
+## Table of Contents
 
-•  Rider location tracking using CoreLocation
-•  Map display and routing with MapKit
-•  Ride request and confirmation flow
-•  Basic driver and rider UI screens
-•  MVVM architecture with clean separation of concerns
+- [Features](#features)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Architecture](#architecture)
+- [Notes](#notes)
+- [License](#license)
+- [Contributing](#contributing)
+- [Contact](#contact)
 
+## Features
 
-🛠 Requirements
+- Rider location tracking using CoreLocation
+- Map display and routing with MapKit
+- Ride request and confirmation flow
+- Basic driver and rider UI screens
+- MVVM architecture with clear separation of concerns
 
-•  Xcode 14 or later
-•  iOS 15.0+
-•  Swift 5.7+
-•  CocoaPods or Swift Package Manager (if external dependencies are added)
+## Requirements
 
+- Xcode 14 or later
+- iOS 15.0+
+- Swift 5.7+
+- CocoaPods or Swift Package Manager (only if you add external dependencies)
 
-📌 Notes
+## Installation
 
-•  This is a simplified clone for educational purposes.
-
-
-📄 License
-
-This project is licensed under the MIT License. See the LICENSE file for details.
+1. Clone the repo:
+   ```bash
+   git clone https://github.com/EdwardPhaniOS/UberClone.git
+   cd UberClone
