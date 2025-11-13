@@ -19,17 +19,6 @@ struct LoadingView: View {
   }
 }
 
-extension View {
-  func showLoadingView(isLoading: Bool, message: String = "") -> some View {
-    ZStack {
-      self.allowsHitTesting(!isLoading)
-      if isLoading {
-        LoadingView(message: message)
-      }
-    }
-  }
-}
-
 #Preview {
   LoadingView(message: "Loading...")
 }

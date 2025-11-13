@@ -7,16 +7,16 @@ struct CustomSegmentedPicker: UIViewRepresentable {
 
   @Binding var selection: Int
   let items: [String]
-  var tintColor: UIColor = .white
-  var textColorInNormalState: UIColor = .white
-  var textColorInSelectedState: UIColor = .black
+  var tintColor: UIColor = UIColor(Color.appTheme.accent)
+  var textColorInNormalState: UIColor = UIColor(Color.appTheme.accentContrastText)
+  var textColorInSelectedState: UIColor = UIColor(Color.appTheme.accentContrastText)
   var font: UIFont = .systemFont(ofSize: 16)
 
   func makeUIView(context: Context) -> UISegmentedControl {
     let control = UISegmentedControl(items: items)
     control.selectedSegmentIndex = selection
     control.selectedSegmentTintColor = tintColor
-    control.backgroundColor = .black
+    control.backgroundColor = UIColor(Color.appTheme.neutralAction)
     let normalAttributes: [NSAttributedString.Key: Any] = [
       .foregroundColor: textColorInNormalState,
       .font: font

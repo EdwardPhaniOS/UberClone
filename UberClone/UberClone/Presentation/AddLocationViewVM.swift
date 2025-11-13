@@ -15,7 +15,6 @@ class AddLocationViewVM: NSObject, ObservableObject {
   @Published var searchText = ""
   @Published var isLoading = false
   @Published var showAlert = false
-  @Published var loadingMessage = ""
   @Published var alertMessage = ""
   
   var diContainer: DIContainer

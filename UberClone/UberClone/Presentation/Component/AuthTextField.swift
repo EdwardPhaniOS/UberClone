@@ -14,7 +14,7 @@ struct AuthTextField: View {
     VStack(alignment: .center, spacing: 4) {
       HStack {
         Image(systemName: systemImage)
-          .foregroundStyle(.white)
+          .foregroundStyle(Color.appTheme.divider)
           .frame(width: 24)
         ZStack(alignment: .leading) {
           if text.isEmpty {
@@ -23,17 +23,18 @@ struct AuthTextField: View {
           }
           if isSecure {
             SecureField(placeHolder, text: $text)
-              .foregroundStyle(.white)
+              .foregroundStyle(Color.appTheme.text)
+              .textContentType(.newPassword)
           } else {
             TextField(placeHolder, text: $text)
-              .foregroundStyle(.white)
+              .foregroundStyle(Color.appTheme.text)
           }
         }
       }
       .frame(height: 24)
       Rectangle()
         .frame(height: 1)
-        .foregroundStyle(.white)
+        .foregroundStyle(Color.appTheme.divider)
     }
   }
 }

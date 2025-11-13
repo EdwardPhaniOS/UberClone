@@ -37,13 +37,13 @@ struct SideMenuView: View {
         ZStack {
           Rectangle()
             .frame(height: 200)
-            .background(Color.appTheme.viewBackground)
+            .foregroundStyle(Color.appTheme.viewBackground)
           
           HStack {
             ZStack {
               RoundedRectangle(cornerRadius: 36)
                 .frame(width: 72, height: 72)
-                .foregroundStyle(.black)
+                .foregroundStyle(Color.appTheme.accent)
               Text(user?.firstInitial ?? "")
                 .foregroundStyle(Color.appTheme.accentContrastText)
                 .font(.system(size: 36))
@@ -51,7 +51,7 @@ struct SideMenuView: View {
             .padding()
             VStack(alignment: .leading) {
               Text(user?.fullName ?? "")
-                .foregroundStyle(Color.appTheme.accentContrastText)
+                .foregroundStyle(Color.appTheme.text)
                 .font(.title3)
               Text(verbatim: user?.email ?? "")
                 .foregroundStyle(Color.appTheme.info)
@@ -59,6 +59,7 @@ struct SideMenuView: View {
             }
             Spacer()
           }
+          .padding(.top, 48)
         }
         
         ForEach(MenuOption.allCases, id: \.self) { option in
@@ -72,7 +73,7 @@ struct SideMenuView: View {
       })
       .ignoresSafeArea(edges: [.top])
       .frame(maxWidth: 280, alignment: .leading)
-      .background(Color.white)
+      .background(Color.appTheme.cellBackground)
       
       Spacer()
     }

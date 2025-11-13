@@ -13,78 +13,86 @@ struct SignUpView: View {
   }
 
   var body: some View {
-    VStack {
-      Text("UBER")
-        .foregroundStyle(.white)
-        .font(.largeTitle)
-        .fontWeight(.medium)
-      ScrollView {
-        formContent
+    ScrollView(content: {
+      VStack(spacing: 48) {
+        titleView
+        inputFieldsView
+        signUpButtonView
       }
-      Spacer()
-      Button {
-        dismiss()
-      } label: {
-        HStack {
-          Text("Already have an account?")
-            .foregroundStyle(.white)
-          Text("Log In")
-            .fontWeight(.medium)
-            .foregroundStyle(Color.appTheme.accent)
-        }
-      }
-      .safeAreaPadding(.bottom, 48)
-    }
-    .alert("", isPresented: $viewModel.showAlert, actions: {
-      Button("OK", role: .cancel, action: {})
-    }, message: {
-      Text(viewModel.alertMessage)
     })
-    .showLoadingView(isLoading: viewModel.isLoading)
+    .padding(.horizontal, 32)
+    .padding(.top, 48)
+    .padding(.bottom, 4)
+    .infinityFrame()
+    .showAlert(item: $viewModel.appAlert)
+    .showLoading(isLoading: viewModel.isLoading)
     .background(Color.appTheme.viewBackground)
     .navigationBarBackButtonHidden(true)
     .printFileOnAppear()
+    .hideKeyboardOnTap()
+    .safeAreaInset(edge: .bottom) {
+      loginButtonView
+        .padding(.bottom)
+        .padding(.horizontal, 32)
+    }
+    .ignoresSafeArea(.keyboard)
   }
 
-  var formContent: some View {
-    VStack {
+  
+}
+
+private extension SignUpView {
+  var titleView: some View {
+    Text("UBER")
+      .foregroundStyle(Color.appTheme.text)
+      .font(.largeTitle)
+      .fontWeight(.medium)
+  }
+  
+  var inputFieldsView: some View {
+    VStack(spacing: 32) {
       AuthTextField(text: $viewModel.email, placeHolder: "Email", systemImage: "envelope")
-        .padding(.horizontal, 24)
-        .padding(.bottom, 32)
       AuthTextField(text: $viewModel.fullName, placeHolder: "Full Name", systemImage: "person")
-        .padding(.horizontal, 24)
-        .padding(.bottom, 32)
       AuthTextField(text: $viewModel.password, placeHolder: "Password", systemImage: "lock", isSecure: true)
-        .padding(.horizontal, 24)
-        .padding(.bottom, 32)
-      HStack {
-        Image(systemName: "person.crop.rectangle")
-          .foregroundStyle(.white)
-          .padding(.leading, 24)
-        Spacer()
+      VStack {
+        HStack {
+          Image(systemName: "person.crop.rectangle")
+            .foregroundStyle(Color.appTheme.divider)
+          Spacer()
+        }
+        CustomSegmentedPicker(selection: $viewModel.accountTypeIndex, items: ["Rider", "Driver"])
       }
-      .padding(.bottom, 12)
-      CustomSegmentedPicker(selection: $viewModel.accountTypeIndex, items: ["Rider", "Driver"])
-        .padding(.horizontal, 24)
-        .padding(.bottom, 12)
-      Rectangle()
-        .frame(height: 1)
+      
+    }
+  }
+  
+  var signUpButtonView: some View {
+    Button {
+      viewModel.handleSignUp()
+    } label: {
+      Text("Sign Up")
+        .frame(maxWidth: .infinity)
+        .padding()
+        .fontWeight(.medium)
+        .font(.title2)
+        .background(Color.appTheme.accent)
         .foregroundStyle(.white)
-        .padding(.horizontal, 24)
-      Button {
-        viewModel.handleSignUp()
-      } label: {
-        Text("Sign Up")
-          .frame(maxWidth: .infinity)
-          .padding()
-          .fontWeight(.medium)
-          .font(.title2)
-          .background(Color.appTheme.accent)
-          .foregroundStyle(.white)
-          .cornerRadius(8)
-      }
-      .padding(.top, 32)
-      .padding(.horizontal, 24)
+        .cornerRadius(8)
+    }
+  }
+  
+  var loginButtonView: some View {
+    HStack {
+      Text("Already have an account?")
+        .foregroundStyle(Color.appTheme.secondaryText)
+      Text("Log In")
+        .fontWeight(.medium)
+        .foregroundStyle(Color.appTheme.accent)
+    }
+    .plainButton()
+    .frame(height: 32)
+    .button {
+      dismiss()
     }
   }
 }

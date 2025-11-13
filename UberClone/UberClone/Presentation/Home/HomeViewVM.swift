@@ -41,7 +41,7 @@ class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
   @Published var routeCoordinates: [CLLocationCoordinate2D]? = nil
   @Published var showPickupView: Bool = false
   @Published var isLoading: Bool = false
-  @Published var loadingMessage: String = ""
+  @Published  var loadingMessage = ""
   @Published var showAlert: Bool = false
   @Published var alertMessage: String = ""
   

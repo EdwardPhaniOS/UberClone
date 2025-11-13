@@ -24,7 +24,7 @@ struct SettingsView: View {
           ZStack {
             RoundedRectangle(cornerRadius: 36)
               .frame(width: 72, height: 72)
-              .foregroundStyle(.black)
+              .foregroundStyle(Color.appTheme.accent)
             Text(viewModel.user?.firstInitial ?? "")
               .foregroundStyle(Color.appTheme.accentContrastText)
               .font(.system(size: 36))
@@ -34,7 +34,7 @@ struct SettingsView: View {
           
           VStack(alignment: .leading) {
             Text(viewModel.userName)
-              .foregroundStyle(Color.appTheme.alternateText)
+              .foregroundStyle(Color.appTheme.text)
               .font(.title3)
             Text(verbatim: viewModel.userEmail)
               .foregroundStyle(Color.appTheme.info)
@@ -65,7 +65,7 @@ struct SettingsView: View {
                 } label: {
                   VStack(alignment: .leading) {
                     Text(viewModel.getLocationTitle(type: type))
-                      .foregroundStyle(Color.appTheme.alternateText)
+                      .foregroundStyle(Color.appTheme.text)
                       .font(.title3)
                     Text(viewModel.getLocationSubTitle(type: type))
                       .foregroundStyle(Color.appTheme.info)
@@ -79,9 +79,9 @@ struct SettingsView: View {
         }
       }
       .navigationTitle("Settings")
+      .foregroundStyle(Color.appTheme.text)
       .toolbarBackground(Color.appTheme.viewBackground, for: .navigationBar)
       .toolbarBackground(.visible, for: .navigationBar)
-      .toolbarColorScheme(.dark, for: .navigationBar)
       .toolbar {
         ToolbarItem(placement: .topBarLeading) {
           Button("", systemImage: "xmark") {

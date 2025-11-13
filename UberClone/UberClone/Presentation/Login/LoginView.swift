@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct LoginView: View {
-
+  
   @StateObject var viewModel: LoginViewVM
   
   init(diContainer: DIContainer) {
@@ -16,57 +16,73 @@ struct LoginView: View {
   }
 
   var body: some View {
-    VStack {
-      VStack {
-        Text("UBER")
-          .foregroundStyle(.white)
-          .font(.largeTitle)
-          .fontWeight(.medium)
-        AuthTextField(text: $viewModel.email, placeHolder: "Email", systemImage: "envelope")
-          .padding(.horizontal, 24)
-          .padding(.bottom, 32)
-        AuthTextField(text: $viewModel.password, placeHolder: "Password", systemImage: "lock", isSecure: true)
-          .padding(.horizontal, 24)
-        Button {
-          viewModel.handleLogin()
-        } label: {
-          Text("Login")
-            .frame(maxWidth: .infinity)
-            .padding()
-            .fontWeight(.medium)
-            .font(.title2)
-            .background(Color.appTheme.accent)
-            .foregroundStyle(.white)
-            .cornerRadius(8)
-        }
-        .padding(.top, 32)
-        .padding(.horizontal, 24)
+    ScrollView {
+      VStack(spacing: 48) {
+        titleView
+        inputFieldsView
+        loginButtonView
       }
-      Spacer()
-      Button {
-        viewModel.showSignUp = true
-      } label: {
-        HStack {
-          Text("Don't have an account?")
-            .foregroundStyle(.white)
-          Text("Sign Up")
-            .fontWeight(.medium)
-            .foregroundStyle(Color.appTheme.accent)
-        }
-      }
-      .safeAreaPadding(.bottom, 48)
+     
     }
+    .padding(.horizontal, 32)
+    .padding(.top, 48)
+    .padding(.bottom, 4)
     .printFileOnAppear()
+    .infinityFrame()
     .background(Color.appTheme.viewBackground)
     .navigationDestination(isPresented: $viewModel.showSignUp, destination: {
       SignUpView(diContainer: viewModel.diContainer)
     })
-    .alert("", isPresented: $viewModel.showAlert, actions: {
-      Button("OK", role: .cancel, action: {})
-    }, message: {
-      Text(viewModel.alertMessage)
-    })
-    .showLoadingView(isLoading: viewModel.isLoading)
+    .showAlert(item: $viewModel.appAlert)
+    .showLoading(isLoading: viewModel.isLoading)
+    .hideKeyboardOnTap()
+    .safeAreaInset(edge: .bottom) {
+      signUpButtonView
+        .padding(.bottom)
+        .padding(.horizontal, 32)
+    }
+    .ignoresSafeArea(.keyboard, edges: .bottom)
+  }
+}
+
+private extension LoginView {
+  var titleView: some View {
+    Text("UBER")
+      .foregroundStyle(Color.appTheme.text)
+      .font(.largeTitle)
+      .fontWeight(.medium)
+  }
+  
+  var inputFieldsView: some View {
+    ScrollView {
+      VStack(spacing: 32) {
+        AuthTextField(text: $viewModel.email, placeHolder: "Email", systemImage: "envelope")
+        AuthTextField(text: $viewModel.password, placeHolder: "Password", systemImage: "lock", isSecure: true)
+      }
+    }
+  }
+  
+  var loginButtonView: some View {
+    Text("Login")
+      .primaryButton()
+      .button(.press) {
+        viewModel.handleLogin()
+      }
+  }
+  
+  var signUpButtonView: some View {
+    HStack {
+      Text("Don't have an account?")
+        .foregroundStyle(Color.appTheme.secondaryText)
+      Text("Sign Up")
+        .fontWeight(.medium)
+        .foregroundStyle(Color.appTheme.accent)
+    }
+    .plainButton()
+    .frame(height: 32)
+    .button {
+      viewModel.showSignUp = true
+    }
   }
 }
 

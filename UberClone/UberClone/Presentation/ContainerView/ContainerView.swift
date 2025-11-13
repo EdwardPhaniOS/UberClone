@@ -71,7 +71,7 @@ struct ContainerView: View {
       ])
     }
     .statusBarHidden(isMenuOpen)
-    .showLoadingView(isLoading: viewModel.isLoading)
+    .showLoading(isLoading: viewModel.isLoading)
   }
 }
 

@@ -13,10 +13,9 @@ class SignUpVM: ObservableObject {
   @Published var email: String = ""
   @Published var password: String = ""
   @Published var fullName: String = ""
-  @Published var alertMessage: String = ""
-  @Published var showAlert: Bool = false
   @Published var isLoading: Bool = false
   @Published var accountTypeIndex = 0
+  @Published var appAlert: AppAlert?
 
   init(diContainer: DIContainer) {
     self.diContainer = diContainer
@@ -52,7 +51,7 @@ class SignUpVM: ObservableObject {
         }
         
       } catch {
-        self.showAlertOnUI(message: "Failed to register user with error: \(error.localizedDescription)")
+        self.showAlertOnUI(message: "\(error.localizedDescription)")
         isLoading = false
       }
     }
@@ -83,8 +82,7 @@ class SignUpVM: ObservableObject {
   }
 
   func showAlertOnUI(message: String) {
-    showAlert = true
-    alertMessage = message
+    appAlert = AppAlert(title: "Sign Up Error", message: message)
   }
 
   func validateInput() -> Result<Void, SignUpError> {

@@ -33,7 +33,7 @@ struct HomeView: View {
       }
     })
     .printFileOnAppear()
-    .showLoadingView(isLoading: viewModel.isLoading, message: viewModel.loadingMessage)
+    .showLoading(isLoading: viewModel.isLoading, message: viewModel.loadingMessage)
     .fullScreenCover(isPresented: $viewModel.showPickupView, content: {
       PickupView(diContainer: viewModel.diContainer, trip: viewModel.trip!, onCloseButtonPressed: {
         viewModel.showPickupView = false
@@ -58,7 +58,7 @@ struct HomeView: View {
           Annotation("", coordinate: driver.coordinate) {
             ZStack {
               RoundedRectangle(cornerRadius: 8)
-                .foregroundStyle(Color.appTheme.viewBackground)
+                .foregroundStyle(Color.appTheme.alternateAccent)
                 .frame(width: 25, height: 25)
               Image(systemName: "car")
                 .foregroundStyle(Color.white)
@@ -76,7 +76,7 @@ struct HomeView: View {
 
       if let coordinates = viewModel.routeCoordinates, !coordinates.isEmpty {
         MapPolyline(coordinates: coordinates)
-          .stroke(Color.appTheme.accent, lineWidth: 5)
+          .stroke(Color.appTheme.miscellaneous, lineWidth: 5)
       }
     }
     .mapControls({
@@ -108,7 +108,7 @@ struct HomeView: View {
                 }
             }
           }
-          Section("Results") {
+          Section(viewModel.placemarks.isEmpty ? "" : "Results") {
             ForEach(viewModel.placemarks, id: \.self) { placemark in
               LocationRow(title: placemark.name ?? "", desc: placemark.address)
                 .onTapGesture {
@@ -139,22 +139,29 @@ struct HomeView: View {
     VStack {
       HStack {
         ZStack(content: {
-          Button("", systemImage: "arrow.backward") {
-            viewModel.cancelTrip()
-          }
-          .foregroundStyle(.black)
-          .font(.system(size: 18, weight: .bold))
-          .opacity(viewModel.inputViewState == .didSelectPlacemark ? 1 : 0)
+          Image(systemName: "arrow.backward")
+            .plainButton()
+            .button(.press) {
+              viewModel.cancelTrip()
+            }
+            .foregroundStyle(Color.appTheme.accent)
+            .frame(width: 48, height: 48)
+            .background(Color.appTheme.cellBackground)
+            .cornerRadius(AppCornerRadius.button)
+            .opacity(viewModel.inputViewState == .didSelectPlacemark ? 1 : 0)
 
-          Button("", image: ImageResource(name: "menu_ic", bundle: .main)) {
-            onMenuButtonPressed?()
-          }
-          .font(.system(size: 18, weight: .bold))
-          .opacity((viewModel.inputViewState == .inactive || viewModel.inputViewState == .notAvailable) ? 1 : 0)
-
+          Image("menu_ic")
+            .plainButton()
+            .button(.press) {
+              onMenuButtonPressed?()
+            }
+            .frame(width: 48, height: 48)
+            .background(Color.appTheme.cellBackground)
+            .cornerRadius(AppCornerRadius.button)
+            .opacity((viewModel.inputViewState == .inactive || viewModel.inputViewState == .notAvailable) ? 1 : 0)
         })
         .animation(.easeInOut(duration: 0.3), value: viewModel.inputViewState)
-        .foregroundStyle(Color.appTheme.viewBackground)
+        .foregroundStyle(Color.appTheme.accent)
         .padding(.top, 4)
         .padding(.leading, 16)
         Spacer()

@@ -9,10 +9,9 @@ class LoginViewVM: ObservableObject {
   var authService: AuthService
   @Published var email: String = ""
   @Published var password: String = ""
-  @Published var alertMessage: String = ""
-  @Published var showAlert: Bool = false
   @Published var isLoading: Bool = false
   @Published var showSignUp: Bool = false
+  @Published var appAlert: AppAlert?
   var diContainer: DIContainer
 
   init(diContainer: DIContainer) {
@@ -58,7 +57,6 @@ class LoginViewVM: ObservableObject {
   }
 
   func showAlertOnUI(message: String) {
-    showAlert = true
-    alertMessage = message
+    appAlert = AppAlert(title: "Sign In Error", message: message)
   }
 }
