@@ -8,7 +8,7 @@ import MapKit
 class PickupViewVM: ObservableObject {
 
   @Published var cameraPosition: MapCameraPosition
-  @Published var countdown: Int = 0
+  @Published var countdown: Int = 10
   private var timer: Timer?
 
   var diContainer: DIContainer
@@ -37,8 +37,6 @@ class PickupViewVM: ObservableObject {
         if self.countdown > 1 {
           self.countdown -= 1
         } else {
-          self.timer?.invalidate()
-          self.timer = nil
           self.denyTrip()
           completion()
         }
@@ -52,5 +50,10 @@ class PickupViewVM: ObservableObject {
         print("DEBUG - error: \(error)")
       }
     }
+  }
+  
+  func cancelCountdown() {
+    timer?.invalidate()
+    timer = nil
   }
 }

@@ -16,19 +16,22 @@ struct LoginView: View {
   }
 
   var body: some View {
-    ScrollView {
+    ScrollView(content: {
       VStack(spacing: 48) {
         titleView
         inputFieldsView
-        loginButtonView
+        VStack {
+          loginButtonView
+          signUpButtonView
+        }
+        Spacer()
       }
-     
-    }
+    })
+    .infinityFrame()
     .padding(.horizontal, 32)
     .padding(.top, 48)
     .padding(.bottom, 4)
     .printFileOnAppear()
-    .infinityFrame()
     .background(Color.appTheme.viewBackground)
     .navigationDestination(isPresented: $viewModel.showSignUp, destination: {
       SignUpView(diContainer: viewModel.diContainer)
@@ -36,11 +39,7 @@ struct LoginView: View {
     .showAlert(item: $viewModel.appAlert)
     .showLoading(isLoading: viewModel.isLoading)
     .hideKeyboardOnTap()
-    .safeAreaInset(edge: .bottom) {
-      signUpButtonView
-        .padding(.bottom)
-        .padding(.horizontal, 32)
-    }
+    .keyboardToolbarDoneButton()
     .ignoresSafeArea(.keyboard, edges: .bottom)
   }
 }
@@ -54,11 +53,11 @@ private extension LoginView {
   }
   
   var inputFieldsView: some View {
-    ScrollView {
-      VStack(spacing: 32) {
-        AuthTextField(text: $viewModel.email, placeHolder: "Email", systemImage: "envelope")
-        AuthTextField(text: $viewModel.password, placeHolder: "Password", systemImage: "lock", isSecure: true)
-      }
+    VStack(spacing: 32) {
+      TextField("Email", text: $viewModel.email)
+        .textFieldWithUnderline(sfSymbol: "envelope")
+      SecureField("Password", text: $viewModel.password)
+        .textFieldWithUnderline(sfSymbol: "lock")
     }
   }
   

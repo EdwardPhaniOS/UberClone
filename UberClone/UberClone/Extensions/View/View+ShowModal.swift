@@ -13,9 +13,13 @@ extension View {
       .modifier(ModalSupport(isPresenting: isPresenting, modalContent: content))
   }
   
-  func showModal<Item>(isPresenting: Binding<Item?>, @ViewBuilder content: @escaping () -> some View) -> some View {
+  func showModal<Item>(isPresenting: Binding<Item?>, @ViewBuilder content: @escaping (Item) -> some View) -> some View {
     self
-      .modifier(ModalSupport(isPresenting: isPresenting.isNotNil(), modalContent: content))
+      .modifier(ModalSupport(isPresenting: isPresenting.isNotNil(), modalContent: {
+        if let wrappedValue = isPresenting.wrappedValue {
+          content(wrappedValue)
+        }
+      }))
   }
 }
 
@@ -69,9 +73,9 @@ fileprivate struct Preview: View {
     .showModal(isPresenting: $isPresenting) {
       PreviewModalContentView()
     }
-    .showModal(isPresenting: $item) {
+    .showModal(isPresenting: $item, content: { _ in
       PreviewModalContentView()
-    }
+    })
   }
 }
 

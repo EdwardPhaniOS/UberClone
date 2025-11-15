@@ -58,7 +58,7 @@ struct HomeView: View {
           Annotation("", coordinate: driver.coordinate) {
             ZStack {
               RoundedRectangle(cornerRadius: 8)
-                .foregroundStyle(Color.appTheme.alternateAccent)
+                .foregroundStyle(Color.appTheme.inProgress)
                 .frame(width: 25, height: 25)
               Image(systemName: "car")
                 .foregroundStyle(Color.white)

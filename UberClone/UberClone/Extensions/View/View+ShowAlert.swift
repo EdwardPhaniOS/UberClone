@@ -9,7 +9,7 @@ import SwiftUI
 
 extension View {
   func showAlert(item: Binding<AppAlert?>) -> some View {
-    showModal(isPresenting: item) {
+    showModal(isPresenting: item) { alert in
       AlertView(alert: item)
         .transition(
           .move(edge: .bottom)

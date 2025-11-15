@@ -45,51 +45,50 @@ struct RideActionView: View {
   var onConfirmButtonPressed: ((RideActionViewButtonAction) -> Void)?
   
   var body: some View {
-    ZStack {
+    VStack(spacing: 16) {
+      infoView
       Rectangle()
-        .frame(height: 320)
-        .foregroundStyle(Color.white)
-        .shadow(radius: 8)
-        .offset(y: 28)
-      
-      VStack {
-        Text(title)
-          .font(.title2)
-        Text(description)
-          .font(.system(size: 16))
-          .foregroundStyle(.secondary)
-          .padding(.horizontal, 16)
-        ZStack {
-          RoundedRectangle(cornerRadius: 24)
-            .frame(width: 48, height: 48)
-            .foregroundStyle(Color.black)
-          Text(infoText)
-            .foregroundStyle(Color.white)
-            .font(.system(size: 24))
-        }
-        .padding(.top, 8)
-        
-        Text(state == .requestRide ? "UberX" : "\(user?.fullName ?? "")")
-        
-        Rectangle()
-          .frame(maxWidth: .infinity, maxHeight: 0.5)
-          .foregroundStyle(Color.gray)
-        Button {
-          onConfirmButtonPressed?(buttonAction)
-        } label: {
-          Text(buttonAction.description)
-            .padding(.vertical, 8)
-            .frame(maxWidth: .infinity, minHeight: 48)
-            .foregroundStyle(Color.white)
-        }
-        .disabled(enableButton)
-        .background(Color.black)
+        .frame(maxWidth: .infinity, maxHeight: 0.5)
+        .foregroundStyle(Color.gray)
+      actionButtonView
+    }
+    .padding()
+    .background(Color.appTheme.viewBackground)
+  }
+}
+
+private extension RideActionView {
+  var infoView: some View {
+    VStack {
+      Text(title)
+        .font(.title2)
+      Text(description)
+        .font(.system(size: 16))
+        .foregroundStyle(.secondary)
         .padding(.horizontal, 16)
-        .padding(.top, 16)
+      ZStack {
+        RoundedRectangle(cornerRadius: 24)
+          .frame(width: 48, height: 48)
+          .foregroundStyle(Color.appTheme.alternateAccent)
+        Text(infoText)
+          .foregroundStyle(Color.appTheme.accentContrastText)
+          .font(.system(size: 24))
       }
+      Text(state == .requestRide ? "UberX" : "\(user?.fullName ?? "")")
     }
   }
   
+  var actionButtonView: some View {
+    Text(buttonAction.description)
+      .primaryButton()
+      .button(.press) {
+        onConfirmButtonPressed?(buttonAction)
+      }
+      .disabled(enableButton)
+  }
+}
+
+private extension RideActionView {
   var infoText: String {
     switch state {
     case .requestRide:
@@ -155,6 +154,12 @@ struct RideActionView: View {
   }
 }
 
+fileprivate struct PreviewView: View {
+  var body: some View {
+    RideActionView(state: .requestRide)
+  }
+}
+
 #Preview {
-  RideActionView(state: .requestRide)
+  PreviewView()
 }

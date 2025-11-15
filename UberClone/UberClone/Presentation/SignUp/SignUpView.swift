@@ -17,7 +17,10 @@ struct SignUpView: View {
       VStack(spacing: 48) {
         titleView
         inputFieldsView
-        signUpButtonView
+        VStack {
+          signUpButtonView
+          loginButtonView
+        }
       }
     })
     .padding(.horizontal, 32)
@@ -30,12 +33,6 @@ struct SignUpView: View {
     .navigationBarBackButtonHidden(true)
     .printFileOnAppear()
     .hideKeyboardOnTap()
-    .safeAreaInset(edge: .bottom) {
-      loginButtonView
-        .padding(.bottom)
-        .padding(.horizontal, 32)
-    }
-    .ignoresSafeArea(.keyboard)
   }
 
   
@@ -51,9 +48,12 @@ private extension SignUpView {
   
   var inputFieldsView: some View {
     VStack(spacing: 32) {
-      AuthTextField(text: $viewModel.email, placeHolder: "Email", systemImage: "envelope")
-      AuthTextField(text: $viewModel.fullName, placeHolder: "Full Name", systemImage: "person")
-      AuthTextField(text: $viewModel.password, placeHolder: "Password", systemImage: "lock", isSecure: true)
+      TextField("Email", text: $viewModel.email)
+        .textFieldWithUnderline(sfSymbol: "envelope")
+      TextField("Full Name", text: $viewModel.fullName)
+        .textFieldWithUnderline(sfSymbol: "person")
+      SecureField("Password", text: $viewModel.password)
+        .textFieldWithUnderline(sfSymbol: "lock")
       VStack {
         HStack {
           Image(systemName: "person.crop.rectangle")
@@ -67,18 +67,11 @@ private extension SignUpView {
   }
   
   var signUpButtonView: some View {
-    Button {
-      viewModel.handleSignUp()
-    } label: {
-      Text("Sign Up")
-        .frame(maxWidth: .infinity)
-        .padding()
-        .fontWeight(.medium)
-        .font(.title2)
-        .background(Color.appTheme.accent)
-        .foregroundStyle(.white)
-        .cornerRadius(8)
-    }
+    Text("Sign Up")
+      .primaryButton()
+      .button(.press) {
+        viewModel.handleSignUp()
+      }
   }
   
   var loginButtonView: some View {

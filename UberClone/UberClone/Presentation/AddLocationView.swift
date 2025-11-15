@@ -52,7 +52,6 @@ struct AddLocationView: View {
       })
       .toolbarBackground(Color.appTheme.viewBackground, for: .navigationBar)
       .toolbarBackground(.visible, for: .navigationBar)
-      .toolbarColorScheme(.dark, for: .navigationBar)
       .toolbar {
         ToolbarItem(placement: .topBarLeading) {
           Button("", systemImage: "xmark", action: {
