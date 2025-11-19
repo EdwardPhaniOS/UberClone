@@ -2,19 +2,16 @@
 // Copyright (c) 2025 ABC Virtual Communications, Inc. All rights reserved.
 
 import CoreLocation
-
-protocol LocationHandlerDelegate: AnyObject {
-  func didUpdateLocations(location: CLLocation)
-  func didStartMonitoringFor(region: CLRegion)
-  func didEnterRegion(region: CLRegion)
-}
+import Combine
 
 class LocationHandler: NSObject, CLLocationManagerDelegate {
 
   static let shared = LocationHandler()
   var locationManager: CLLocationManager!
   var location: CLLocation?
-  weak var delegate: LocationHandlerDelegate?
+  
+  @Published var locationUpdate: CLLocation?
+  @Published var enterRegion: CLRegion?
 
   override init() {
     super.init()
@@ -53,19 +50,22 @@ class LocationHandler: NSObject, CLLocationManagerDelegate {
       break
     }
   }
+  
+  func uploadLocationPublisher() -> AnyPublisher<CLLocation?, Never> {
+    $locationUpdate.eraseToAnyPublisher()
+  }
+  
+  func enterRegionPublisher() -> AnyPublisher<CLRegion?, Never> {
+    $enterRegion.eraseToAnyPublisher()
+  }
 
   func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
     guard let location = locations.last else { return }
     self.location = location
-    delegate?.didUpdateLocations(location: location)
-  }
-  
-  func locationManager(_ manager: CLLocationManager, didStartMonitoringFor region: CLRegion) {
-    delegate?.didStartMonitoringFor(region: region)
   }
   
   func locationManager(_ manager: CLLocationManager, didEnterRegion region: CLRegion) {
-    delegate?.didEnterRegion(region: region)
+    self.enterRegion = region
   }
 
 }

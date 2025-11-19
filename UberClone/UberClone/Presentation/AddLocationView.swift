@@ -45,6 +45,7 @@ struct AddLocationView: View {
         viewModel.onSeachTextChange()
       })
       .showLoading(isLoading: viewModel.isLoading)
+      .showError(item: $viewModel.error)
       .alert("", isPresented: $viewModel.showAlert, actions: {
         Button("OK", role: .cancel, action: {})
       }, message: {

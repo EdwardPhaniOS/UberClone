@@ -37,6 +37,7 @@ struct LoginView: View {
       SignUpView(diContainer: viewModel.diContainer)
     })
     .showAlert(item: $viewModel.appAlert)
+    .showError(item: $viewModel.error)
     .showLoading(isLoading: viewModel.isLoading)
     .hideKeyboardOnTap()
     .keyboardToolbarDoneButton()

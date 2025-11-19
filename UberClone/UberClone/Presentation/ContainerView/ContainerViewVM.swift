@@ -10,12 +10,13 @@ import Firebase
 import Combine
 
 @MainActor
-class ContainerViewVM: NSObject, ObservableObject {
+class ContainerViewVM: NSObject, ObservableObject, ErrorDisplayable {
   
   @Published var user: User?
   @Published var isLoading: Bool = false
   @Published var showLogin: Bool = false
   @Published var appState = AppState.auth
+  @Published var error: Error?
   
   var authService: AuthService
   var diContainer: DIContainer
@@ -52,10 +53,11 @@ class ContainerViewVM: NSObject, ObservableObject {
     guard let currentUserId = Auth.auth().currentUser?.uid else { return }
     
     isLoading = true
-    diContainer.userService.fetchUserData(userId: currentUserId) { [weak self] user in
+    Task(handlingError: self) { [weak self] in
       guard let self = self else { return }
-      self.isLoading = false
-      self.user = user
+      defer { isLoading = false }
+      
+      self.user = try await diContainer.userService.fetchUserData(userId: currentUserId)
     }
   }
 

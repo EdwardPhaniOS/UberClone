@@ -20,6 +20,7 @@
 		35AE77152EC8697B0015979F /* ErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35AE77142EC8697B0015979F /* ErrorView.swift */; };
 		35AE77172EC86BB30015979F /* Error+AsAppError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35AE77162EC86BB30015979F /* Error+AsAppError.swift */; };
 		35AE77192EC871480015979F /* View+ShowError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35AE77182EC871480015979F /* View+ShowError.swift */; };
+		35AE771B2EC88BE70015979F /* AuthError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35AE771A2EC88BE70015979F /* AuthError.swift */; };
 		35AF94B22EC5C912009E9F27 /* View+Button.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35AF94B12EC5C912009E9F27 /* View+Button.swift */; };
 		35AF94B42EC5CF93009E9F27 /* View+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35AF94B32EC5CF93009E9F27 /* View+Ext.swift */; };
 		35AF94B62EC5D083009E9F27 /* View+CornerRadius.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35AF94B52EC5D083009E9F27 /* View+CornerRadius.swift */; };
@@ -97,6 +98,7 @@
 		35AE77142EC8697B0015979F /* ErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorView.swift; sourceTree = "<group>"; };
 		35AE77162EC86BB30015979F /* Error+AsAppError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Error+AsAppError.swift"; sourceTree = "<group>"; };
 		35AE77182EC871480015979F /* View+ShowError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+ShowError.swift"; sourceTree = "<group>"; };
+		35AE771A2EC88BE70015979F /* AuthError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthError.swift; sourceTree = "<group>"; };
 		35AF94B12EC5C912009E9F27 /* View+Button.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+Button.swift"; sourceTree = "<group>"; };
 		35AF94B32EC5CF93009E9F27 /* View+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+Ext.swift"; sourceTree = "<group>"; };
 		35AF94B52EC5D083009E9F27 /* View+CornerRadius.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+CornerRadius.swift"; sourceTree = "<group>"; };
@@ -192,6 +194,7 @@
 				35AF94C32EC5DC5F009E9F27 /* AppAlert.swift */,
 				35AF94C52EC5DCE9009E9F27 /* AppError.swift */,
 				35AE77122EC8692A0015979F /* ErrorDisplayable.swift */,
+				35AE771A2EC88BE70015979F /* AuthError.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -551,6 +554,7 @@
 				35CF14BE2EBC962F00C316A7 /* DriverService.swift in Sources */,
 				35CF14B82EBC905800C316A7 /* UserService.swift in Sources */,
 				356038AF2EC490170069EB79 /* AppState.swift in Sources */,
+				35AE771B2EC88BE70015979F /* AuthError.swift in Sources */,
 				843023662EA8CF4B00A5EEF5 /* SignUpVM.swift in Sources */,
 				35ED6AC72EC62B7A00A48223 /* View+ShowLoading.swift in Sources */,
 				35ECBEDD2EC1DF1A002CE352 /* AddLocationView.swift in Sources */,

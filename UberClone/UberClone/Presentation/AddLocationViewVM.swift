@@ -9,13 +9,14 @@ import Foundation
 import MapKit
 
 @MainActor
-class AddLocationViewVM: NSObject, ObservableObject {
+class AddLocationViewVM: NSObject, ObservableObject, ErrorDisplayable {
   
   @Published var locations: [MKPlacemark] = []
   @Published var searchText = ""
   @Published var isLoading = false
   @Published var showAlert = false
   @Published var alertMessage = ""
+  @Published var error: Error?
   
   var diContainer: DIContainer
   var locationType: LocationType
@@ -69,16 +70,12 @@ class AddLocationViewVM: NSObject, ObservableObject {
   
   func saveLocation(location: MKPlacemark, completion: @escaping () -> Void) {
     isLoading = true
-    diContainer.passengerService.saveLocation(type: locationType, location: location.address) { [weak self] error, _ in
+    
+    Task(handlingError: self, operation: { [weak self] in
       guard let self = self else { return }
-      self.isLoading = false
-      
-      if let err = error {
-        self.showAlert = true
-        self.alertMessage = err.localizedDescription
-      }
-      
+      defer { isLoading = false }
+      try await diContainer.passengerService.saveLocation(type: locationType, location: location.address)
       completion()
-    }
+    })
   }
 }

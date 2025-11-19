@@ -20,8 +20,10 @@ struct ContainerView: View {
   
   var body: some View {
     ZStack {
-      HomeView(diContainer: viewModel.diContainer, user: viewModel.user) {
-        isMenuOpen = !isMenuOpen
+      if let user = viewModel.user {
+        HomeView(diContainer: viewModel.diContainer, user: user) {
+          isMenuOpen = !isMenuOpen
+        }
       }
       
       if isMenuOpen {
@@ -61,7 +63,6 @@ struct ContainerView: View {
     .fullScreenCover(isPresented: $showSettings, content: {
       SettingsView(user: viewModel.user)
     })
-    
     .actionSheet(isPresented: $showConfirmLogout) {
       ActionSheet(title: Text("Are your sure you want to logout?"), buttons: [
         .destructive(Text("Logout"), action: {
@@ -72,6 +73,8 @@ struct ContainerView: View {
     }
     .statusBarHidden(isMenuOpen)
     .showLoading(isLoading: viewModel.isLoading)
+    .showError(item: $viewModel.error)
+    .background(Color.appTheme.viewBackground)
   }
 }
 

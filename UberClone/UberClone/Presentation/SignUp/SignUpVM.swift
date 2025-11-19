@@ -7,7 +7,7 @@ import FirebaseDatabase
 import GeoFire
 
 @MainActor
-class SignUpVM: ObservableObject {
+class SignUpVM: ObservableObject, ErrorDisplayable {
   let authService: AuthService
   let diContainer: DIContainer
   @Published var email: String = ""
@@ -16,6 +16,7 @@ class SignUpVM: ObservableObject {
   @Published var isLoading: Bool = false
   @Published var accountTypeIndex = 0
   @Published var appAlert: AppAlert?
+  @Published var error: Error?
 
   init(diContainer: DIContainer) {
     self.diContainer = diContainer
@@ -28,56 +29,32 @@ class SignUpVM: ObservableObject {
       showAlertOnUI(message: error.message)
       return
     }
-
-    isLoading = true
     
-    Task {
-      do {
-        let authResult = try await authService.signUp(withEmail: email, password: password)
-        isLoading = false
-        
-        let uid = authResult.uid
-
-        let values: [String: Any] = [
-          "email": email,
-          "fullName": fullName,
-          "accountType": accountTypeIndex
-        ]
-
-        if accountTypeIndex == 1 {
-          self.uploadDriverLocationAndData(values: values, userId: uid)
-        } else {
-          self.uploadUserDataAndShowHomeView(values: values, userId: uid)
-        }
-        
-      } catch {
-        self.showAlertOnUI(message: "\(error.localizedDescription)")
-        isLoading = false
-      }
-    }
-  }
-
-  func uploadDriverLocationAndData(values: [String: Any], userId: String) {
     guard let location = LocationHandler.shared.location else {
       showAlertOnUI(message: SignUpError.missingCurrentLocation.message)
       return
     }
-    
-    diContainer.driverService.updateDriverLocation(location: location) { [weak self] error in
-      guard let self = self else { return }
-      if let error = error {
-        showAlertOnUI(message: error.localizedDescription)
-      }
-      self.uploadUserDataAndShowHomeView(values: values, userId: userId)
-    }
-  }
 
-  func uploadUserDataAndShowHomeView(values: [String: Any], userId: String)  {
-    diContainer.userService.updateUserData(userId: userId, values: values) { [weak self] error, _ in
+    isLoading = true
+    Task(handlingError: self) { [weak self] in
       guard let self = self else { return }
-      if let error = error {
-        showAlertOnUI(message: error.localizedDescription)
+      
+      let authResult = try await authService.signUp(withEmail: email, password: password)
+      defer { isLoading = false }
+      
+      let uid = authResult.uid
+
+      let values: [String: Any] = [
+        "email": email,
+        "fullName": fullName,
+        "accountType": accountTypeIndex
+      ]
+      
+      if accountTypeIndex == 1 {
+        try await diContainer.driverService.updateDriverLocation(location: location)
       }
+      
+      try await diContainer.userService.updateUserData(userId: uid, values: values)
     }
   }
 

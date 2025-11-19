@@ -8,48 +8,63 @@
 import Firebase
 import FirebaseAuth
 import GeoFire
+import Combine
 
 protocol DriverService {
-  func observeTrip(completion: @escaping (Trip) -> Void)
-  func observeTripCancelled(trip: Trip, completion: @escaping () -> Void)
-  func updateDriverLocation(location: CLLocation, completion: @escaping (Error?) -> Void)
-  func updateTripState(trip: Trip, state: TripState, completion: @escaping (Error?, DatabaseReference) -> Void)
-  func acceptTrip(trip: Trip, completion: @escaping (Error?, DatabaseReference) -> Void)
+  @discardableResult
+  func tripPublisher() -> AnyPublisher<Trip, Error>
+  
+  func tripCancelPublisher(trip: Trip) -> AnyPublisher<Void, Error>
+  
+  func updateDriverLocation(location: CLLocation) async throws
+  
+  func updateTripState(trip: Trip, state: TripState) async throws
+  
+  func acceptTrip(trip: Trip) async throws
+  
+  func removeAllListener()
 }
 
-struct DefaultDriverService: DriverService {
+class DefaultDriverService: DriverService {
   
-  func observeTrip(completion: @escaping (Trip) -> Void) {
+  @discardableResult
+  func tripPublisher() -> AnyPublisher<Trip, Error> {
+    let publisher = PassthroughSubject<Trip, Error>()
+    
     FirebaseREF.trips.observe(.childAdded) { snapshot in
       guard let dict = snapshot.value as? [String: Any] else { return }
       let passengerUid = snapshot.key
       let trip = Trip(passengerUid: passengerUid, dict: dict)
-      completion(trip)
+      publisher.send(trip)
     }
-  }
-
- 
-  func observeTripCancelled(trip: Trip, completion: @escaping () -> Void) {
-    FirebaseREF.trips.child(trip.passengerUid).observeSingleEvent(of: .childRemoved) { _ in
-      completion()
-    }
+    
+    return publisher.eraseToAnyPublisher()
   }
   
-  func updateDriverLocation(location: CLLocation, completion: @escaping (Error?) -> Void) {
+  func tripCancelPublisher(trip: Trip) -> AnyPublisher<Void, Error> {
+    let publisher = PassthroughSubject<Void, Error>()
+    FirebaseREF.trips.child(trip.passengerUid).observeSingleEvent(of: .childRemoved) { _ in
+      publisher.send(Void())
+    }
+    
+    return publisher.eraseToAnyPublisher()
+  }
+  
+  func updateDriverLocation(location: CLLocation) async throws {
     guard let uid = Auth.auth().currentUser?.uid else { return }
     let geofire = GeoFire(firebaseRef: FirebaseREF.driverLocations)
-    geofire.setLocation(location, forKey: uid, withCompletionBlock: completion)
+    return try await geofire.setLocation(location, forKey: uid)
   }
   
-  func updateTripState(trip: Trip, state: TripState, completion: @escaping (Error?, DatabaseReference) -> Void) {
-    FirebaseREF.trips.child(trip.passengerUid).child("state").setValue(state.rawValue, withCompletionBlock: completion)
+  func updateTripState(trip: Trip, state: TripState) async throws {
+    try await FirebaseREF.trips.child(trip.passengerUid).child("state").setValue(state.rawValue, andPriority: nil)
     
     if state == .completed {
       FirebaseREF.trips.child(trip.passengerUid).removeAllObservers()
     }
   }
   
-  func acceptTrip(trip: Trip, completion: @escaping (Error?, DatabaseReference) -> Void) {
+  func acceptTrip(trip: Trip) async throws {
     guard let uid = Auth.auth().currentUser?.uid else { return }
     let passengerUid: String = trip.passengerUid
     let values: [String: Any] = [
@@ -57,6 +72,10 @@ struct DefaultDriverService: DriverService {
       "driverUid": uid
     ]
     
-    FirebaseREF.trips.child(passengerUid).updateChildValues(values, withCompletionBlock: completion)
+    try await FirebaseREF.trips.child(passengerUid).updateChildValues(values)
+  }
+  
+  func removeAllListener() {
+    FirebaseREF.trips.removeAllObservers()
   }
 }

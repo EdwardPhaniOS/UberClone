@@ -5,13 +5,14 @@ import SwiftUI
 import FirebaseAuth
 
 @MainActor
-class LoginViewVM: ObservableObject {
+class LoginViewVM: ObservableObject, ErrorDisplayable {
   var authService: AuthService
   @Published var email: String = ""
   @Published var password: String = ""
   @Published var isLoading: Bool = false
   @Published var showSignUp: Bool = false
   @Published var appAlert: AppAlert?
+  @Published var error: Error?
   var diContainer: DIContainer
 
   init(diContainer: DIContainer) {
@@ -25,16 +26,15 @@ class LoginViewVM: ObservableObject {
       showAlertOnUI(message: error.message)
       return
     }
-
-    Task {
-      do {
-        isLoading = true
-        try await authService.signIn(withEmail: email, password: password)
-        isLoading = false
-      } catch {
-        showAlertOnUI(message: error.localizedDescription)
-        isLoading = false
+    
+    isLoading = true
+    Task(handlingError: self) { [weak self] in
+      guard let self = self else { return }
+      defer {
+        self.isLoading = false
       }
+      
+      try await authService.signIn(withEmail: email, password: password)
     }
   }
 

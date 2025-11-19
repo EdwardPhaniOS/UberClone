@@ -5,9 +5,10 @@ import SwiftUI
 import MapKit
 import FirebaseAuth
 import CoreLocation
+import Combine
 
 @MainActor
-class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
+class HomeViewVM: NSObject, ObservableObject, ErrorDisplayable {
   
   enum InputViewState: Equatable {
     case notAvailable
@@ -41,9 +42,11 @@ class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
   @Published var routeCoordinates: [CLLocationCoordinate2D]? = nil
   @Published var showPickupView: Bool = false
   @Published var isLoading: Bool = false
-  @Published  var loadingMessage = ""
+  @Published var loadingMessage = ""
   @Published var showAlert: Bool = false
   @Published var alertMessage: String = ""
+  @Published var error: Error?
+  var cancellables: Set<AnyCancellable> = Set()
   
   var trip: Trip?
   
@@ -55,29 +58,35 @@ class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
     self.diContainer = diContainer
     self.user = user
     super.init()
-    LocationHandler.shared.delegate = self
+    
+    setUpUI()
+    setSubscribers()
   }
   
   //MARK: - APIs
   
   func passengerObserverCurrentTrip() {
-    diContainer.passengerService.observeCurrentTrip { [weak self] trip in
+    diContainer.passengerService.observeCurrentTrip().sink { _ in } receiveValue: { [weak self] trip in
       guard let self = self else { return }
       self.trip = trip
-      
       guard let state = trip.state else { return }
       
       switch state {
       case .requested:
         break
       case .denied:
-        diContainer.passengerService.deleteTrip { _, _ in
+        Task(handlingError: self) { [weak self] in
+          guard let self = self else { return }
+          
+          try await diContainer.passengerService.deleteTrip()
+          
           self.clearRouteAndLocationSelection()
           self.fetchDrivers()
           self.isLoading = false
           self.showAlert = true
           self.alertMessage = "Trip was denied"
         }
+        
       case .accepted:
         guard let driverUid = trip.driverUid else {
           self.isLoading = false
@@ -89,8 +98,10 @@ class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
           zoomToFit(coordinates: [selectedDriver.coordinate, trip.pickupCoordinates])
         }
         
-        diContainer.userService.fetchUserData(userId: driverUid) { driver in
-          self.isLoading = false
+        Task(handlingError: self) { [weak self] in
+          guard let self = self else { return }
+          defer { isLoading = false }
+          let driver = try await diContainer.userService.fetchUserData(userId: driverUid)
           self.rideActionUser = driver
           self.rideActionViewState = .tripAccepted
         }
@@ -102,58 +113,94 @@ class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
       case .arrivedAtDestination:
         self.rideActionViewState = .endTrip
       case .completed:
-        diContainer.passengerService.deleteTrip { _, _ in
+        Task(handlingError: self) { [weak self] in
+          guard let self = self else { return }
+          
+          try await diContainer.passengerService.deleteTrip()
+          
           self.clearRouteAndLocationSelection()
           self.fetchDrivers()
           self.showAlert = true
           self.alertMessage = "Trip Completed"
         }
+        
       @unknown default:
         break
       }
     }
+    .store(in: &cancellables)
   }
   
-  func setUpForCurrentUser() {
+  func setUpUI() {
     guard let user = user else { return }
     
     self.driverAnnotations = []
     if user.accountType == .passenger {
       inputViewState = .inactive
-      passengerObserverCurrentTrip()
-      fetchDrivers()
     } else {
-      driverObserveTrip()
       inputViewState = .notAvailable
     }
   }
   
+  func setSubscribers() {
+    guard let user = user else { return }
+    if user.accountType == .passenger {
+      passengerObserverCurrentTrip()
+      fetchDrivers()
+    } else {
+      driverObserveTrip()
+    }
+    
+    LocationHandler.shared.uploadLocationPublisher()
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] location in
+        guard let self = self else { return }
+        guard let location = location else { return }
+        self.updateLocations(location: location)
+      }
+      .store(in: &cancellables)
+    
+    LocationHandler.shared.enterRegionPublisher()
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] region in
+        guard let self = self else { return }
+        guard let region = region else { return }
+        self.driverDidEnterRegion(region: region)
+      }
+      .store(in: &cancellables)
+  }
+  
   func fetchDrivers() {
     guard let location = LocationHandler.shared.location else { return }
-    diContainer.passengerService.fetchDrivers(location: location) { [weak self] driver in
-      guard let self = self else { return }
-      guard let coordinate = driver.location?.coordinate else { return }
-      
-      let tripIsActive = trip?.driverUid != nil
-      
-      if tripIsActive {
-        if driver.uuid != trip?.driverUid {
-          return
+    
+    diContainer.passengerService.fetchDrivers(location: location)
+      .sink { _ in } receiveValue: { [weak self] driver in
+        guard let self = self else { return }
+        
+        guard let coordinate = driver.location?.coordinate else { return }
+        
+        let tripIsActive = trip?.driverUid != nil
+        
+        if tripIsActive {
+          if driver.uuid != trip?.driverUid {
+            return
+          }
+          
+          if let pickupCoordinates = trip?.pickupCoordinates,
+             let driverCoordinates = driver.location?.coordinate {
+            zoomToFit(coordinates: [pickupCoordinates, driverCoordinates])
+          }
         }
         
-        if let pickupCoordinates = trip?.pickupCoordinates, let driverCoordinates = driver.location?.coordinate {
-          zoomToFit(coordinates: [pickupCoordinates, driverCoordinates])
+        let annotation = DriverAnnotation(uuid: driver.uuid, coordinate: coordinate)
+        
+        if let index = self.driverAnnotations.firstIndex(where: { $0.uuid == annotation.uuid }) {
+          self.driverAnnotations[index] = annotation
+        } else {
+          self.driverAnnotations.append(annotation)
         }
       }
-      
-      let annotation = DriverAnnotation(uuid: driver.uuid, coordinate: coordinate)
-      
-      if let index = self.driverAnnotations.firstIndex(where: { $0.uuid == annotation.uuid }) {
-        self.driverAnnotations[index] = annotation
-      } else {
-        self.driverAnnotations.append(annotation)
-      }
-    }
+      .store(in: &cancellables)
   }
   
   func uploadTrip() {
@@ -162,53 +209,63 @@ class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
     
     isLoading = true
     loadingMessage = "Finding your ride now.."
-    diContainer.passengerService.uploadTrip(pickupCoordinate: pickupCoordinate, destinationCoordinate: destinationCoordinate) { [weak self] err, ref in
+    
+    Task(handlingError: self) { [weak self] in
       guard let self = self else { return }
-      
-      if let err = err {
-        print("DEBUG: Error - \(err.localizedDescription)")
-      }
+      defer { isLoading = false }
+      try await diContainer.passengerService.uploadTrip(pickupCoordinate: pickupCoordinate, destinationCoordinate: destinationCoordinate)
       
       self.rideActionViewState = .notAvailable
     }
   }
   
   func driverObserveTrip() {
-    diContainer.driverService.observeTrip { [weak self] trip in
-      guard let self = self else { return }
-      
-      self.showPickupView = trip.state == .requested
-      self.trip = trip
-      
-      if trip.state == .accepted {
-        driverAcceptTrip()
+    diContainer.driverService.tripPublisher()
+      .sink { _ in } receiveValue: { [weak self] trip in
+        guard let self = self else { return }
         
-        guard let location = LocationHandler.shared.location else { return }
-        diContainer.driverService.updateDriverLocation(location: location, completion: { _ in })
+        self.showPickupView = trip.state == .requested
+        self.trip = trip
+        
+        if trip.state == .accepted {
+          driverAcceptTrip()
+          
+          guard let location = LocationHandler.shared.location else { return }
+          
+          Task(handlingError: self) {
+            try await self.diContainer.driverService.updateDriverLocation(location: location)
+          }
+        }
       }
-    }
+      .store(in: &cancellables)
   }
   
   func observeCancelledTrip(trip: Trip) {
-    diContainer.driverService.observeTripCancelled(trip: trip) { [weak self] in
-      guard let self = self else { return }
-      
-      rideActionViewState = .notAvailable
-      selectedPlacemark = nil
-      routeCoordinates = nil
-      zoomToCurrentUser()
-      
-      showAlert = true
-      alertMessage = "The passenger has decided to cancel this ride. Press OK to continue"
-    }
+    diContainer.driverService.tripCancelPublisher(trip: trip)
+      .sink { _ in } receiveValue: { [weak self] _ in
+        guard let self = self else { return }
+        
+        rideActionViewState = .notAvailable
+        selectedPlacemark = nil
+        routeCoordinates = nil
+        zoomToCurrentUser()
+        
+        showAlert = true
+        alertMessage = "The passenger has decided to cancel this ride. Press OK to continue"
+      }
+      .store(in: &cancellables)
   }
   
   func driverAcceptTrip() {
     guard trip != nil else { return }
     
     isLoading = true
-    diContainer.driverService.acceptTrip(trip: trip!) { [weak self] error, ref in
+    
+    Task(handlingError: self) { [weak self] in
       guard let self = self else { return }
+      defer { isLoading = false }
+      
+      try await diContainer.driverService.acceptTrip(trip: trip!)
       
       self.trip?.state = .accepted
       self.trip?.driverUid = Auth.auth().currentUser?.uid
@@ -219,19 +276,19 @@ class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
       
       let pickupCoordinates = trip!.pickupCoordinates!
       let location = CLLocation(latitude: pickupCoordinates.latitude, longitude: pickupCoordinates.longitude)
-      CLGeocoder().reverseGeocodeLocation(location) { [weak self] placemarks, error in
-        guard let self = self else { return }
-        self.isLoading = false
+      
+      let placemarks = try await CLGeocoder().reverseGeocodeLocation(location)
+      
+      if let placeMark = placemarks.first {
+        let mapKitPlacemark = MKPlacemark(placemark: placeMark)
         
-        if let placeMark = placemarks?.first {
-          let mapKitPlacemark = MKPlacemark(placemark: placeMark)
-          
-          diContainer.userService.fetchUserData(userId: trip!.passengerUid) { user in
-            self.rideActionUser = user
-            self.selectedPlacemark = mapKitPlacemark
-            self.rideActionViewState = .tripAccepted
-            self.calculateRoute(to: mapKitPlacemark)
-          }
+        Task(handlingError: self) { [weak self] in
+          guard let self = self else { return }
+          let passenger = try await diContainer.userService.fetchUserData(userId: trip!.passengerUid)
+          self.rideActionUser = passenger
+          self.selectedPlacemark = mapKitPlacemark
+          self.rideActionViewState = .tripAccepted
+          self.calculateRoute(to: mapKitPlacemark)
         }
       }
     }
@@ -239,9 +296,11 @@ class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
   
   func cancelTrip() {
     isLoading = true
-    diContainer.passengerService.deleteTrip { [weak self] error, ref in
+    
+    Task(handlingError: self) { [weak self] in
       guard let self = self else { return }
-      isLoading = false
+      defer { isLoading = false }
+      try await diContainer.passengerService.deleteTrip()
       
       self.trip?.state = .denied
       self.trip?.driverUid = nil
@@ -254,28 +313,28 @@ class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
     guard let trip = self.trip else { return }
     
     isLoading = true
-    diContainer.driverService.updateTripState(trip: trip, state: .inProgress) { [weak self] err, ref in
-      guard let self = self,
-            let destinationCoordinates = trip.destinationCoordinates,
-            let driverCoordinates = LocationHandler.shared.location?.coordinate
-      else {
-        self?.isLoading = false
-        return
-      }
+    
+    Task(handlingError: self) { [weak self] in
+      guard let self = self else { return }
+      defer { isLoading = false }
+      
+      guard
+        let destinationCoordinates = trip.destinationCoordinates,
+        let driverCoordinates = LocationHandler.shared.location?.coordinate
+      else { return }
+      
+      try await self.diContainer.driverService.updateTripState(trip: trip, state: .inProgress)
       
       let location = CLLocation(latitude: destinationCoordinates.latitude, longitude: destinationCoordinates.longitude)
-      CLGeocoder().reverseGeocodeLocation(location) { [weak self] placemarks, error in
-        guard let self = self else { return }
-        self.isLoading = false
-        
-        if let placeMark = placemarks?.first {
-          let mapKitPlacemark = MKPlacemark(placemark: placeMark)
-          self.rideActionViewState = .tripInProgress
-          self.selectedPlacemark = mapKitPlacemark
-          self.calculateRoute(to: mapKitPlacemark)
-          self.setCustomRegion(withAnnotationType: .destination, withCoordinates: destinationCoordinates)
-          self.zoomToFit(coordinates: [driverCoordinates, destinationCoordinates])
-        }
+      let placemarks = try await CLGeocoder().reverseGeocodeLocation(location)
+      
+      if let placeMark = placemarks.first {
+        let mapKitPlacemark = MKPlacemark(placemark: placeMark)
+        self.rideActionViewState = .tripInProgress
+        self.selectedPlacemark = mapKitPlacemark
+        self.calculateRoute(to: mapKitPlacemark)
+        self.setCustomRegion(withAnnotationType: .destination, withCoordinates: destinationCoordinates)
+        self.zoomToFit(coordinates: [driverCoordinates, destinationCoordinates])
       }
     }
   }
@@ -285,15 +344,22 @@ class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
     
     isLoading = true
     self.trip?.state = .completed
-    diContainer.driverService.updateTripState(trip: trip, state: .completed) { [weak self] err, ref in
+    
+    Task(handlingError: self) { [weak self] in
       guard let self = self else { return }
-      self.isLoading = false
+      defer { isLoading = false }
       
+      try await self.diContainer.driverService.updateTripState(trip: trip, state: .completed)
       rideActionViewState = .notAvailable
       selectedPlacemark = nil
       routeCoordinates = nil
       zoomToCurrentUser()
     }
+  }
+  
+  func removeAllListener() {
+    self.diContainer.driverService.removeAllListener()
+    self.diContainer.passengerService.removeAllListeners()
   }
   
   //MARK: - Location Handling
@@ -302,50 +368,47 @@ class HomeViewVM: NSObject, ObservableObject, LocationHandlerDelegate {
     LocationHandler.shared.enableLocationServices()
   }
   
-  nonisolated func didUpdateLocations(location: CLLocation) {
-    DispatchQueue.main.async { [weak self] in
-      guard let self = self else { return }
-      self.cameraPosition = .region(
-        MKCoordinateRegion(
-          center: location.coordinate,
-          span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
-        )
+  func updateLocations(location: CLLocation) {
+    self.cameraPosition = .region(
+      MKCoordinateRegion(
+        center: location.coordinate,
+        span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
       )
-      
-      if user?.accountType == .driver {
-        diContainer.driverService.updateDriverLocation(location: location, completion: { _ in })
-      } else {
-        self.fetchDrivers()
+    )
+    
+    if user?.accountType == .driver {
+      Task(handlingError: self) {
+        try await self.diContainer.driverService.updateDriverLocation(location: location)
       }
+    } else {
+      self.fetchDrivers()
     }
   }
   
-  nonisolated func didStartMonitoringFor(region: CLRegion) {
-    print("DEBUG - didStartMonitoringFor region.identifier: \(region.identifier)")
-  }
-  
-  nonisolated func didEnterRegion(region: CLRegion) {
-    let regionId = region.identifier
+  func driverDidEnterRegion(region: CLRegion) {
+    guard let trip = self.trip else { return }
     
-    DispatchQueue.main.async {
-      guard let trip = self.trip else { return }
-      
-      if regionId == AnnotationType.pickup.rawValue {
-        self.diContainer.driverService.updateTripState(trip: trip, state: .driverArrived) { err, ref in
-          DispatchQueue.main.async {
-            self.rideActionViewState = .pickupPassenger
-          }
+    let regionId = region.identifier
+    if regionId == AnnotationType.pickup.rawValue {
+      Task(handlingError: self) { [weak self] in
+        guard let self = self else { return }
+        try await diContainer.driverService.updateTripState(trip: trip, state: .driverArrived)
+        
+        await MainActor.run {
+          self.rideActionViewState = .pickupPassenger
         }
       }
-      
-      if regionId == AnnotationType.destination.rawValue {
-        self.diContainer.driverService.updateTripState(trip: trip, state: .arrivedAtDestination) { err, ref in
-          DispatchQueue.main.async {
-            self.rideActionViewState = .endTrip
-          }
+    }
+    
+    if regionId == AnnotationType.destination.rawValue {
+      Task(handlingError: self) { [weak self] in
+        guard let self = self else { return }
+        try await diContainer.driverService.updateTripState(trip: trip, state: .arrivedAtDestination)
+        
+        await MainActor.run {
+          self.rideActionViewState = .endTrip
         }
       }
-      
     }
   }
   

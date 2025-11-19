@@ -9,10 +9,13 @@ import Foundation
 
 extension Error? {
   func asAppError() -> AppError {
-    guard let appError = self as? AppError else {
-      return DefaultAppError.empty
+    guard let error = self else { return DefaultAppError.empty }
+    
+    if let appError = error as? AppError {
+      return appError
     }
     
-    return appError
+    let firebaseAuthError = AuthError.firebaseAuthError(error: error as NSError)
+    return firebaseAuthError
   }
 }

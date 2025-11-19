@@ -10,7 +10,7 @@ import Foundation
 @MainActor
 extension Task where Success == Void, Failure == Error {
   @discardableResult
-  init(priority: TaskPriority?, handlingError viewModel: ErrorDisplayable, operation: @escaping () async throws -> Success) {
+  init(handlingError viewModel: ErrorDisplayable, priority: TaskPriority? = nil, operation: @escaping () async throws -> Success) {
     self.init(priority: priority) {
       do {
         try await operation()

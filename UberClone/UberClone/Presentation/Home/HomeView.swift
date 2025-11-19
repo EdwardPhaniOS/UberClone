@@ -7,11 +7,9 @@ import MapKit
 
 struct HomeView: View {
   @StateObject var viewModel: HomeViewVM
-  var user: User?
   var onMenuButtonPressed: (() -> Void)?
   
   init(diContainer: DIContainer, user: User?, onMenuButtonPressed: (() -> Void)? = nil) {
-    self.user = user
     _viewModel = StateObject(wrappedValue: HomeViewVM(diContainer: diContainer, user: user))
     self.onMenuButtonPressed = onMenuButtonPressed
   }
@@ -23,14 +21,8 @@ struct HomeView: View {
       menuButton
       confirmRidePopup
     }
-    .onAppear {
-      viewModel.setUpForCurrentUser()
-    }
-    .onChange(of: user, { _, newUser in
-      if newUser != nil {
-        viewModel.user = newUser
-        viewModel.setUpForCurrentUser()
-      }
+    .onDisappear(perform: {
+      viewModel.removeAllListener()
     })
     .printFileOnAppear()
     .showLoading(isLoading: viewModel.isLoading, message: viewModel.loadingMessage)

@@ -5,10 +5,11 @@ import SwiftUI
 import MapKit
 
 @MainActor
-class PickupViewVM: ObservableObject {
+class PickupViewVM: ObservableObject, ErrorDisplayable {
 
   @Published var cameraPosition: MapCameraPosition
   @Published var countdown: Int = 10
+  @Published var error: Error?
   private var timer: Timer?
 
   var diContainer: DIContainer
@@ -45,10 +46,9 @@ class PickupViewVM: ObservableObject {
   }
   
   func denyTrip() {
-    diContainer.driverService.updateTripState(trip: trip, state: .denied) { error, _ in
-      if let error = error {
-        print("DEBUG - error: \(error)")
-      }
+    Task(handlingError: self) { [weak self] in
+      guard let self = self else { return }
+      try await diContainer.driverService.updateTripState(trip: trip, state: .denied)
     }
   }
   
