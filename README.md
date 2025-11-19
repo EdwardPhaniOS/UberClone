@@ -9,12 +9,6 @@ A simplified Uber-like ride-hailing app built with Swift and UIKit. Demonstrates
 - [Features](#features)
 - [Requirements](#requirements)
 - [Installation](#installation)
-- [Usage](#usage)
-- [Architecture](#architecture)
-- [Notes](#notes)
-- [License](#license)
-- [Contributing](#contributing)
-- [Contact](#contact)
 
 ## Features
 
