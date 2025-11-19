@@ -11,7 +11,6 @@ struct ContainerView: View {
   
   @StateObject var viewModel: ContainerViewVM
   @State var isMenuOpen: Bool = false
-  @State var showConfirmLogout: Bool = false
   @State var showSettings: Bool = false
   
   init(diContainer: DIContainer) {
@@ -36,7 +35,7 @@ struct ContainerView: View {
           isMenuOpen = false
           
           if option == .logout {
-            showConfirmLogout = true
+            viewModel.showConfirmSignOut()
           } else if option == .settings {
             showSettings = true
           }
@@ -55,6 +54,12 @@ struct ContainerView: View {
       }
     })
     .printFileOnAppear()
+    .infinityFrame()
+    .background(Color.appTheme.viewBackground)
+    .statusBarHidden(isMenuOpen)
+    .showError(item: $viewModel.error)
+    .showAlert(item: $viewModel.appAlert)
+    .showLoading(isLoading: viewModel.isLoading)
     .fullScreenCover(isPresented: $viewModel.showLogin) {
       NavigationStack {
         LoginView(diContainer: viewModel.diContainer)
@@ -63,18 +68,6 @@ struct ContainerView: View {
     .fullScreenCover(isPresented: $showSettings, content: {
       SettingsView(user: viewModel.user)
     })
-    .actionSheet(isPresented: $showConfirmLogout) {
-      ActionSheet(title: Text("Are your sure you want to logout?"), buttons: [
-        .destructive(Text("Logout"), action: {
-          viewModel.signOut()
-        }),
-        .cancel()
-      ])
-    }
-    .statusBarHidden(isMenuOpen)
-    .showLoading(isLoading: viewModel.isLoading)
-    .showError(item: $viewModel.error)
-    .background(Color.appTheme.viewBackground)
   }
 }
 

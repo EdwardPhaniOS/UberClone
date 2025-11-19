@@ -26,12 +26,12 @@ class SignUpVM: ObservableObject, ErrorDisplayable {
   func handleSignUp() {
     let validateResult = validateInput()
     if let error = validateResult.error as? SignUpError {
-      showAlertOnUI(message: error.message)
+      showErrorOnUI(message: error.message)
       return
     }
     
     guard let location = LocationHandler.shared.location else {
-      showAlertOnUI(message: SignUpError.missingCurrentLocation.message)
+      showErrorOnUI(message: SignUpError.missingCurrentLocation.message)
       return
     }
 
@@ -58,8 +58,8 @@ class SignUpVM: ObservableObject, ErrorDisplayable {
     }
   }
 
-  func showAlertOnUI(message: String) {
-    appAlert = AppAlert(title: "Sign Up Error", message: message)
+  func showErrorOnUI(message: String) {
+    error = DefaultAppError(title: "Sign Up Error", message: message)
   }
 
   func validateInput() -> Result<Void, SignUpError> {

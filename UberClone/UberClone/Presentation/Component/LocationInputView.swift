@@ -6,12 +6,11 @@ import SwiftUI
 struct LocationInputView: View {
 
   var onBackButtonPressed: (() -> Void)?
-  var onSubmit: ((String, String) -> Void)?
 
   @State var currentLocation: String = ""
-  @State var destinationLocation: String = ""
+  @Binding var destinationLocation: String
   var userName: String
-
+  
   var body: some View {
     ZStack {
       backgroundView
@@ -72,6 +71,7 @@ struct LocationInputView: View {
               .frame(height: 32)
           TextField("Current location", text: $currentLocation)
             .padding(.horizontal, 8)
+            .disabled(true)
         }
         ZStack {
           Rectangle()
@@ -80,10 +80,6 @@ struct LocationInputView: View {
           TextField("Enter a destination..", text: $destinationLocation)
             .padding(.horizontal, 8)
             .submitLabel(.search)
-            .onSubmit {
-              onSubmit?(currentLocation, destinationLocation)
-              destinationLocation = ""
-            }
         }
       }
       .padding(.trailing, 24)
@@ -94,5 +90,5 @@ struct LocationInputView: View {
 
 #Preview {
   @Previewable @State var userName: String = "Vinh"
-  LocationInputView(userName: userName)
+  LocationInputView(destinationLocation: .constant("Coffee"), userName: userName)
 }

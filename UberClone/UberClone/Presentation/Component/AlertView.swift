@@ -35,13 +35,10 @@ private extension AlertView {
 
 private extension AlertView {
   var headingView: some View {
-    HStack(spacing: 5) {
-      Image(systemName: "exclamationmark.triangle.fill")
-      Text(appAlert.title)
-    }
+    Text(appAlert.title)
     .font(.title3)
     .fontWeight(.semibold)
-    .foregroundStyle(Color.appTheme.error)
+    .foregroundStyle(Color.appTheme.text)
   }
   
   var messageView: some View {
@@ -55,9 +52,10 @@ private extension AlertView {
       if let actionButton = appAlert.actionButton {
         cancelButtonView
         Text(actionButton.title)
-          .destructiveButton()
+          .primaryButton()
           .button(.press) {
             actionButton.action()
+            dismiss()
           }
       } else {
         okButtonView
@@ -67,7 +65,7 @@ private extension AlertView {
   
   var okButtonView: some View {
     Text("OK")
-      .destructiveButton()
+      .primaryButton()
       .button(.press) {
         dismiss()
       }

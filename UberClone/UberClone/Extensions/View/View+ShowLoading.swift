@@ -11,7 +11,7 @@ extension View {
   func showLoading(isLoading: Bool, message: String = "") -> some View {
     self.overlay {
       if isLoading {
-        LoadingView()
+        LoadingView(message: message)
       }
     }
   }

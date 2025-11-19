@@ -46,11 +46,7 @@ struct AddLocationView: View {
       })
       .showLoading(isLoading: viewModel.isLoading)
       .showError(item: $viewModel.error)
-      .alert("", isPresented: $viewModel.showAlert, actions: {
-        Button("OK", role: .cancel, action: {})
-      }, message: {
-        Text(viewModel.alertMessage)
-      })
+      .showAlert(item: $viewModel.appAlert)
       .toolbarBackground(Color.appTheme.viewBackground, for: .navigationBar)
       .toolbarBackground(.visible, for: .navigationBar)
       .toolbar {

@@ -28,6 +28,7 @@ struct SignUpView: View {
     .padding(.bottom, 4)
     .infinityFrame()
     .showAlert(item: $viewModel.appAlert)
+    .showError(item: $viewModel.error)
     .showLoading(isLoading: viewModel.isLoading)
     .background(Color.appTheme.viewBackground)
     .navigationBarBackButtonHidden(true)

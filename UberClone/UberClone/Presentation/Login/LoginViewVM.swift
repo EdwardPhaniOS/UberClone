@@ -23,7 +23,7 @@ class LoginViewVM: ObservableObject, ErrorDisplayable {
   func handleLogin() {
     let validateResult = validateInput()
     if let error = validateResult.error as? LoginError {
-      showAlertOnUI(message: error.message)
+      showErrorOnUI(message: error.message)
       return
     }
     
@@ -56,7 +56,7 @@ class LoginViewVM: ObservableObject, ErrorDisplayable {
     return .success(Void())
   }
 
-  func showAlertOnUI(message: String) {
-    appAlert = AppAlert(title: "Sign In Error", message: message)
+  func showErrorOnUI(message: String) {
+    error = DefaultAppError(title: "Sign In Error", message: message)
   }
 }

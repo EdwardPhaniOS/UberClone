@@ -17,6 +17,7 @@ class ContainerViewVM: NSObject, ObservableObject, ErrorDisplayable {
   @Published var showLogin: Bool = false
   @Published var appState = AppState.auth
   @Published var error: Error?
+  @Published var appAlert: AppAlert?
   
   var authService: AuthService
   var diContainer: DIContainer
@@ -60,8 +61,15 @@ class ContainerViewVM: NSObject, ObservableObject, ErrorDisplayable {
       self.user = try await diContainer.userService.fetchUserData(userId: currentUserId)
     }
   }
+  
+  func showConfirmSignOut() {
+    appAlert = AppAlert(title: "Sign Out?", message: "Are your sure you want to logout?", actionButton: AppAlert.ActionButton.init(title: "Sign Out", action: { [weak self] in
+      guard let self = self else { return }
+      signOut()
+    }))
+  }
 
-  func signOut() {
+  private func signOut() {
     Task {
       do {
         try await authService.signOut()

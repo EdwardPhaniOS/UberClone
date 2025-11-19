@@ -24,8 +24,14 @@ struct HomeView: View {
     .onDisappear(perform: {
       viewModel.removeAllListener()
     })
+    .onChange(of: viewModel.searchText, { _, _ in
+      viewModel.onSearchTextChange()
+    })
     .printFileOnAppear()
+    .infinityFrame()
     .showLoading(isLoading: viewModel.isLoading, message: viewModel.loadingMessage)
+    .showError(item: $viewModel.error)
+    .showAlert(item: $viewModel.appAlert)
     .fullScreenCover(isPresented: $viewModel.showPickupView, content: {
       PickupView(diContainer: viewModel.diContainer, trip: viewModel.trip!, onCloseButtonPressed: {
         viewModel.showPickupView = false
@@ -34,11 +40,6 @@ struct HomeView: View {
         viewModel.showPickupView = false
       })
     })
-    .alert("", isPresented: $viewModel.showAlert) { 
-      Button("OK", role: .cancel, action: {})
-    } message: {
-      Text(viewModel.alertMessage)
-    }
   }
 
   var mapView: some View {
@@ -50,7 +51,7 @@ struct HomeView: View {
           Annotation("", coordinate: driver.coordinate) {
             ZStack {
               RoundedRectangle(cornerRadius: 8)
-                .foregroundStyle(Color.appTheme.inProgress)
+                .foregroundStyle(Color.black)
                 .frame(width: 25, height: 25)
               Image(systemName: "car")
                 .foregroundStyle(Color.white)
@@ -85,7 +86,10 @@ struct HomeView: View {
           .animation(.easeInOut(duration: 0.3), value: viewModel.inputViewState)
           .padding(.top, 58)
           .padding(.horizontal, 32)
-          .onTapGesture { viewModel.showLocationInputView() }
+          .onTapGesture {
+            viewModel.searchText = ""
+            viewModel.showLocationInputView()
+          }
           .opacity(viewModel.inputViewState == .inactive ? 1 : 0)
         Spacer()
       }
@@ -113,11 +117,8 @@ struct HomeView: View {
         .listStyle(.grouped)
 
         VStack {
-          LocationInputView(onBackButtonPressed: {
-            viewModel.showLocationInputActivationView()
-          }, onSubmit: { _, query in
-            viewModel.searchPlacemarks(query: query)
-          }, userName: viewModel.user?.fullName ?? "")
+          LocationInputView(onBackButtonPressed: { viewModel.showLocationInputActivationView()
+          }, destinationLocation: $viewModel.searchText, userName: viewModel.user?.fullName ?? "")
           Spacer()
         }
       }
@@ -134,7 +135,7 @@ struct HomeView: View {
           Image(systemName: "arrow.backward")
             .plainButton()
             .button(.press) {
-              viewModel.cancelTrip()
+              viewModel.showConfirmCancelTrip()
             }
             .foregroundStyle(Color.appTheme.accent)
             .frame(width: 48, height: 48)
@@ -171,7 +172,7 @@ struct HomeView: View {
         case .requestRide:
           viewModel.uploadTrip()
         case .cancel:
-          viewModel.cancelTrip()
+          viewModel.showConfirmCancelTrip()
         case .getDirections:
           break
         case .pickup:

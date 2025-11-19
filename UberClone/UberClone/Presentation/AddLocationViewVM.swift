@@ -14,9 +14,8 @@ class AddLocationViewVM: NSObject, ObservableObject, ErrorDisplayable {
   @Published var locations: [MKPlacemark] = []
   @Published var searchText = ""
   @Published var isLoading = false
-  @Published var showAlert = false
-  @Published var alertMessage = ""
   @Published var error: Error?
+  @Published var appAlert: AppAlert?
   
   var diContainer: DIContainer
   var locationType: LocationType
@@ -35,18 +34,21 @@ class AddLocationViewVM: NSObject, ObservableObject, ErrorDisplayable {
   
   func onSeachTextChange() {
     debounceTimer?.invalidate()
-    debounceTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false, block: { [weak self] _ in
-      guard let self = self else { return }
-      
-      Task { @MainActor in
-        self.searchPlacemarks()
+    debounceTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false, block: { _ in
+      DispatchQueue.main.async {
+        Task(handlingError: self) { [weak self] in
+          guard let self = self else { return }
+          try await searchPlacemarks()
+        }
       }
     })
   }
   
-  func searchPlacemarks() {
+  func searchPlacemarks() async throws {
     self.locations = []
     let query = searchText
+    
+    if query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { return }
     
     let request = MKLocalSearch.Request()
     request.naturalLanguageQuery = query
@@ -56,15 +58,10 @@ class AddLocationViewVM: NSObject, ObservableObject, ErrorDisplayable {
     }
     
     let searchTask = MKLocalSearch(request: request)
-    searchTask.start { [weak self] response, error in
-      guard let self = self else { return }
-      guard let response = response else { return }
-      
-      response.mapItems.forEach { item in
-        Task { @MainActor in
-          self.locations.append(item.placemark)
-        }
-      }
+    let response = try await searchTask.start()
+    
+    response.mapItems.forEach { item in
+      self.locations.append(item.placemark)
     }
   }
   
