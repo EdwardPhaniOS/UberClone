@@ -17,7 +17,7 @@ class LoginViewVM: ObservableObject, ErrorDisplayable {
 
   init(diContainer: DIContainer) {
     self.diContainer = diContainer
-    self.authService = diContainer.authService
+    self.authService = diContainer.resolve(type: AuthService.self)
   }
 
   func handleLogin() {

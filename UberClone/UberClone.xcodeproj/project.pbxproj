@@ -45,6 +45,7 @@
 		35CF14C02EBC96D800C316A7 /* FirebaseREF.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CF14BF2EBC96D800C316A7 /* FirebaseREF.swift */; };
 		35CF155E2EBCC11400C316A7 /* ContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CF155D2EBCC11400C316A7 /* ContainerView.swift */; };
 		35CF15622EBCC12A00C316A7 /* ContainerViewVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CF15612EBCC12A00C316A7 /* ContainerViewVM.swift */; };
+		35D9B5092ED16EB200E1657C /* ServiceModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35D9B5082ED16EB100E1657C /* ServiceModule.swift */; };
 		35ECBEDB2EC1DA9E002CE352 /* LocationType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35ECBEDA2EC1DA9E002CE352 /* LocationType.swift */; };
 		35ECBEDD2EC1DF1A002CE352 /* AddLocationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35ECBEDC2EC1DF1A002CE352 /* AddLocationView.swift */; };
 		35ECBEDF2EC1EB0B002CE352 /* AddLocationViewVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35ECBEDE2EC1EB0B002CE352 /* AddLocationViewVM.swift */; };
@@ -124,6 +125,7 @@
 		35CF14BF2EBC96D800C316A7 /* FirebaseREF.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseREF.swift; sourceTree = "<group>"; };
 		35CF155D2EBCC11400C316A7 /* ContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerView.swift; sourceTree = "<group>"; };
 		35CF15612EBCC12A00C316A7 /* ContainerViewVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerViewVM.swift; sourceTree = "<group>"; };
+		35D9B5082ED16EB100E1657C /* ServiceModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceModule.swift; sourceTree = "<group>"; };
 		35ECBEDA2EC1DA9E002CE352 /* LocationType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationType.swift; sourceTree = "<group>"; };
 		35ECBEDC2EC1DF1A002CE352 /* AddLocationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddLocationView.swift; sourceTree = "<group>"; };
 		35ECBEDE2EC1EB0B002CE352 /* AddLocationViewVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddLocationViewVM.swift; sourceTree = "<group>"; };
@@ -220,6 +222,7 @@
 				35CF14B92EBC90D600C316A7 /* PassengerService.swift */,
 				35CF14B72EBC905800C316A7 /* UserService.swift */,
 				84321DCF2EAB682D0094D1A1 /* AuthService.swift */,
+				35D9B5082ED16EB100E1657C /* ServiceModule.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -500,6 +503,7 @@
 				84172E532EAF0B6F000383E1 /* HomeViewVM.swift in Sources */,
 				84FD32B22EB0D37F0089DD38 /* MKPlacemark+Address.swift in Sources */,
 				35AE77172EC86BB30015979F /* Error+AsAppError.swift in Sources */,
+				35D9B5092ED16EB200E1657C /* ServiceModule.swift in Sources */,
 				843023622EA8C2BE00A5EEF5 /* SignUpError.swift in Sources */,
 				3543DE7B2EBF9E6500B940C0 /* SettingsView.swift in Sources */,
 				356038B52EC49C210069EB79 /* View+Colors.swift in Sources */,

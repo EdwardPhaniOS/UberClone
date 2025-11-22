@@ -72,5 +72,5 @@ struct ContainerView: View {
 }
 
 #Preview {
-  ContainerView(diContainer: .mock)
+  ContainerView(diContainer: DIContainer.shared)
 }

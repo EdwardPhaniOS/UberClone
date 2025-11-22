@@ -12,12 +12,16 @@ import UIKit
 struct UberCloneApp: App {
   
   @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
-  @StateObject var diContainer: DIContainer = DIContainer()
+  
+  init() {
+    DIContainer.shared.load(modules: [
+      ServiceModule()
+    ])
+  }
   
   var body: some Scene {
     WindowGroup {
-      ContainerView(diContainer: diContainer)
-        .environmentObject(diContainer)
+      ContainerView(diContainer: DIContainer.shared)
     }
   }
 }

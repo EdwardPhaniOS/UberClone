@@ -13,11 +13,13 @@ class PickupViewVM: ObservableObject, ErrorDisplayable {
   private var timer: Timer?
 
   var diContainer: DIContainer
+  var driverService: DriverService
   var pickupCoordinates: CLLocationCoordinate2D
   var trip: Trip
 
   init(diContainer: DIContainer, trip: Trip) {
     self.diContainer = diContainer
+    self.driverService = diContainer.resolve(type: DriverService.self)
     self.trip = trip
     self.pickupCoordinates = trip.pickupCoordinates
 
@@ -48,7 +50,7 @@ class PickupViewVM: ObservableObject, ErrorDisplayable {
   func denyTrip() {
     Task(handlingError: self) { [weak self] in
       guard let self = self else { return }
-      try await diContainer.driverService.updateTripState(trip: trip, state: .denied)
+      try await driverService.updateTripState(trip: trip, state: .denied)
     }
   }
   

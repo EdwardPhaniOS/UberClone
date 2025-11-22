@@ -20,6 +20,7 @@ class ContainerViewVM: NSObject, ObservableObject, ErrorDisplayable {
   @Published var appAlert: AppAlert?
   
   var authService: AuthService
+  var userService: UserService
   var diContainer: DIContainer
   
   private var cancellables = Set<AnyCancellable>()
@@ -28,7 +29,8 @@ class ContainerViewVM: NSObject, ObservableObject, ErrorDisplayable {
 
   init(diContainer: DIContainer) {
     self.diContainer = diContainer
-    self.authService = diContainer.authService
+    self.userService = diContainer.resolve(type: UserService.self)
+    self.authService = diContainer.resolve(type: AuthService.self)
     super.init()
   }
   
@@ -58,7 +60,7 @@ class ContainerViewVM: NSObject, ObservableObject, ErrorDisplayable {
       guard let self = self else { return }
       defer { isLoading = false }
       
-      self.user = try await diContainer.userService.fetchUserData(userId: currentUserId)
+      self.user = try await userService.fetchUserData(userId: currentUserId)
     }
   }
   

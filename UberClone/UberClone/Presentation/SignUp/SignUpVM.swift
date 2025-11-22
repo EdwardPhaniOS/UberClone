@@ -9,6 +9,8 @@ import GeoFire
 @MainActor
 class SignUpVM: ObservableObject, ErrorDisplayable {
   let authService: AuthService
+  let driverService: DriverService
+  let userService: UserService
   let diContainer: DIContainer
   @Published var email: String = ""
   @Published var password: String = ""
@@ -20,7 +22,9 @@ class SignUpVM: ObservableObject, ErrorDisplayable {
 
   init(diContainer: DIContainer) {
     self.diContainer = diContainer
-    self.authService = diContainer.authService
+    self.authService = diContainer.resolve(type: AuthService.self)
+    self.driverService = diContainer.resolve(type: DriverService.self)
+    self.userService = diContainer.resolve(type: UserService.self)
   }
 
   func handleSignUp() {
@@ -51,10 +55,10 @@ class SignUpVM: ObservableObject, ErrorDisplayable {
       ]
       
       if accountTypeIndex == 1 {
-        try await diContainer.driverService.updateDriverLocation(location: location)
+        try await driverService.updateDriverLocation(location: location)
       }
       
-      try await diContainer.userService.updateUserData(userId: uid, values: values)
+      try await userService.updateUserData(userId: uid, values: values)
     }
   }
 

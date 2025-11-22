@@ -52,11 +52,17 @@ class HomeViewVM: NSObject, ObservableObject, ErrorDisplayable {
   var trip: Trip?
   
   var diContainer: DIContainer
+  var passengerService: PassengerService
+  var driverService: DriverService
+  var userService: UserService
   
   //MARK: - Init
   
   init(diContainer: DIContainer, user: User?) {
     self.diContainer = diContainer
+    self.passengerService = diContainer.resolve(type: PassengerService.self)
+    self.driverService = diContainer.resolve(type: DriverService.self)
+    self.userService = diContainer.resolve(type: UserService.self)
     self.user = user
     super.init()
     
@@ -110,7 +116,7 @@ class HomeViewVM: NSObject, ObservableObject, ErrorDisplayable {
   }
   
   func passengerObserverCurrentTrip() {
-    diContainer.passengerService.observeCurrentTrip()
+    passengerService.observeCurrentTrip()
       .sink { _ in } receiveValue: { [weak self] trip in
         guard let self = self else { return }
         self.trip = trip
@@ -123,7 +129,7 @@ class HomeViewVM: NSObject, ObservableObject, ErrorDisplayable {
           Task(handlingError: self) { [weak self] in
             guard let self = self else { return }
             
-            try await diContainer.passengerService.deleteTrip()
+            try await passengerService.deleteTrip()
             
             self.clearRouteAndLocationSelection()
             self.fetchDrivers()
@@ -145,7 +151,7 @@ class HomeViewVM: NSObject, ObservableObject, ErrorDisplayable {
           Task(handlingError: self) { [weak self] in
             guard let self = self else { return }
             defer { isLoading = false }
-            let driver = try await diContainer.userService.fetchUserData(userId: driverUid)
+            let driver = try await userService.fetchUserData(userId: driverUid)
             self.rideActionUser = driver
             self.rideActionViewState = .tripAccepted
           }
@@ -160,7 +166,7 @@ class HomeViewVM: NSObject, ObservableObject, ErrorDisplayable {
           Task(handlingError: self) { [weak self] in
             guard let self = self else { return }
             
-            try await diContainer.passengerService.deleteTrip()
+            try await passengerService.deleteTrip()
             
             self.clearRouteAndLocationSelection()
             self.fetchDrivers()
@@ -177,7 +183,7 @@ class HomeViewVM: NSObject, ObservableObject, ErrorDisplayable {
   func fetchDrivers() {
     guard let location = LocationHandler.shared.location else { return }
     
-    diContainer.passengerService.fetchDrivers(location: location)
+    passengerService.fetchDrivers(location: location)
       .receive(on: DispatchQueue.main)
       .sink { _ in } receiveValue: { [weak self] driver in
         guard let self = self else { return }
@@ -217,14 +223,14 @@ class HomeViewVM: NSObject, ObservableObject, ErrorDisplayable {
     
     Task(handlingError: self) { [weak self] in
       guard let self = self else { return }
-      try await diContainer.passengerService.uploadTrip(pickupCoordinate: pickupCoordinate, destinationCoordinate: destinationCoordinate)
+      try await passengerService.uploadTrip(pickupCoordinate: pickupCoordinate, destinationCoordinate: destinationCoordinate)
       
       self.rideActionViewState = .notAvailable
     }
   }
   
   func driverObserveTrip() {
-    diContainer.driverService.tripPublisher()
+    driverService.tripPublisher()
       .sink { _ in } receiveValue: { [weak self] trip in
         guard let self = self else { return }
         
@@ -237,7 +243,7 @@ class HomeViewVM: NSObject, ObservableObject, ErrorDisplayable {
           guard let location = LocationHandler.shared.location else { return }
           
           Task(handlingError: self) {
-            try await self.diContainer.driverService.updateDriverLocation(location: location)
+            try await self.driverService.updateDriverLocation(location: location)
           }
         }
       }
@@ -245,7 +251,7 @@ class HomeViewVM: NSObject, ObservableObject, ErrorDisplayable {
   }
   
   func observeCancelledTrip(trip: Trip) {
-    diContainer.driverService.tripCancelPublisher(trip: trip)
+    driverService.tripCancelPublisher(trip: trip)
       .sink { _ in } receiveValue: { [weak self] _ in
         guard let self = self else { return }
         
@@ -267,7 +273,7 @@ class HomeViewVM: NSObject, ObservableObject, ErrorDisplayable {
       guard let self = self else { return }
       defer { isLoading = false }
       
-      try await diContainer.driverService.acceptTrip(trip: trip!)
+      try await driverService.acceptTrip(trip: trip!)
       
       self.trip?.state = .accepted
       self.trip?.driverUid = Auth.auth().currentUser?.uid
@@ -286,7 +292,7 @@ class HomeViewVM: NSObject, ObservableObject, ErrorDisplayable {
         
         Task(handlingError: self) { [weak self] in
           guard let self = self else { return }
-          let passenger = try await diContainer.userService.fetchUserData(userId: trip!.passengerUid)
+          let passenger = try await userService.fetchUserData(userId: trip!.passengerUid)
           self.rideActionUser = passenger
           self.selectedPlacemark = mapKitPlacemark
           self.rideActionViewState = .tripAccepted
@@ -306,7 +312,7 @@ class HomeViewVM: NSObject, ObservableObject, ErrorDisplayable {
   private func handleDriverArrived(for trip: Trip) {
     Task(handlingError: self) { [weak self] in
       guard let self = self else { return }
-      try await diContainer.driverService.updateTripState(trip: trip, state: .driverArrived)
+      try await driverService.updateTripState(trip: trip, state: .driverArrived)
       rideActionViewState = .pickupPassenger
     }
   }
@@ -330,7 +336,7 @@ class HomeViewVM: NSObject, ObservableObject, ErrorDisplayable {
     Task(handlingError: self) { [weak self] in
       guard let self = self else { return }
       defer { isLoading = false }
-      try await diContainer.passengerService.deleteTrip()
+      try await passengerService.deleteTrip()
       
       self.trip?.state = .denied
       self.trip?.driverUid = nil
@@ -353,7 +359,7 @@ class HomeViewVM: NSObject, ObservableObject, ErrorDisplayable {
         let driverCoordinates = LocationHandler.shared.location?.coordinate
       else { return }
       
-      try await self.diContainer.driverService.updateTripState(trip: trip, state: .inProgress)
+      try await self.driverService.updateTripState(trip: trip, state: .inProgress)
       
       let location = CLLocation(latitude: destinationCoordinates.latitude, longitude: destinationCoordinates.longitude)
       let placemarks = try await CLGeocoder().reverseGeocodeLocation(location)
@@ -379,7 +385,7 @@ class HomeViewVM: NSObject, ObservableObject, ErrorDisplayable {
       guard let self = self else { return }
       defer { isLoading = false }
       
-      try await self.diContainer.driverService.updateTripState(trip: trip, state: .completed)
+      try await self.driverService.updateTripState(trip: trip, state: .completed)
       rideActionViewState = .notAvailable
       selectedPlacemark = nil
       routeCoordinates = nil
@@ -388,8 +394,8 @@ class HomeViewVM: NSObject, ObservableObject, ErrorDisplayable {
   }
   
   func removeAllListener() {
-    self.diContainer.driverService.removeAllListener()
-    self.diContainer.passengerService.removeAllListeners()
+    self.driverService.removeAllListener()
+    self.passengerService.removeAllListeners()
   }
   
   //MARK: - Location Handling
@@ -408,7 +414,7 @@ class HomeViewVM: NSObject, ObservableObject, ErrorDisplayable {
     
     if user?.accountType == .driver {
       Task(handlingError: self) {
-        try await self.diContainer.driverService.updateDriverLocation(location: location)
+        try await self.driverService.updateDriverLocation(location: location)
       }
     } else {
       self.fetchDrivers()
@@ -426,7 +432,7 @@ class HomeViewVM: NSObject, ObservableObject, ErrorDisplayable {
     if regionId == AnnotationType.destination.rawValue {
       Task(handlingError: self) { [weak self] in
         guard let self = self else { return }
-        try await diContainer.driverService.updateTripState(trip: trip, state: .arrivedAtDestination)
+        try await driverService.updateTripState(trip: trip, state: .arrivedAtDestination)
         
         rideActionViewState = .endTrip
       }

@@ -21,10 +21,12 @@ class AddLocationViewVM: NSObject, ObservableObject, ErrorDisplayable {
   var locationType: LocationType
   var region: MKCoordinateRegion?
   var debounceTimer: Timer?
+  var passengerService: PassengerService
   
   init(diContainer: DIContainer, locationType: LocationType) {
     self.locationType = locationType
     self.diContainer = diContainer
+    self.passengerService = diContainer.resolve(type: PassengerService.self)
     
     if let currentLocation = LocationHandler.shared.location {
       let span = MKCoordinateSpan(latitudeDelta: 0.02, longitudeDelta: 0.02)
@@ -71,7 +73,7 @@ class AddLocationViewVM: NSObject, ObservableObject, ErrorDisplayable {
     Task(handlingError: self, operation: { [weak self] in
       guard let self = self else { return }
       defer { isLoading = false }
-      try await diContainer.passengerService.saveLocation(type: locationType, location: location.address)
+      try await passengerService.saveLocation(type: locationType, location: location.address)
       completion()
     })
   }
