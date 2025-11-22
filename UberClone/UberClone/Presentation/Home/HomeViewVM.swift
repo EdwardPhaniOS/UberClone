@@ -1,5 +1,5 @@
-// Created on 10/27/25.
-// Copyright (c) 2025 ABC Virtual Communications, Inc. All rights reserved.
+//  Created by Vinh Phan on 20/10/25.
+//
 
 import SwiftUI
 import MapKit
@@ -51,19 +51,20 @@ class HomeViewVM: NSObject, ObservableObject, ErrorDisplayable {
   
   var trip: Trip?
   
-  var diContainer: DIContainer
-  var passengerService: PassengerService
-  var driverService: DriverService
-  var userService: UserService
+  private let passengerService: PassengerService
+  private let driverService: DriverService
+  private let userService: UserService
   
   //MARK: - Init
   
-  init(diContainer: DIContainer, user: User?) {
-    self.diContainer = diContainer
-    self.passengerService = diContainer.resolve(type: PassengerService.self)
-    self.driverService = diContainer.resolve(type: DriverService.self)
-    self.userService = diContainer.resolve(type: UserService.self)
+  init(user: User?,
+       passengerService: PassengerService = Inject().wrappedValue,
+       driverService: DriverService = Inject().wrappedValue,
+       userService: UserService = Inject().wrappedValue) {
     self.user = user
+    self.passengerService = passengerService
+    self.driverService = driverService
+    self.userService = userService
     super.init()
     
     configureInitialViewState()

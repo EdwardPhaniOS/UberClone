@@ -14,8 +14,8 @@ struct AddLocationView: View {
   @StateObject var viewModel: AddLocationViewVM
   var saveLocationCallback: ((_ type: LocationType, _ address: String) -> Void)?
   
-  init(diContainer: DIContainer, locationType: LocationType, saveLocationCallback: ((_ type: LocationType, _ address: String) -> Void)? = nil) {
-    _viewModel = StateObject(wrappedValue: AddLocationViewVM(diContainer: diContainer, locationType: locationType))
+  init(locationType: LocationType, saveLocationCallback: ((_ type: LocationType, _ address: String) -> Void)? = nil) {
+    _viewModel = StateObject(wrappedValue: AddLocationViewVM(locationType: locationType))
     self.saveLocationCallback = saveLocationCallback
   }
   
@@ -62,5 +62,5 @@ struct AddLocationView: View {
 }
 
 #Preview {
-  AddLocationView(diContainer: .mock, locationType: .home)
+  AddLocationView(locationType: .home)
 }

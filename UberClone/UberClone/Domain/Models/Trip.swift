@@ -1,5 +1,5 @@
-// Created on 10/30/25.
-// Copyright (c) 2025 ABC Virtual Communications, Inc. All rights reserved.
+//  Created by Vinh Phan on 20/10/25.
+//
 
 import Foundation
 import CoreLocation
@@ -47,7 +47,7 @@ struct Trip {
 }
 
 extension Trip {
-  static func sample() -> Trip {
+  static func mock() -> Trip {
     var trip = Trip(passengerUid: UUID().uuidString, dict: [:])
     trip.state = .requested
     trip.destinationCoordinates = CLLocationCoordinate2D(latitude: 15.7769, longitude: 116.7009)

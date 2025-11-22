@@ -8,6 +8,8 @@
 import Foundation
 import SwiftUICore
 
+//MARK: Core Types
+
 enum LifeTime {
   case singleton
   case transient
@@ -29,7 +31,9 @@ protocol Resolver {
   func resolve<T>(type: T.Type) -> T
 }
 
-class DIContainer: Resolver, ObservableObject {
+//MARK: DIContainer
+
+class DIContainer: Resolver {
   static let shared: DIContainer = DIContainer()
   
   private var registrationDict: [ObjectIdentifier: Registration] = [:]
@@ -80,11 +84,7 @@ class DIContainer: Resolver, ObservableObject {
   }
 }
 
-extension DIContainer {
-  static let mock: DIContainer = {
-    return DIContainer.shared
-  }()
-}
+//MARK: SwiftUI Enviroment
 
 struct DIContainerKey: EnvironmentKey {
   static let defaultValue: DIContainer = .shared
@@ -96,6 +96,8 @@ extension EnvironmentValues {
     set { self[DIContainerKey.self] = newValue}
   }
 }
+
+//MARK: Module Loading
 
 protocol DIModule {
   @MainActor
@@ -109,4 +111,12 @@ extension DIContainer {
   }
 }
 
-//Property Wrapper - pending
+// MARK: - Inject Property Wrapper
+
+struct Inject<T> {
+  let wrappedValue: T
+  
+  init(resolver: Resolver = DIContainer.shared) {
+    self.wrappedValue = resolver.resolve(type: T.self)
+  }
+}

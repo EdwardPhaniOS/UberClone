@@ -1,5 +1,4 @@
-// Created on 10/28/25.
-// Copyright (c) 2025 ABC Virtual Communications, Inc. All rights reserved.
+// Created by Vinh Phan on 20/10/25.
 
 import Foundation
 import MapKit

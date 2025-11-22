@@ -1,5 +1,5 @@
-// Created on 10/22/25.
-// Copyright (c) 2025 ABC Virtual Communications, Inc. All rights reserved.
+//  Created by Vinh Phan on 20/10/25.
+//
 
 import SwiftUI
 import FirebaseAuth
@@ -8,10 +8,6 @@ import GeoFire
 
 @MainActor
 class SignUpVM: ObservableObject, ErrorDisplayable {
-  let authService: AuthService
-  let driverService: DriverService
-  let userService: UserService
-  let diContainer: DIContainer
   @Published var email: String = ""
   @Published var password: String = ""
   @Published var fullName: String = ""
@@ -19,12 +15,15 @@ class SignUpVM: ObservableObject, ErrorDisplayable {
   @Published var accountTypeIndex = 0
   @Published var appAlert: AppAlert?
   @Published var error: Error?
+  
+  private let authService: AuthService
+  private let driverService: DriverService
+  private let userService: UserService
 
-  init(diContainer: DIContainer) {
-    self.diContainer = diContainer
-    self.authService = diContainer.resolve(type: AuthService.self)
-    self.driverService = diContainer.resolve(type: DriverService.self)
-    self.userService = diContainer.resolve(type: UserService.self)
+  init(authService: AuthService = Inject().wrappedValue, driverService: DriverService = Inject().wrappedValue, userService: UserService = Inject().wrappedValue) {
+    self.authService = authService
+    self.driverService = driverService
+    self.userService = userService
   }
 
   func handleSignUp() {

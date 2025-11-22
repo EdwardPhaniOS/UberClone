@@ -1,5 +1,5 @@
-// Created on 10/30/25.
-// Copyright (c) 2025 ABC Virtual Communications, Inc. All rights reserved.
+//  Created by Vinh Phan on 20/10/25.
+//
 
 import SwiftUI
 import MapKit
@@ -9,8 +9,8 @@ struct PickupView: View {
   var onCloseButtonPressed: (() -> Void)?
   var onAcceptButtonPressed: (() -> Void)?
   
-  init(diContainer: DIContainer, trip: Trip, onCloseButtonPressed: (() -> Void)? = nil, onAcceptButtonPressed: (() -> Void)? = nil) {
-    _viewModel = StateObject(wrappedValue: PickupViewVM(diContainer: diContainer, trip: trip))
+  init(trip: Trip, onCloseButtonPressed: (() -> Void)? = nil, onAcceptButtonPressed: (() -> Void)? = nil) {
+    _viewModel = StateObject(wrappedValue: PickupViewVM(trip: trip))
     self.onCloseButtonPressed = onCloseButtonPressed
     self.onAcceptButtonPressed = onAcceptButtonPressed
   }
@@ -82,5 +82,5 @@ private extension PickupView {
 }
 
 #Preview {
-  PickupView(diContainer: DIContainer.mock, trip: Trip.sample())
+  PickupView(trip: Trip.mock())
 }

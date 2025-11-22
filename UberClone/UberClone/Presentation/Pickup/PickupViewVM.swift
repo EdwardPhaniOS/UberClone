@@ -1,5 +1,5 @@
-// Created on 10/30/25.
-// Copyright (c) 2025 ABC Virtual Communications, Inc. All rights reserved.
+//  Created by Vinh Phan on 20/10/25.
+//
 
 import SwiftUI
 import MapKit
@@ -12,15 +12,14 @@ class PickupViewVM: ObservableObject, ErrorDisplayable {
   @Published var error: Error?
   private var timer: Timer?
 
-  var diContainer: DIContainer
-  var driverService: DriverService
+  private let driverService: DriverService
+  
   var pickupCoordinates: CLLocationCoordinate2D
   var trip: Trip
 
-  init(diContainer: DIContainer, trip: Trip) {
-    self.diContainer = diContainer
-    self.driverService = diContainer.resolve(type: DriverService.self)
+  init(trip: Trip, driverService: DriverService = Inject().wrappedValue) {
     self.trip = trip
+    self.driverService = driverService
     self.pickupCoordinates = trip.pickupCoordinates
 
     cameraPosition = MapCameraPosition.region(

@@ -21,7 +21,7 @@ struct UberCloneApp: App {
   
   var body: some Scene {
     WindowGroup {
-      ContainerView(diContainer: DIContainer.shared)
+      ContainerView()
     }
   }
 }

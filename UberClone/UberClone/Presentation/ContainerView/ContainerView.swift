@@ -13,14 +13,14 @@ struct ContainerView: View {
   @State var isMenuOpen: Bool = false
   @State var showSettings: Bool = false
   
-  init(diContainer: DIContainer) {
-    _viewModel = StateObject(wrappedValue: ContainerViewVM(diContainer: diContainer))
+  init() {
+    _viewModel = StateObject(wrappedValue: ContainerViewVM())
   }
   
   var body: some View {
     ZStack {
       if let user = viewModel.user {
-        HomeView(diContainer: viewModel.diContainer, user: user) {
+        HomeView(user: user) {
           isMenuOpen = !isMenuOpen
         }
       }
@@ -62,7 +62,7 @@ struct ContainerView: View {
     .showLoading(isLoading: viewModel.isLoading)
     .fullScreenCover(isPresented: $viewModel.showLogin) {
       NavigationStack {
-        LoginView(diContainer: viewModel.diContainer)
+        LoginView()
       }
     }
     .fullScreenCover(isPresented: $showSettings, content: {
@@ -72,5 +72,5 @@ struct ContainerView: View {
 }
 
 #Preview {
-  ContainerView(diContainer: DIContainer.shared)
+  ContainerView()
 }

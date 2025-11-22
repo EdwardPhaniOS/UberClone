@@ -1,5 +1,5 @@
-// Created on 10/24/25.
-// Copyright (c) 2025 ABC Virtual Communications, Inc. All rights reserved.
+//  Created by Vinh Phan on 20/10/25.
+//
 
 import SwiftUI
 import FirebaseAuth
@@ -9,8 +9,8 @@ struct HomeView: View {
   @StateObject var viewModel: HomeViewVM
   var onMenuButtonPressed: (() -> Void)?
   
-  init(diContainer: DIContainer, user: User?, onMenuButtonPressed: (() -> Void)? = nil) {
-    _viewModel = StateObject(wrappedValue: HomeViewVM(diContainer: diContainer, user: user))
+  init(user: User?, onMenuButtonPressed: (() -> Void)? = nil) {
+    _viewModel = StateObject(wrappedValue: HomeViewVM(user: user))
     self.onMenuButtonPressed = onMenuButtonPressed
   }
 
@@ -33,7 +33,7 @@ struct HomeView: View {
     .showError(item: $viewModel.error)
     .showAlert(item: $viewModel.appAlert)
     .fullScreenCover(isPresented: $viewModel.showPickupView, content: {
-      PickupView(diContainer: viewModel.diContainer, trip: viewModel.trip!, onCloseButtonPressed: {
+      PickupView(trip: viewModel.trip!, onCloseButtonPressed: {
         viewModel.showPickupView = false
       }, onAcceptButtonPressed: {
         viewModel.driverAcceptTrip()
@@ -194,6 +194,6 @@ struct HomeView: View {
 }
 
 #Preview("Home View") {
-  HomeView(diContainer: DIContainer.mock, user: User.mock, onMenuButtonPressed: nil)
+  HomeView(user: User.mock, onMenuButtonPressed: nil)
 }
 

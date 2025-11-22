@@ -19,19 +19,14 @@ class ContainerViewVM: NSObject, ObservableObject, ErrorDisplayable {
   @Published var error: Error?
   @Published var appAlert: AppAlert?
   
-  var authService: AuthService
-  var userService: UserService
-  var diContainer: DIContainer
+  private let authService: AuthService
+  private let userService: UserService
   
   private var cancellables = Set<AnyCancellable>()
   
-  //MARK: - Init
-
-  init(diContainer: DIContainer) {
-    self.diContainer = diContainer
-    self.userService = diContainer.resolve(type: UserService.self)
-    self.authService = diContainer.resolve(type: AuthService.self)
-    super.init()
+  init(authService: AuthService = Inject().wrappedValue, userService: UserService = Inject().wrappedValue) {
+    self.authService = authService
+    self.userService = userService
   }
   
   func setUpSubcription() {

@@ -1,5 +1,5 @@
-// Created on 10/21/25.
-// Copyright (c) 2025 ABC Virtual Communications, Inc. All rights reserved.
+//  Created by Vinh Phan on 20/10/25.
+//
 
 import SwiftUI
 
@@ -8,8 +8,8 @@ struct SignUpView: View {
   @Environment(\.dismiss) private var dismiss
   @StateObject var viewModel: SignUpVM
   
-  init(diContainer: DIContainer) {
-    _viewModel = StateObject(wrappedValue: SignUpVM(diContainer: diContainer))
+  init() {
+    _viewModel = StateObject(wrappedValue: SignUpVM())
   }
 
   var body: some View {
@@ -92,5 +92,5 @@ private extension SignUpView {
 }
 
 #Preview {
-  SignUpView(diContainer: DIContainer.mock)
+  SignUpView()
 }

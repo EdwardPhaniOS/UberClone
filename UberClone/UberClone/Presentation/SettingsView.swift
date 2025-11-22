@@ -91,7 +91,7 @@ struct SettingsView: View {
         }
       }
       .fullScreenCover(isPresented: $viewModel.showAddLocation) {
-        AddLocationView(diContainer: diContainer, locationType: viewModel.selectedLocationType) { type, address in
+        AddLocationView(locationType: viewModel.selectedLocationType) { type, address in
           viewModel.updateSavedLocation(type: type, address: address)
         }
       }

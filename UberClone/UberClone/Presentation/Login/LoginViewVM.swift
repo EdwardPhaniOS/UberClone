@@ -1,23 +1,22 @@
-// Created on 10/22/25.
-// Copyright (c) 2025 ABC Virtual Communications, Inc. All rights reserved.
+//  Created by Vinh Phan on 20/10/25.
+//
 
 import SwiftUI
 import FirebaseAuth
 
 @MainActor
 class LoginViewVM: ObservableObject, ErrorDisplayable {
-  var authService: AuthService
   @Published var email: String = ""
   @Published var password: String = ""
   @Published var isLoading: Bool = false
   @Published var showSignUp: Bool = false
   @Published var appAlert: AppAlert?
   @Published var error: Error?
-  var diContainer: DIContainer
+  
+  private let authService: AuthService
 
-  init(diContainer: DIContainer) {
-    self.diContainer = diContainer
-    self.authService = diContainer.resolve(type: AuthService.self)
+  init(authService: AuthService = Inject().wrappedValue) {
+    self.authService = authService
   }
 
   func handleLogin() {

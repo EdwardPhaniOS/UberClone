@@ -17,16 +17,15 @@ class AddLocationViewVM: NSObject, ObservableObject, ErrorDisplayable {
   @Published var error: Error?
   @Published var appAlert: AppAlert?
   
-  var diContainer: DIContainer
   var locationType: LocationType
   var region: MKCoordinateRegion?
   var debounceTimer: Timer?
-  var passengerService: PassengerService
   
-  init(diContainer: DIContainer, locationType: LocationType) {
+  private let passengerService: PassengerService
+  
+  init(locationType: LocationType, passengerService: PassengerService = Inject().wrappedValue) {
     self.locationType = locationType
-    self.diContainer = diContainer
-    self.passengerService = diContainer.resolve(type: PassengerService.self)
+    self.passengerService = passengerService
     
     if let currentLocation = LocationHandler.shared.location {
       let span = MKCoordinateSpan(latitudeDelta: 0.02, longitudeDelta: 0.02)

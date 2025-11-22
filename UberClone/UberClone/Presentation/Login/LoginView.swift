@@ -11,8 +11,8 @@ struct LoginView: View {
   
   @StateObject var viewModel: LoginViewVM
   
-  init(diContainer: DIContainer) {
-    _viewModel = StateObject(wrappedValue: LoginViewVM(diContainer: diContainer))
+  init() {
+    _viewModel = StateObject(wrappedValue: LoginViewVM())
   }
 
   var body: some View {
@@ -34,7 +34,7 @@ struct LoginView: View {
     .printFileOnAppear()
     .background(Color.appTheme.viewBackground)
     .navigationDestination(isPresented: $viewModel.showSignUp, destination: {
-      SignUpView(diContainer: viewModel.diContainer)
+      SignUpView()
     })
     .showAlert(item: $viewModel.appAlert)
     .showError(item: $viewModel.error)
@@ -87,5 +87,5 @@ private extension LoginView {
 }
 
 #Preview {
-  LoginView(diContainer: DIContainer.mock)
+  LoginView()
 }
