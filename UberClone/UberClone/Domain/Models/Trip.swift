@@ -15,7 +15,7 @@ enum TripState: Int {
 }
 
 
-struct Trip {
+class Trip {
   var pickupCoordinates: CLLocationCoordinate2D!
   var destinationCoordinates: CLLocationCoordinate2D!
   var passengerUid: String!

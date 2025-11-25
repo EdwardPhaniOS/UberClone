@@ -3,6 +3,7 @@
 
 import SwiftUI
 import MapKit
+import FirebaseAuth
 
 @MainActor
 class PickupViewVM: ObservableObject, ErrorDisplayable {
@@ -30,6 +31,16 @@ class PickupViewVM: ObservableObject, ErrorDisplayable {
     )
   }
   
+  func acceptTrip(completion: @escaping () -> Void) {
+    Task(handlingError: self) { [weak self] in
+      guard let self = self else { return }
+      try await driverService.acceptTrip(trip: trip)
+      trip.state = .accepted
+      trip.driverUid = Auth.auth().currentUser?.uid
+      completion()
+    }
+  }
+  
   func countDownToAcceptTrip(completion: @escaping () -> Void) {
     countdown = 10
     timer?.invalidate()
@@ -39,17 +50,18 @@ class PickupViewVM: ObservableObject, ErrorDisplayable {
         if self.countdown > 1 {
           self.countdown -= 1
         } else {
-          self.denyTrip()
-          completion()
+          self.denyTrip(completion: completion)
         }
       }
     }
   }
   
-  func denyTrip() {
+  func denyTrip(completion: @escaping () -> Void) {
     Task(handlingError: self) { [weak self] in
       guard let self = self else { return }
       try await driverService.updateTripState(trip: trip, state: .denied)
+      trip.state = .denied
+      completion()
     }
   }
   

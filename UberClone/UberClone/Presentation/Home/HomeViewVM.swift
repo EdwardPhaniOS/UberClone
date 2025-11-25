@@ -11,10 +11,10 @@ import Combine
 class HomeViewVM: NSObject, ObservableObject, ErrorDisplayable {
   
   enum InputViewState: Equatable {
-    case notAvailable
+    case hidden
     case inactive
     case active
-    case didSelectPlacemark
+    case didSelectDestination
   }
   
   enum AnnotationType: String {
@@ -23,6 +23,7 @@ class HomeViewVM: NSObject, ObservableObject, ErrorDisplayable {
   }
   
   //MARK: - Variables
+  @AppStorage("passengerId") private var passengerId: String = ""
   
   @Published var cameraPosition = MapCameraPosition.region(
     MKCoordinateRegion(
@@ -37,7 +38,7 @@ class HomeViewVM: NSObject, ObservableObject, ErrorDisplayable {
   @Published var placemarks: [MKPlacemark] = []
   @Published var savedPlacemarks: [MKPlacemark] = []
   @Published var selectedPlacemark: MKPlacemark?
-  @Published var inputViewState: InputViewState = .notAvailable
+  @Published var inputViewState: InputViewState = .hidden
   @Published var rideActionViewState: RideActionViewState = .notAvailable
   @Published var routeCoordinates: [CLLocationCoordinate2D]? = nil
   @Published var showPickupView: Bool = false
@@ -46,9 +47,9 @@ class HomeViewVM: NSObject, ObservableObject, ErrorDisplayable {
   @Published var searchText = ""
   @Published var error: Error?
   @Published var appAlert: AppAlert?
+  
   var debounceTimer: Timer?
   var cancellables: Set<AnyCancellable> = Set()
-  
   var trip: Trip?
   
   private let passengerService: PassengerService
@@ -71,6 +72,7 @@ class HomeViewVM: NSObject, ObservableObject, ErrorDisplayable {
     setSubscribers()
   }
   
+  // MARK: - UI State & Alerts
   func configureInitialViewState() {
     guard let user = user else { return }
     
@@ -78,7 +80,7 @@ class HomeViewVM: NSObject, ObservableObject, ErrorDisplayable {
     if user.accountType == .passenger {
       inputViewState = .inactive
     } else {
-      inputViewState = .notAvailable
+      inputViewState = .hidden
     }
   }
   
@@ -86,9 +88,24 @@ class HomeViewVM: NSObject, ObservableObject, ErrorDisplayable {
     appAlert = AppAlert(title: "", message: message)
   }
   
-  //MARK: - APIs
+  func showConfirmCancelTrip() {
+    let actionButton = AppAlert.ActionButton(
+      title: "I'm sure",
+      action: { [weak self] in
+        guard let self = self else { return }
+        cancelTrip()
+      })
+    
+    appAlert = AppAlert(title: "Cancel Trip?",
+                        message: "Are you sure you want to cancel current trip?",
+                        actionButton: actionButton)
+  }
+}
+
+//MARK: Subscribers & Trip Management
+extension HomeViewVM {
   
-  func setSubscribers() {
+  private func setSubscribers() {
     guard let user = user else { return }
     if user.accountType == .passenger {
       passengerObserverCurrentTrip()
@@ -116,7 +133,7 @@ class HomeViewVM: NSObject, ObservableObject, ErrorDisplayable {
       .store(in: &cancellables)
   }
   
-  func passengerObserverCurrentTrip() {
+  private func passengerObserverCurrentTrip() {
     passengerService.observeCurrentTrip()
       .sink { _ in } receiveValue: { [weak self] trip in
         guard let self = self else { return }
@@ -126,53 +143,19 @@ class HomeViewVM: NSObject, ObservableObject, ErrorDisplayable {
         switch state {
         case .requested:
           break
+
         case .denied:
-          Task(handlingError: self) { [weak self] in
-            guard let self = self else { return }
-            
-            try await passengerService.deleteTrip()
-            
-            self.clearRouteAndLocationSelection()
-            self.fetchDrivers()
-            self.isLoading = false
-            self.showAlertOnUI(message: "Trip was denied")
-          }
+          self.handleTripDenied()
           
-        case .accepted:
-          guard let driverUid = trip.driverUid else {
-            self.isLoading = false
-            return
-          }
+        case .accepted, .driverArrived, .inProgress:
+          self.handleTripProgress(trip: trip)
           
-          if let selectedDriver = driverAnnotations.first(where: { $0.uuid == driverUid }) {
-            driverAnnotations = [selectedDriver]
-            zoomToFit(coordinates: [selectedDriver.coordinate, trip.pickupCoordinates])
-          }
-          
-          Task(handlingError: self) { [weak self] in
-            guard let self = self else { return }
-            defer { isLoading = false }
-            let driver = try await userService.fetchUserData(userId: driverUid)
-            self.rideActionUser = driver
-            self.rideActionViewState = .tripAccepted
-          }
-        case .driverArrived:
-          self.isLoading = false
-          self.rideActionViewState = .driverArrived
-        case .inProgress:
-          self.rideActionViewState = .tripInProgress
         case .arrivedAtDestination:
           self.rideActionViewState = .endTrip
+          self.inputViewState = .didSelectDestination
+          
         case .completed:
-          Task(handlingError: self) { [weak self] in
-            guard let self = self else { return }
-            
-            try await passengerService.deleteTrip()
-            
-            self.clearRouteAndLocationSelection()
-            self.fetchDrivers()
-            self.showAlertOnUI(message: "Trip Completed")
-          }
+          self.handleTripCompleted()
           
         @unknown default:
           break
@@ -181,7 +164,7 @@ class HomeViewVM: NSObject, ObservableObject, ErrorDisplayable {
       .store(in: &cancellables)
   }
   
-  func fetchDrivers() {
+  private func fetchDrivers() {
     guard let location = LocationHandler.shared.location else { return }
     
     passengerService.fetchDrivers(location: location)
@@ -204,15 +187,158 @@ class HomeViewVM: NSObject, ObservableObject, ErrorDisplayable {
           }
         }
         
-        let annotation = DriverAnnotation(uuid: driver.uuid, coordinate: coordinate)
+        let driverAnnotation = DriverAnnotation(uuid: driver.uuid, coordinate: coordinate)
         
-        if let index = self.driverAnnotations.firstIndex(where: { $0.uuid == annotation.uuid }) {
-          self.driverAnnotations[index] = annotation
+        if let index = self.driverAnnotations.firstIndex(where: { $0.uuid == driverAnnotation.uuid }) {
+          self.driverAnnotations[index] = driverAnnotation
         } else {
-          self.driverAnnotations.append(annotation)
+          self.driverAnnotations.append(driverAnnotation)
         }
       }
       .store(in: &cancellables)
+  }
+  
+  func driverObserveTrip() {
+    driverService.tripPublisher()
+      .sink { _ in } receiveValue: { [weak self] trip in
+        guard let self = self else { return }
+        
+        guard (passengerId.isEmpty && trip.state == .requested)
+                || passengerId == trip.passengerUid
+        else { return }
+        
+        self.trip = trip
+        handleTripStateForDriver(trip: trip)
+        observeCancelledTrip(trip: trip)
+      }
+      .store(in: &cancellables)
+  }
+  
+  private func observeCancelledTrip(trip: Trip) {
+    driverService.tripCancelPublisher(trip: trip)
+      .sink { _ in } receiveValue: { [weak self] _ in
+        guard let self = self else { return }
+        
+        passengerId = ""
+        
+        guard trip.state != .denied else { return }
+        
+        rideActionViewState = .notAvailable
+        selectedPlacemark = nil
+        routeCoordinates = nil
+        zoomToCurrentUser()
+        showAlertOnUI(message: "The passenger has decided to cancel this ride. Press OK to continue")
+      }
+      .store(in: &cancellables)
+  }
+  
+  private func handleTripDenied() {
+    Task(handlingError: self) { [weak self] in
+      guard let self = self else { return }
+      try await passengerService.deleteTrip()
+      self.clearRouteAndLocationSelection()
+      self.fetchDrivers()
+      self.isLoading = false
+      self.showAlertOnUI(message: "Trip was denied")
+    }
+  }
+  
+  private func handleTripProgress(trip: Trip) {
+    self.isLoading = false
+    if let driverUid = trip.driverUid,
+       let selectedDriver = driverAnnotations.first(where: { $0.uuid == driverUid }) {
+      driverAnnotations = [selectedDriver]
+      zoomToFit(coordinates: [selectedDriver.coordinate, trip.pickupCoordinates])
+    }
+    switch trip.state {
+    case .accepted:
+      self.rideActionViewState = .tripAccepted
+    case .driverArrived:
+      self.rideActionViewState = .driverArrived
+    case .inProgress:
+      self.rideActionViewState = .tripInProgress
+    default:
+      break
+    }
+    
+    self.inputViewState = .didSelectDestination
+    if selectedPlacemark == nil {
+      Task(handlingError: self) { [weak self] in
+        guard let self = self else { return }
+        try await updateSelectedPlacemark(coordinates: trip.destinationCoordinates)
+      }
+    }
+    
+    if rideActionUser == nil {
+      getDriverInfo()
+      calculateRoute(to: trip.destinationCoordinates)
+    }
+  }
+  
+  private func handleTripCompleted() {
+    Task(handlingError: self) { [weak self] in
+      guard let self = self else { return }
+      try await passengerService.deleteTrip()
+      self.clearRouteAndLocationSelection()
+      self.fetchDrivers()
+      self.showAlertOnUI(message: "Trip Completed")
+    }
+  }
+  
+  func handleTripStateForDriver(trip: Trip) {
+    Task(handlingError: self) { [weak self] in
+      guard let self = self else { return }
+      guard let state = trip.state else { return }
+      
+      switch state {
+      case .denied:
+        break
+        
+      case .requested:
+        self.showPickupView = true
+        
+      case .accepted:
+        showRouteToPassenger()
+        
+      case .driverArrived:
+        rideActionViewState = .pickupPassenger
+        
+      case .inProgress:
+        guard let destinationCoordinates = trip.destinationCoordinates,
+              let driverCoordinates = LocationHandler.shared.location?.coordinate
+        else { return }
+        
+        try await updateSelectedPlacemark(coordinates: destinationCoordinates)
+        
+        self.rideActionViewState = .tripInProgress
+        self.calculateRoute(to: destinationCoordinates)
+        self.setCustomRegion(withAnnotationType: .destination, withCoordinates: destinationCoordinates)
+        self.zoomToFit(coordinates: [driverCoordinates, destinationCoordinates])
+        
+      case .arrivedAtDestination:
+        rideActionViewState = .endTrip
+        
+      case .completed:
+        rideActionViewState = .notAvailable
+        selectedPlacemark = nil
+        routeCoordinates = nil
+        zoomToCurrentUser()
+        
+      @unknown default:
+        break
+      }
+    }
+  }
+  
+  private func getDriverInfo() {
+    guard let driverUid = trip?.driverUid else { return }
+    
+    Task(handlingError: self) { [weak self] in
+      guard let self = self else { return }
+      defer { isLoading = false }
+      let driver = try await userService.fetchUserData(userId: driverUid)
+      self.rideActionUser = driver
+    }
   }
   
   func uploadTrip() {
@@ -227,122 +353,6 @@ class HomeViewVM: NSObject, ObservableObject, ErrorDisplayable {
       try await passengerService.uploadTrip(pickupCoordinate: pickupCoordinate, destinationCoordinate: destinationCoordinate)
       
       self.rideActionViewState = .notAvailable
-    }
-  }
-  
-  func driverObserveTrip() {
-    driverService.tripPublisher()
-      .sink { _ in } receiveValue: { [weak self] trip in
-        guard let self = self else { return }
-        
-        self.showPickupView = trip.state == .requested
-        self.trip = trip
-        
-        if trip.state == .accepted {
-          driverAcceptTrip()
-          
-          guard let location = LocationHandler.shared.location else { return }
-          
-          Task(handlingError: self) {
-            try await self.driverService.updateDriverLocation(location: location)
-          }
-        }
-      }
-      .store(in: &cancellables)
-  }
-  
-  func observeCancelledTrip(trip: Trip) {
-    driverService.tripCancelPublisher(trip: trip)
-      .sink { _ in } receiveValue: { [weak self] _ in
-        guard let self = self else { return }
-        
-        rideActionViewState = .notAvailable
-        selectedPlacemark = nil
-        routeCoordinates = nil
-        zoomToCurrentUser()
-        showAlertOnUI(message: "The passenger has decided to cancel this ride. Press OK to continue")
-      }
-      .store(in: &cancellables)
-  }
-  
-  func driverAcceptTrip() {
-    guard trip != nil else { return }
-    
-    isLoading = true
-    
-    Task(handlingError: self) { [weak self] in
-      guard let self = self else { return }
-      defer { isLoading = false }
-      
-      try await driverService.acceptTrip(trip: trip!)
-      
-      self.trip?.state = .accepted
-      self.trip?.driverUid = Auth.auth().currentUser?.uid
-      
-      self.observeCancelledTrip(trip: trip!)
-      
-      self.setCustomRegion(withAnnotationType: .pickup, withCoordinates: trip!.pickupCoordinates)
-      
-      let pickupCoordinates = trip!.pickupCoordinates!
-      let location = CLLocation(latitude: pickupCoordinates.latitude, longitude: pickupCoordinates.longitude)
-      
-      let placemarks = try await CLGeocoder().reverseGeocodeLocation(location)
-      
-      if let placeMark = placemarks.first {
-        let mapKitPlacemark = MKPlacemark(placemark: placeMark)
-        
-        Task(handlingError: self) { [weak self] in
-          guard let self = self else { return }
-          let passenger = try await userService.fetchUserData(userId: trip!.passengerUid)
-          self.rideActionUser = passenger
-          self.selectedPlacemark = mapKitPlacemark
-          self.rideActionViewState = .tripAccepted
-          self.calculateRoute(to: mapKitPlacemark)
-          
-          if let driverLocation = LocationHandler.shared.location {
-            let distance = driverLocation.distance(from: location)
-            if distance < 100 {
-              handleDriverArrived(for: trip!)
-            }
-          }
-        }
-      }
-    }
-  }
-  
-  private func handleDriverArrived(for trip: Trip) {
-    Task(handlingError: self) { [weak self] in
-      guard let self = self else { return }
-      try await driverService.updateTripState(trip: trip, state: .driverArrived)
-      rideActionViewState = .pickupPassenger
-    }
-  }
-  
-  func showConfirmCancelTrip() {
-    let actionButton = AppAlert.ActionButton(
-      title: "I'm sure",
-      action: { [weak self] in
-        guard let self = self else { return }
-        cancelTrip()
-      })
-    
-    appAlert = AppAlert(title: "Cancel Trip?",
-                        message: "Are you sure you want to cancel current trip?",
-                        actionButton: actionButton)
-  }
-  
-  func cancelTrip() {
-    isLoading = true
-    
-    Task(handlingError: self) { [weak self] in
-      guard let self = self else { return }
-      defer { isLoading = false }
-      try await passengerService.deleteTrip()
-      
-      self.trip?.state = .denied
-      self.trip?.driverUid = nil
-      self.clearRouteAndLocationSelection()
-      self.fetchDrivers()
     }
   }
   
@@ -361,18 +371,28 @@ class HomeViewVM: NSObject, ObservableObject, ErrorDisplayable {
       else { return }
       
       try await self.driverService.updateTripState(trip: trip, state: .inProgress)
+      trip.state = .inProgress
       
-      let location = CLLocation(latitude: destinationCoordinates.latitude, longitude: destinationCoordinates.longitude)
-      let placemarks = try await CLGeocoder().reverseGeocodeLocation(location)
+      try await updateSelectedPlacemark(coordinates: destinationCoordinates)
       
-      if let placeMark = placemarks.first {
-        let mapKitPlacemark = MKPlacemark(placemark: placeMark)
-        self.rideActionViewState = .tripInProgress
-        self.selectedPlacemark = mapKitPlacemark
-        self.calculateRoute(to: mapKitPlacemark)
-        self.setCustomRegion(withAnnotationType: .destination, withCoordinates: destinationCoordinates)
-        self.zoomToFit(coordinates: [driverCoordinates, destinationCoordinates])
-      }
+      self.rideActionViewState = .tripInProgress
+      self.calculateRoute(to: destinationCoordinates)
+      self.setCustomRegion(withAnnotationType: .destination, withCoordinates: destinationCoordinates)
+      self.zoomToFit(coordinates: [driverCoordinates, destinationCoordinates])
+    }
+  }
+  
+  func cancelTrip() {
+    isLoading = true
+    
+    Task(handlingError: self) { [weak self] in
+      guard let self = self else { return }
+      defer { isLoading = false }
+      try await passengerService.deleteTrip()
+      
+      self.trip = nil
+      self.clearRouteAndLocationSelection()
+      self.fetchDrivers()
     }
   }
   
@@ -380,16 +400,17 @@ class HomeViewVM: NSObject, ObservableObject, ErrorDisplayable {
     guard let trip = self.trip else { return }
     
     isLoading = true
-    self.trip?.state = .completed
     
     Task(handlingError: self) { [weak self] in
       guard let self = self else { return }
       defer { isLoading = false }
       
       try await self.driverService.updateTripState(trip: trip, state: .completed)
+      trip.state = .completed
       rideActionViewState = .notAvailable
       selectedPlacemark = nil
       routeCoordinates = nil
+      passengerId = ""
       zoomToCurrentUser()
     }
   }
@@ -399,55 +420,17 @@ class HomeViewVM: NSObject, ObservableObject, ErrorDisplayable {
     self.passengerService.removeAllListeners()
   }
   
-  //MARK: - Location Handling
-  
-  func enableLocationServices() {
-    LocationHandler.shared.enableLocationServices()
-  }
-  
-  func updateLocations(location: CLLocation) {
-    self.cameraPosition = .region(
-      MKCoordinateRegion(
-        center: location.coordinate,
-        span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
-      )
-    )
-    
-    if user?.accountType == .driver {
-      Task(handlingError: self) {
-        try await self.driverService.updateDriverLocation(location: location)
-      }
-    } else {
-      self.fetchDrivers()
-    }
-  }
-  
-  func driverDidEnterRegion(region: CLRegion) {
-    guard let trip = self.trip else { return }
-    
-    let regionId = region.identifier
-    if regionId == AnnotationType.pickup.rawValue {
-      handleDriverArrived(for: trip)
-    }
-    
-    if regionId == AnnotationType.destination.rawValue {
-      Task(handlingError: self) { [weak self] in
-        guard let self = self else { return }
-        try await driverService.updateTripState(trip: trip, state: .arrivedAtDestination)
-        
-        rideActionViewState = .endTrip
-      }
-    }
-  }
-  
-  //MARK: - Location Input & Search Management
+}
+
+//MARK: Location Input & Search Management
+extension HomeViewVM {
   
   func showLocationInputView() {
     inputViewState = .active
     updateSavedLocation()
   }
   
-  func updateSavedLocation() {
+  private func updateSavedLocation() {
     savedPlacemarks = []
     
     if let homeAddress = user?.homeLocation {
@@ -479,7 +462,7 @@ class HomeViewVM: NSObject, ObservableObject, ErrorDisplayable {
     placemarks = []
   }
   
-  func clearRouteAndLocationSelection() {
+  private func clearRouteAndLocationSelection() {
     showLocationInputActivationView()
     rideActionViewState = .notAvailable
     selectedPlacemark = nil
@@ -499,7 +482,7 @@ class HomeViewVM: NSObject, ObservableObject, ErrorDisplayable {
     })
   }
   
-  func searchPlacemarks() async throws {
+  private func searchPlacemarks() async throws {
     self.placemarks = []
     let query = searchText
     
@@ -522,19 +505,66 @@ class HomeViewVM: NSObject, ObservableObject, ErrorDisplayable {
   
   func selectPlacemark(placemark: MKPlacemark) {
     selectedPlacemark = placemark
-    inputViewState = .didSelectPlacemark
+    inputViewState = .didSelectDestination
     rideActionViewState = .requestRide
-    calculateRoute(to: placemark)
+    calculateRoute(to: placemark.coordinate)
+  }
+}
+
+//MARK: - Location Handling
+private extension HomeViewVM {
+  func updateLocations(location: CLLocation) {
+    self.cameraPosition = .region(
+      MKCoordinateRegion(
+        center: location.coordinate,
+        span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+      )
+    )
+    
+    if user?.accountType == .driver {
+      Task(handlingError: self) {
+        try await self.driverService.updateDriverLocation(location: location)
+      }
+    } else {
+      self.fetchDrivers()
+    }
   }
   
-  //MARK: - Map & Route Handling
+  func driverDidEnterRegion(region: CLRegion) {
+    guard let trip = self.trip else { return }
+    
+    let regionId = region.identifier
+    if regionId == AnnotationType.pickup.rawValue {
+      handleDriverArrived(for: trip)
+    }
+    
+    if regionId == AnnotationType.destination.rawValue {
+      Task(handlingError: self) { [weak self] in
+        guard let self = self else { return }
+        try await driverService.updateTripState(trip: trip, state: .arrivedAtDestination)
+        trip.state = .arrivedAtDestination
+        rideActionViewState = .endTrip
+      }
+    }
+  }
   
-  func calculateRoute(to placemark: MKPlacemark) {
+  func handleDriverArrived(for trip: Trip) {
+    Task(handlingError: self) { [weak self] in
+      guard let self = self else { return }
+      try await driverService.updateTripState(trip: trip, state: .driverArrived)
+      rideActionViewState = .pickupPassenger
+    }
+  }
+}
+
+//MARK: - Map & Route Handling
+extension HomeViewVM {
+  private func calculateRoute(to destination: CLLocationCoordinate2D) {
     guard let currentCoordinate = LocationHandler.shared.location?.coordinate else { return }
     
     let request = MKDirections.Request()
     request.source = MKMapItem(placemark: MKPlacemark(coordinate: currentCoordinate))
-    request.destination = MKMapItem(placemark: placemark)
+    request.destination = MKMapItem(placemark: MKPlacemark(coordinate: destination))
     request.transportType = .automobile
     request.requestsAlternateRoutes = false
     
@@ -553,7 +583,7 @@ class HomeViewVM: NSObject, ObservableObject, ErrorDisplayable {
     }
   }
   
-  func zoomToFit(coordinates: [CLLocationCoordinate2D]) {
+  private func zoomToFit(coordinates: [CLLocationCoordinate2D]) {
     if coordinates.isEmpty {
       return
     }
@@ -580,7 +610,7 @@ class HomeViewVM: NSObject, ObservableObject, ErrorDisplayable {
     }
   }
   
-  func zoomToCurrentUser() {
+  private func zoomToCurrentUser() {
     guard let currentCoordinate = LocationHandler.shared.location?.coordinate else { return }
     let span = MKCoordinateSpan(latitudeDelta: 0.02, longitudeDelta: 0.02)
     withAnimation(.easeInOut(duration: 0.3)) {
@@ -588,9 +618,50 @@ class HomeViewVM: NSObject, ObservableObject, ErrorDisplayable {
     }
   }
   
-  func setCustomRegion(withAnnotationType type: AnnotationType, withCoordinates coordinates: CLLocationCoordinate2D) {
+  private func setCustomRegion(withAnnotationType type: AnnotationType, withCoordinates coordinates: CLLocationCoordinate2D) {
     let region = CLCircularRegion(center: coordinates, radius: 100, identifier: type.rawValue)
     LocationHandler.shared.locationManager.startMonitoring(for: region)
+  }
+  
+  func showRouteToPassenger() {
+    guard trip != nil else { return }
+    
+    isLoading = true
+    
+    Task(handlingError: self) { [weak self] in
+      guard let self = self else { return }
+      defer { isLoading = false }
+      
+      let pickupCoordinates = trip!.pickupCoordinates!
+      try await updateSelectedPlacemark(coordinates: pickupCoordinates)
+      calculateRoute(to: pickupCoordinates)
+      
+      rideActionUser = try await userService.fetchUserData(userId: trip!.passengerUid)
+      passengerId = trip!.passengerUid
+      rideActionViewState = .tripAccepted
+     
+      setCustomRegion(withAnnotationType: .pickup, withCoordinates: trip!.pickupCoordinates)
+      
+      let pickupLocation = CLLocation(latitude: pickupCoordinates.latitude, longitude: pickupCoordinates.longitude)
+      
+      if let driverLocation = LocationHandler.shared.location {
+        let distance = driverLocation.distance(from: pickupLocation)
+        if distance < 100 {
+          handleDriverArrived(for: trip!)
+        }
+      }
+    }
+  }
+  
+  func updateSelectedPlacemark(coordinates: CLLocationCoordinate2D) async throws {
+    let location = CLLocation(latitude: coordinates.latitude, longitude: coordinates.longitude)
+    
+    let placemarks = try await CLGeocoder().reverseGeocodeLocation(location)
+    
+    if let placeMark = placemarks.first {
+      let mapKitPlacemark = MKPlacemark(placemark: placeMark)
+      self.selectedPlacemark = mapKitPlacemark
+    }
   }
   
 }

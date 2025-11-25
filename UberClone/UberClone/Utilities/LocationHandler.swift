@@ -8,9 +8,8 @@ class LocationHandler: NSObject, CLLocationManagerDelegate {
 
   static let shared = LocationHandler()
   var locationManager: CLLocationManager!
-  var location: CLLocation?
   
-  @Published var locationUpdate: CLLocation?
+  @Published var location: CLLocation?
   @Published var enterRegion: CLRegion?
 
   override init() {
@@ -52,7 +51,7 @@ class LocationHandler: NSObject, CLLocationManagerDelegate {
   }
   
   func uploadLocationPublisher() -> AnyPublisher<CLLocation?, Never> {
-    $locationUpdate.eraseToAnyPublisher()
+    $location.eraseToAnyPublisher()
   }
   
   func enterRegionPublisher() -> AnyPublisher<CLRegion?, Never> {

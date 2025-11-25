@@ -45,8 +45,9 @@ private extension PickupView {
   var closeButtonView: some View {
     HStack{
       Button("", systemImage: "xmark") {
-        viewModel.denyTrip()
-        onCloseButtonPressed?()
+        viewModel.denyTrip(completion: {
+          onCloseButtonPressed?()
+        })
       }
       .font(.system(size: 18, weight: .bold))
       .foregroundStyle(Color.appTheme.accent)
@@ -76,7 +77,9 @@ private extension PickupView {
     Text("ACCEPT TRIP (\(viewModel.countdown)s)")
       .primaryButton()
       .button(.press) {
-        onAcceptButtonPressed?()
+        viewModel.acceptTrip(completion: {
+          onAcceptButtonPressed?()
+        })
       }
   }
 }

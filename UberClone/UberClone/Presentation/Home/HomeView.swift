@@ -36,8 +36,8 @@ struct HomeView: View {
       PickupView(trip: viewModel.trip!, onCloseButtonPressed: {
         viewModel.showPickupView = false
       }, onAcceptButtonPressed: {
-        viewModel.driverAcceptTrip()
         viewModel.showPickupView = false
+        viewModel.showRouteToPassenger()
       })
     })
   }
@@ -46,7 +46,7 @@ struct HomeView: View {
     Map(position: $viewModel.cameraPosition) {
       UserAnnotation()
 
-      if viewModel.inputViewState != .notAvailable {
+      if viewModel.inputViewState != .hidden {
         ForEach(viewModel.driverAnnotations) { driver in
           Annotation("", coordinate: driver.coordinate) {
             ZStack {
@@ -90,7 +90,6 @@ struct HomeView: View {
             viewModel.searchText = ""
             viewModel.showLocationInputView()
           }
-          .opacity(viewModel.inputViewState == .inactive ? 1 : 0)
         Spacer()
       }
 
@@ -141,7 +140,7 @@ struct HomeView: View {
             .frame(width: 48, height: 48)
             .background(Color.appTheme.cellBackground)
             .cornerRadius(AppCornerRadius.button)
-            .opacity(viewModel.inputViewState == .didSelectPlacemark ? 1 : 0)
+            .opacity(isBackButtonVisiable ? 1 : 0)
 
           Image("menu_ic")
             .plainButton()
@@ -151,7 +150,7 @@ struct HomeView: View {
             .frame(width: 48, height: 48)
             .background(Color.appTheme.cellBackground)
             .cornerRadius(AppCornerRadius.button)
-            .opacity((viewModel.inputViewState == .inactive || viewModel.inputViewState == .notAvailable) ? 1 : 0)
+            .opacity(isMenuButtonVisiable ? 1 : 0)
         })
         .animation(.easeInOut(duration: 0.3), value: viewModel.inputViewState)
         .foregroundStyle(Color.appTheme.accent)
@@ -191,6 +190,17 @@ struct HomeView: View {
     .animation(.easeInOut(duration: 0.3), value: viewModel.rideActionViewState)
   }
 
+}
+
+extension HomeView {
+  var isBackButtonVisiable: Bool {
+    viewModel.inputViewState == .didSelectDestination
+    && viewModel.trip?.state != .arrivedAtDestination
+  }
+  
+  var isMenuButtonVisiable: Bool {
+    viewModel.inputViewState == .inactive || viewModel.inputViewState == .hidden
+  }
 }
 
 #Preview("Home View") {
