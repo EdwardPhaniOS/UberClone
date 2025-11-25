@@ -59,8 +59,17 @@ class LocationHandler: NSObject, CLLocationManagerDelegate {
   }
 
   func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-    guard let location = locations.last else { return }
-    self.location = location
+    guard let newLocation = locations.last else { return }
+    
+    guard let currentLocation = location else {
+      location = newLocation
+      return
+    }
+    
+    let distance = currentLocation.distance(from: newLocation)
+    if distance > 100 {
+      self.location = newLocation
+    }
   }
   
   func locationManager(_ manager: CLLocationManager, didEnterRegion region: CLRegion) {
