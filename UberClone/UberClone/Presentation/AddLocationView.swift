@@ -20,26 +20,7 @@ struct AddLocationView: View {
   }
   
   var body: some View {
-    NavigationView {
-      List {
-        ForEach(viewModel.locations, id: \.self) { location in
-          VStack(alignment: .leading) {
-            Text(location.name ?? "")
-              .foregroundStyle(.black)
-              .font(.title3)
-            Text(location.address)
-              .foregroundStyle(.gray)
-              .font(.subheadline)
-          }
-          .onTapGesture {
-            viewModel.saveLocation(location: location) {
-              saveLocationCallback?(viewModel.locationType, location.address)
-              dismiss()
-            }
-          }
-        }
-      }
-      .listStyle(.grouped)
+    itemListView
       .searchable(text: $viewModel.searchText, prompt: "Search")
       .onChange(of: viewModel.searchText, { oldValue, newValue in
         viewModel.onSeachTextChange()
@@ -49,18 +30,46 @@ struct AddLocationView: View {
       .showAlert(item: $viewModel.appAlert)
       .toolbarBackground(Color.appTheme.viewBackground, for: .navigationBar)
       .toolbarBackground(.visible, for: .navigationBar)
-      .toolbar {
-        ToolbarItem(placement: .topBarLeading) {
-          Button("", systemImage: "xmark", action: {
+      .toolbar { toolbarContent }
+  }
+}
+
+extension AddLocationView {
+  @ToolbarContentBuilder
+  var toolbarContent: some ToolbarContent {
+    ToolbarItem(placement: .topBarLeading) {
+      Button("", systemImage: "xmark", action: {
+        dismiss()
+      })
+      .foregroundStyle(.white)
+    }
+  }
+  
+  var itemListView: some View {
+    List {
+      ForEach(viewModel.locations, id: \.self) { location in
+        VStack(alignment: .leading) {
+          Text(location.name ?? "")
+            .foregroundStyle(.black)
+            .font(.title3)
+          Text(location.address)
+            .foregroundStyle(.gray)
+            .font(.subheadline)
+        }
+        .onTapGesture {
+          viewModel.saveLocation(location: location) {
+            saveLocationCallback?(viewModel.locationType, location.address)
             dismiss()
-          })
-          .foregroundStyle(.white)
+          }
         }
       }
     }
+    .listStyle(.grouped)
   }
 }
 
 #Preview {
-  AddLocationView(locationType: .home)
+  NavigationView {
+    AddLocationView(locationType: .home)
+  }
 }

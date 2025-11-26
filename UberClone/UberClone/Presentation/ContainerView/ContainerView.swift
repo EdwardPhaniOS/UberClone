@@ -66,7 +66,9 @@ struct ContainerView: View {
       }
     }
     .fullScreenCover(isPresented: $showSettings, content: {
-      SettingsView(user: viewModel.user)
+      NavigationStack {
+        SettingsView(user: viewModel.user)
+      }
     })
   }
 }

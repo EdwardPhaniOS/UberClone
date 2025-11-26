@@ -41,10 +41,9 @@ class SignUpVM: ObservableObject, ErrorDisplayable {
     isLoading = true
     Task(handlingError: self) { [weak self] in
       guard let self = self else { return }
-      
-      let authResult = try await authService.signUp(withEmail: email, password: password)
       defer { isLoading = false }
-      
+      let authResult = try await authService.signUp(withEmail: email, password: password)
+     
       let uid = authResult.uid
 
       let values: [String: Any] = [
