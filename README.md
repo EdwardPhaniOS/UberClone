@@ -1,6 +1,6 @@
 # 🚗 UberClone
 
-A simplified Uber-like ride-hailing app built with Swift and UIKit. Demonstrates core concepts such as map integration, location tracking, ride request flow, and basic driver & rider UI.
+A simplified Uber-like ride-hailing app. Demonstrates core concepts such as map integration, location tracking, ride request flow, and basic driver & rider UI.
 
 [![Swift](https://img.shields.io/badge/language-Swift-orange.svg)]() [![iOS](https://img.shields.io/badge/iOS-15%2B-blue.svg)]() <!-- optional badges -->
 
