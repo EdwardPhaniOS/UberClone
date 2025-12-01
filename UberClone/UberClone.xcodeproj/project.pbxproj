@@ -176,6 +176,76 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		35078F662EDDE935004347F8 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				35CF15572EBCA74100C316A7 /* DIContainer */,
+				35866CF82EBE3AA4001C99AD /* Extensions */,
+				35078F722EDDEE89004347F8 /* Models */,
+				35078F672EDDE941004347F8 /* Modules */,
+				35078F692EDDE9D1004347F8 /* Services */,
+				8419AAF32EA76F1F008B50DC /* Utilities */,
+				84321DD62EAB72230094D1A1 /* Views */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+		35078F672EDDE941004347F8 /* Modules */ = {
+			isa = PBXGroup;
+			children = (
+				35D9B5082ED16EB100E1657C /* ServiceModule.swift */,
+			);
+			path = Modules;
+			sourceTree = "<group>";
+		};
+		35078F692EDDE9D1004347F8 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				849DD6262EB06FB3001A8FB0 /* LocationHandler.swift */,
+				35CF14BF2EBC96D800C316A7 /* FirebaseREF.swift */,
+				35CF14BD2EBC962F00C316A7 /* DriverService.swift */,
+				35CF14B92EBC90D600C316A7 /* PassengerService.swift */,
+				35CF14B72EBC905800C316A7 /* UserService.swift */,
+				84321DCF2EAB682D0094D1A1 /* AuthService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		35078F702EDDEB98004347F8 /* AddLocation */ = {
+			isa = PBXGroup;
+			children = (
+				35ECBEDC2EC1DF1A002CE352 /* AddLocationView.swift */,
+				35ECBEDE2EC1EB0B002CE352 /* AddLocationViewVM.swift */,
+				35ECBEDA2EC1DA9E002CE352 /* LocationType.swift */,
+			);
+			path = AddLocation;
+			sourceTree = "<group>";
+		};
+		35078F712EDDEC7D004347F8 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				3543DE7A2EBF9E6500B940C0 /* SettingsView.swift */,
+				353718642EC2336E00E898F0 /* SettingsViewVM.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		35078F722EDDEE89004347F8 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				356038AE2EC490170069EB79 /* AppState.swift */,
+				35AF94C32EC5DC5F009E9F27 /* AppAlert.swift */,
+				35AF94C52EC5DCE9009E9F27 /* AppError.swift */,
+				84C35FE62EAF73260044EBCF /* User.swift */,
+				356038232EC48A240069EB79 /* AuthData.swift */,
+				84FD32AD2EB09FF70089DD38 /* DriverAnnotation.swift */,
+				84226F322EB3222300223105 /* Trip.swift */,
+				35AE77122EC8692A0015979F /* ErrorDisplayable.swift */,
+				35AE771A2EC88BE70015979F /* AuthError.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
 		35090DF62EBCEEC300F11A2E /* ContainerView */ = {
 			isa = PBXGroup;
 			children = (
@@ -183,22 +253,6 @@
 				35CF15612EBCC12A00C316A7 /* ContainerViewVM.swift */,
 			);
 			path = ContainerView;
-			sourceTree = "<group>";
-		};
-		35866CF72EBE3A76001C99AD /* Models */ = {
-			isa = PBXGroup;
-			children = (
-				84C35FE62EAF73260044EBCF /* User.swift */,
-				356038232EC48A240069EB79 /* AuthData.swift */,
-				84FD32AD2EB09FF70089DD38 /* DriverAnnotation.swift */,
-				84226F322EB3222300223105 /* Trip.swift */,
-				356038AE2EC490170069EB79 /* AppState.swift */,
-				35AF94C32EC5DC5F009E9F27 /* AppAlert.swift */,
-				35AF94C52EC5DCE9009E9F27 /* AppError.swift */,
-				35AE77122EC8692A0015979F /* ErrorDisplayable.swift */,
-				35AE771A2EC88BE70015979F /* AuthError.swift */,
-			);
-			path = Models;
 			sourceTree = "<group>";
 		};
 		35866CF82EBE3AA4001C99AD /* Extensions */ = {
@@ -213,18 +267,6 @@
 				35AE77162EC86BB30015979F /* Error+AsAppError.swift */,
 			);
 			path = Extensions;
-			sourceTree = "<group>";
-		};
-		35866CFA2EBE3B8D001C99AD /* Services */ = {
-			isa = PBXGroup;
-			children = (
-				35CF14BD2EBC962F00C316A7 /* DriverService.swift */,
-				35CF14B92EBC90D600C316A7 /* PassengerService.swift */,
-				35CF14B72EBC905800C316A7 /* UserService.swift */,
-				84321DCF2EAB682D0094D1A1 /* AuthService.swift */,
-				35D9B5082ED16EB100E1657C /* ServiceModule.swift */,
-			);
-			path = Services;
 			sourceTree = "<group>";
 		};
 		358CAF232EB9F51400C912B3 /* Pickup */ = {
@@ -275,35 +317,27 @@
 		35B7DD2E2EA675980025CC89 /* UberClone */ = {
 			isa = PBXGroup;
 			children = (
-				84321DDC2EAB72570094D1A1 /* Data */,
-				35CF15572EBCA74100C316A7 /* DIContainer */,
-				84321DDB2EAB72520094D1A1 /* Domain */,
-				35866CF82EBE3AA4001C99AD /* Extensions */,
-				84321DD12EAB70C10094D1A1 /* Main */,
-				35B7DD322EA675EC0025CC89 /* Presentation */,
+				84321DD12EAB70C10094D1A1 /* Application */,
+				35078F662EDDE935004347F8 /* Core */,
+				35B7DD322EA675EC0025CC89 /* Features */,
 				8419AAFA2EA78C17008B50DC /* Resource */,
-				8419AAF32EA76F1F008B50DC /* Utilities */,
 			);
 			path = UberClone;
 			sourceTree = "<group>";
 		};
-		35B7DD322EA675EC0025CC89 /* Presentation */ = {
+		35B7DD322EA675EC0025CC89 /* Features */ = {
 			isa = PBXGroup;
 			children = (
-				84321DD62EAB72230094D1A1 /* Component */,
-				8430236E2EA8E61100A5EEF5 /* Login */,
-				843023692EA8DCEE00A5EEF5 /* SignUp */,
 				84FD32AC2EB07EC90089DD38 /* Home */,
 				358CAF232EB9F51400C912B3 /* Pickup */,
 				35CF155A2EBCB9D900C316A7 /* SideMenu */,
 				35090DF62EBCEEC300F11A2E /* ContainerView */,
-				3543DE7A2EBF9E6500B940C0 /* SettingsView.swift */,
-				353718642EC2336E00E898F0 /* SettingsViewVM.swift */,
-				35ECBEDC2EC1DF1A002CE352 /* AddLocationView.swift */,
-				35ECBEDE2EC1EB0B002CE352 /* AddLocationViewVM.swift */,
-				35ECBEDA2EC1DA9E002CE352 /* LocationType.swift */,
+				35078F712EDDEC7D004347F8 /* Settings */,
+				35078F702EDDEB98004347F8 /* AddLocation */,
+				8430236E2EA8E61100A5EEF5 /* Login */,
+				843023692EA8DCEE00A5EEF5 /* SignUp */,
 			);
-			path = Presentation;
+			path = Features;
 			sourceTree = "<group>";
 		};
 		35CF15572EBCA74100C316A7 /* DIContainer */ = {
@@ -326,7 +360,6 @@
 			isa = PBXGroup;
 			children = (
 				8430235F2EA8BA1B00A5EEF5 /* PrintFileOnAppearModifier.swift */,
-				849DD6262EB06FB3001A8FB0 /* LocationHandler.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -345,8 +378,8 @@
 			isa = PBXGroup;
 			children = (
 				8419AAF62EA76FAF008B50DC /* SignUpView.swift */,
-				843023652EA8CF4B00A5EEF5 /* SignUpVM.swift */,
 				843023612EA8C2BE00A5EEF5 /* SignUpError.swift */,
+				843023652EA8CF4B00A5EEF5 /* SignUpVM.swift */,
 			);
 			path = SignUp;
 			sourceTree = "<group>";
@@ -355,22 +388,22 @@
 			isa = PBXGroup;
 			children = (
 				35B7DD362EA6776E0025CC89 /* LoginView.swift */,
-				8430236A2EA8DFA700A5EEF5 /* LoginViewVM.swift */,
 				8430236C2EA8E01200A5EEF5 /* LoginError.swift */,
+				8430236A2EA8DFA700A5EEF5 /* LoginViewVM.swift */,
 			);
 			path = Login;
 			sourceTree = "<group>";
 		};
-		84321DD12EAB70C10094D1A1 /* Main */ = {
+		84321DD12EAB70C10094D1A1 /* Application */ = {
 			isa = PBXGroup;
 			children = (
 				35B7DD2D2EA675980025CC89 /* UberCloneApp.swift */,
 				8419AB112EA794C5008B50DC /* AppDelegate.swift */,
 			);
-			path = Main;
+			path = Application;
 			sourceTree = "<group>";
 		};
-		84321DD62EAB72230094D1A1 /* Component */ = {
+		84321DD62EAB72230094D1A1 /* Views */ = {
 			isa = PBXGroup;
 			children = (
 				84321DD32EAB72230094D1A1 /* CustomSegmentedPicker.swift */,
@@ -384,24 +417,7 @@
 				35AF94C12EC5DBFC009E9F27 /* AlertView.swift */,
 				35AE77142EC8697B0015979F /* ErrorView.swift */,
 			);
-			path = Component;
-			sourceTree = "<group>";
-		};
-		84321DDB2EAB72520094D1A1 /* Domain */ = {
-			isa = PBXGroup;
-			children = (
-				35866CF72EBE3A76001C99AD /* Models */,
-			);
-			path = Domain;
-			sourceTree = "<group>";
-		};
-		84321DDC2EAB72570094D1A1 /* Data */ = {
-			isa = PBXGroup;
-			children = (
-				35866CFA2EBE3B8D001C99AD /* Services */,
-				35CF14BF2EBC96D800C316A7 /* FirebaseREF.swift */,
-			);
-			path = Data;
+			path = Views;
 			sourceTree = "<group>";
 		};
 		84FD32AC2EB07EC90089DD38 /* Home */ = {
@@ -659,7 +675,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = VinhPhan.UberClone2;
+				PRODUCT_BUNDLE_IDENTIFIER = VinhPhan.UberClone1;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -814,7 +830,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = VinhPhan.UberClone2;
+				PRODUCT_BUNDLE_IDENTIFIER = VinhPhan.UberClone1;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -848,7 +864,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = VinhPhan.UberClone2;
+				PRODUCT_BUNDLE_IDENTIFIER = VinhPhan.UberClone1;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
