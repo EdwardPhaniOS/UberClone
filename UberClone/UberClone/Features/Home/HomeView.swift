@@ -29,7 +29,7 @@ struct HomeView: View {
     })
     .printFileOnAppear()
     .infinityFrame()
-    .showLoading(isLoading: viewModel.isLoading, message: viewModel.loadingMessage)
+    .showLoading(isLoading: viewModel.isLoading, allowUserInteraction: true, message: viewModel.loadingMessage)
     .showError(item: $viewModel.error)
     .showAlert(item: $viewModel.appAlert)
     .fullScreenCover(isPresented: $viewModel.showPickupView, content: {

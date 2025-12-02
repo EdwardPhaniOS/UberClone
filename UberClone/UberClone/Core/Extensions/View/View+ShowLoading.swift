@@ -8,10 +8,10 @@
 import SwiftUI
 
 extension View {
-  func showLoading(isLoading: Bool, message: String = "") -> some View {
+  func showLoading(isLoading: Bool, allowUserInteraction: Bool = false, message: String = "") -> some View {
     self.overlay {
       if isLoading {
-        LoadingView(message: message)
+        LoadingView(message: message, allowUserInteraction: allowUserInteraction)
       }
     }
   }
