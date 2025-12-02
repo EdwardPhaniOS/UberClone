@@ -14,7 +14,6 @@ enum TripState: Int {
   case completed
 }
 
-
 class Trip {
   var pickupCoordinates: CLLocationCoordinate2D!
   var destinationCoordinates: CLLocationCoordinate2D!
@@ -48,7 +47,7 @@ class Trip {
 
 extension Trip {
   static func mock() -> Trip {
-    var trip = Trip(passengerUid: UUID().uuidString, dict: [:])
+    let trip = Trip(passengerUid: UUID().uuidString, dict: [:])
     trip.state = .requested
     trip.destinationCoordinates = CLLocationCoordinate2D(latitude: 15.7769, longitude: 116.7009)
     trip.pickupCoordinates = CLLocationCoordinate2D(latitude: 10.7769, longitude: 106.7009)
