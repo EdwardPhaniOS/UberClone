@@ -12,27 +12,20 @@ import CoreLocation
 
 class MockDriverService: DriverService {
 
-  var shouldThrowError = false
-  var errorToThrow: Error = NSError(domain: "", code: 1)
+  enum Message {
+    case acceptTrip(trip: Trip)
+    case removeAllListener
+    case updateTripState(trip: Trip, state: TripState)
+    case updateDriverLocation(location: CLLocation)
+  }
+
+  var receivedMessages: [Message] = []
+
+  var errorToThrow: Error?
 
   let tripPublisherSubject = PassthroughSubject<Trip, Error>()
   let tripCancelPublisherSubject = PassthroughSubject<Void, Error>()
 
-  // -- For updateDriverLocation --
-  var updateDriverLocationCallCount = 0
-  var lastReceivedLocation: CLLocation?
-
-  // -- For updateTripState --
-  var updateTripStateCallCount = 0
-  var lastReceivedTripForStateUpdate: Trip?
-  var lastReceivedStateForUpdate: TripState?
-
-  // -- For acceptTrip --
-  var acceptTripCallCount = 0
-  var lastReceivedTripForAcceptance: Trip?
-
-  // -- For removeAllListener --
-  var removeAllListenerCallCount = 0
 
   func tripPublisher() -> AnyPublisher<Trip, Error> {
     return tripPublisherSubject.eraseToAnyPublisher()
@@ -43,34 +36,34 @@ class MockDriverService: DriverService {
   }
 
   func updateDriverLocation(location: CLLocation) async throws {
-    updateDriverLocationCallCount += 1
-    lastReceivedLocation = location
+    let message = Message.updateDriverLocation(location: location)
+    receivedMessages.append(message)
 
-    if shouldThrowError {
+    if let errorToThrow = errorToThrow {
       throw errorToThrow
     }
   }
 
   func updateTripState(trip: Trip, state: TripState) async throws {
-    updateTripStateCallCount += 1
-    lastReceivedTripForStateUpdate = trip
-    lastReceivedStateForUpdate = state
+    let message = Message.updateTripState(trip: trip, state: state)
+    receivedMessages.append(message)
 
-    if shouldThrowError {
+    if let errorToThrow = errorToThrow {
       throw errorToThrow
     }
   }
 
   func acceptTrip(trip: Trip) async throws {
-    acceptTripCallCount += 1
-    lastReceivedTripForAcceptance = trip
+    let message = Message.acceptTrip(trip: trip)
+    receivedMessages.append(message)
 
-    if shouldThrowError {
+    if let errorToThrow = errorToThrow {
       throw errorToThrow
     }
   }
 
   func removeAllListener() {
-    removeAllListenerCallCount += 1
+    let message = Message.removeAllListener
+    receivedMessages.append(message)
   }
 }

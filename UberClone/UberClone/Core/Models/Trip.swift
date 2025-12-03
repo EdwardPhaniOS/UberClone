@@ -46,9 +46,9 @@ class Trip {
 }
 
 extension Trip {
-  static func mock() -> Trip {
+  static func mock(state: TripState = .requested) -> Trip {
     let trip = Trip(passengerUid: UUID().uuidString, dict: [:])
-    trip.state = .requested
+    trip.state = state
     trip.destinationCoordinates = CLLocationCoordinate2D(latitude: 15.7769, longitude: 116.7009)
     trip.pickupCoordinates = CLLocationCoordinate2D(latitude: 10.7769, longitude: 106.7009)
     return trip
