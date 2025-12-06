@@ -11,7 +11,7 @@ on:
 
 env:
   PROJECT_FILE: "UberClone/UberClone.xcodeproj" 
-  SCHEME_TO_TEST: "UberClone"
+  SCHEME_TO_TEST: "Dev"
   IOS_VERSION: "18.2"
   IPHONE_DEVICE: "iPhone 16 Pro"
   CONFIGURATION: "Debug"
