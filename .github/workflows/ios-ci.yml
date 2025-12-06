@@ -18,7 +18,7 @@ env:
 
 jobs:
   build_and_test:
-    name: Build & Test on iOS ${{ env.IOS_VERSION }}
+    name: Build & Test on MacOS
     runs-on: macos-latest
 
     steps:
