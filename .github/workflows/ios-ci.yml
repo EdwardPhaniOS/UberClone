@@ -9,86 +9,55 @@ on:
   # Cho phép chạy thủ công từ tab Actions
   workflow_dispatch:
 
+env:
+  PROJECT_FILE: "UberClone/UberClone.xcodeproj"
+  SCHEME_TO_TEST: "Dev"
+  IOS_VERSION: "18.2"
+  IPHONE_DEVICE: "iPhone 16 Pro"
+  CONFIGURATION: "Debug"
+
 jobs:
-  build-and-test:
-    name: Build & Test ${{ matrix.scheme }}
-    runs-on: macos-15-xlarge
+  build_and_test:
+    name: Build & Test on MacOS
+    runs-on: macos-latest
 
-    strategy:
-      matrix:
-        scheme: ["UberClone"]      
-        include:
-          - scheme: UberClone
-            destination: platform=iOS Simulator,OS=18.2,name=iPhone 16 Pro
-
-    env:
-      PROJECT_FILE: "UberClone/UberClone.xcodeproj" 
-      SCHEME: ${{ matrix.scheme }}
-      DESTINATION: ${{ matrix.destination }}
-      
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0   # cần cho một số tool tính code coverage chính xác
 
-      # ------------------------------------------------------------------
-      # 1. Cache CocoaPods (nếu vẫn dùng Pods)
-      # ------------------------------------------------------------------
-      - name: CocoaPods cache
-        uses: actions/cache@v4
-        if: hashFiles('Podfile.lock') != ''
-        with:
-          path: Pods
-          key: ${{ runner.os }}-pods-${{ hashFiles('Podfile.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-pods-
+      - name: Install xcbeautify
+        run: brew install xcbeautify
 
-      # ------------------------------------------------------------------
-      # 2. Cache SPM (DerivedData + build artifacts)
-      # ------------------------------------------------------------------
-      - name: Cache Swift Package Manager
+      - name: Cache Swift Package Manager dependencies
         uses: actions/cache@v4
         with:
-          path: |
-            ~/Library/Developer/Xcode/DerivedData
-            .build
-          key: ${{ runner.os }}-spm-${{ hashFiles('Package.resolved') }}-${{ hashFiles('**/*.swift') }}
+          path: ~/Library/Developer/Xcode/DerivedData
+          key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
           restore-keys: |
-            ${{ runner.os }}-spm-${{ hashFiles('Package.resolved') }}-
             ${{ runner.os }}-spm-
 
-      # ------------------------------------------------------------------
-      # 3. Install CocoaPods (nếu có)
-      # ------------------------------------------------------------------
-      - name: Install CocoaPods
-        if: hashFiles('Podfile') != ''
+      - name: Resolve Swift Packages
         run: |
-          pod repo update --silent || true
-          pod install --repo-update
+          xcodebuild -resolvePackageDependencies \
+            -project "${{ env.PROJECT_FILE }}" \
+            -scheme "${{ env.SCHEME_TO_TEST }}"
 
-      # ------------------------------------------------------------------
-      # 4. Build for testing (nhanh hơn build IPA)
-      # ------------------------------------------------------------------
-      - name: Build for testing
+      - name: Build and Test
+        env:
+          DESTINATION: "platform=iOS Simulator,OS=${{ env.IOS_VERSION }},name=${{ env.IPHONE_DEVICE }}"
         run: |
-          xcodebuild \
-            -workspace "$WORKSPACE" \
-            -scheme "$SCHEME" \
-            -configuration "$CONFIGURATION" \
+          set -o pipefail && xcodebuild \
+            -project "${{ env.PROJECT_FILE }}" \
+            -scheme "${{ env.SCHEME_TO_TEST }}" \
             -destination "$DESTINATION" \
-            clean build | xcpretty
-
-      # ------------------------------------------------------------------
-      # 5. Run Unit Tests + UI Tests + Code Coverage
-      # ------------------------------------------------------------------
-      - name: Run tests
-        run: |
-          xcodebuild test \
-            -workspace "$WORKSPACE" \
-            -scheme "$SCHEME" \
-            -destination "$DESTINATION" \
+            -configuration "${{ env.CONFIGURATION }}" \
             -enableCodeCoverage YES \
-            -onlyUsePackageVersionsFromResolvedFile \
             -resultBundlePath TestResults \
-            | xcpretty
+            clean test | xcbeautify
+
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: TestResults-${{ runner.os }}
+          path: TestResults.xcresult
