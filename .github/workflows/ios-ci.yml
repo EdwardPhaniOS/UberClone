@@ -16,12 +16,9 @@ jobs:
 
     strategy:
       matrix:
-        # Thêm scheme bạn cần ở đây (thường là tên app chính + các scheme test riêng nếu có)
-        scheme: ["YourApp"]      
-        # Nếu bạn muốn test nhiều destination song song thì mở comment dưới
-        # destination: ["platform=iOS Simulator,OS=18.2,name=iPhone 16"]
+        scheme: ["UberClone"]      
         include:
-          - scheme: YourApp
+          - scheme: UberClone
             destination: platform=iOS Simulator,OS=18.2,name=iPhone 16 Pro
 
     env:
@@ -74,12 +71,12 @@ jobs:
       # ------------------------------------------------------------------
       - name: Build for testing
         run: |
-          xcodebuild clean build-for-testing \
-            -workspace YourApp.xcworkspace \
+          xcodebuild \
+            -workspace "$WORKSPACE" \
             -scheme "$SCHEME" \
+            -configuration "$CONFIGURATION" \
             -destination "$DESTINATION" \
-            -onlyUsePackageVersionsFromResolvedFile \
-            | xcpretty
+            clean build | xcpretty
 
       # ------------------------------------------------------------------
       # 5. Run Unit Tests + UI Tests + Code Coverage
@@ -87,7 +84,7 @@ jobs:
       - name: Run tests
         run: |
           xcodebuild test \
-            -workspace YourApp.xcworkspace \
+            -workspace "$WORKSPACE" \
             -scheme "$SCHEME" \
             -destination "$DESTINATION" \
             -enableCodeCoverage YES \
