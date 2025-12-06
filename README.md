@@ -31,4 +31,3 @@ A simplified Uber-like ride-hailing app. Demonstrates core concepts such as map 
 1. Clone the repo:
    ```bash
    git clone https://github.com/EdwardPhaniOS/UberClone.git
-   cd UberClone
