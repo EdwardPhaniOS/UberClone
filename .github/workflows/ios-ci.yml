@@ -12,7 +12,7 @@ on:
 jobs:
   build-and-test:
     name: Build & Test ${{ matrix.scheme }}
-    runs-on: macos-15-xlarge    # macos-15 hoặc macos-14, thêm -xlarge để nhanh hơn ~30-40%
+    runs-on: macos-latest    # macos-15 hoặc macos-14, thêm -xlarge để nhanh hơn ~30-40%
 
     strategy:
       matrix:
