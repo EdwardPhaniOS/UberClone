@@ -17,78 +17,46 @@ env:
   CONFIGURATION: "Debug"
 
 jobs:
-  build-and-test:
-    name: Build & Test ${{ matrix.scheme }}
-    runs-on: macos-latest    # macos-15 hoặc macos-14, thêm -xlarge để nhanh hơn ~30-40%
-
-    strategy:
-      matrix:
-        scheme: ["UberClone"]      
-        include:
-          - scheme: UberClone
-            destination: platform=iOS Simulator,OS=18.2,name=iPhone 16 Pro
-
-    env:
-      SCHEME: ${{ matrix.scheme }}
-      DESTINATION: ${{ matrix.destination }}
+  build_and_test:
+    name: Build & Test on iOS ${{ env.IOS_VERSION }}
+    runs-on: macos-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0   # cần cho một số tool tính code coverage chính xác
 
-      # ------------------------------------------------------------------
-      # 1. Cài đặt xcbeautify để output của xcodebuild đẹp hơn
-      # ------------------------------------------------------------------
       - name: Install xcbeautify
         run: brew install xcbeautify
 
-      # ------------------------------------------------------------------
-      # 2. Cache SPM (chỉ cache dependencies)
-      # Key đã được tối ưu, chỉ invalidate khi Package.resolved thay đổi
-      # ------------------------------------------------------------------
       - name: Cache Swift Package Manager dependencies
         uses: actions/cache@v4
         with:
           path: ~/Library/Developer/Xcode/DerivedData
-          key: ${{ runner.os }}-spm-${{ hashFiles('Package.resolved') }}
+          key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
           restore-keys: |
             ${{ runner.os }}-spm-
-      
-      # ------------------------------------------------------------------
-      # 3. Resolve Swift Packages
-      # Tải các dependencies nếu cache không có
-      # ------------------------------------------------------------------
+
       - name: Resolve Swift Packages
         run: |
           xcodebuild -resolvePackageDependencies \
-            -project "$PROJECT_FILE" \
-            -scheme "$SCHEME_TO_TEST"
+            -project "${{ env.PROJECT_FILE }}" \
+            -scheme "${{ env.SCHEME_TO_TEST }}"
         
-      # ------------------------------------------------------------------
-      # 4. Build and Run Tests
-      # Kết hợp build và test trong một lệnh để tối ưu
-      # ------------------------------------------------------------------
       - name: Build and Test
         env:
-          # Biến DESTINATION được tạo động từ các biến env ở trên
           DESTINATION: "platform=iOS Simulator,OS=${{ env.IOS_VERSION }},name=${{ env.IPHONE_DEVICE }}"
         run: |
           set -o pipefail && xcodebuild \
-            -project "$PROJECT_FILE" \
-            -scheme "$SCHEME_TO_TEST" \
+            -project "${{ env.PROJECT_FILE }}" \
+            -scheme "${{ env.SCHEME_TO_TEST }}" \
             -destination "$DESTINATION" \
-            -configuration "$CONFIGURATION" \
+            -configuration "${{ env.CONFIGURATION }}" \
             -enableCodeCoverage YES \
             -resultBundlePath TestResults \
             clean test | xcbeautify
 
-      # ------------------------------------------------------------------
-      # 5. Upload Test Results (quan trọng để debug khi fail)
-      # ------------------------------------------------------------------
       - name: Upload Test Results
-        if: always() # Luôn chạy bước này, dù job có fail hay không
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: TestResults-${{ runner.os }}
