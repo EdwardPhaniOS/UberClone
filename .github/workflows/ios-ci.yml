@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 env:
-  PROJECT_FILE: "UberClone.xcodeproj" 
+  PROJECT_FILE: "UberClone/UberClone.xcodeproj" 
   SCHEME_TO_TEST: "UberClone"
   IOS_VERSION: "18.2"
   IPHONE_DEVICE: "iPhone 16 Pro"
