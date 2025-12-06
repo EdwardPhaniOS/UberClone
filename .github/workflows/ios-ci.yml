@@ -20,6 +20,19 @@ env:
   CONFIGURATION: "Debug"
 
 jobs:
+  swift_lint:
+    name: Static Analysis (SwiftLint)
+    runs-on: macos-15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Run SwiftLint
+        run: |
+          brew install swiftlint
+          swiftlint --strict --reporter github-actions-logging
+
   build_and_test:
     name: Build & Test on MacOS
     runs-on: macos-15
