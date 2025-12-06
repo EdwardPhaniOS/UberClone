@@ -2,15 +2,19 @@ name: iOS CI
 
 on:
   push:
-    branches: dev
+    branches: 
+      - dev
+      - main
   pull_request:
-    branches: dev
+    branches:
+      - dev
+      - main
 
   # Allow run manually on using Git Actions tab
   workflow_dispatch:
 
 env:
-  PROJECT_FILE: "UberClone/UberClone.xcodeproj" 
+  PROJECT_FILE: "UberClone.xcodeproj" 
   SCHEME_TO_TEST: "Dev"
   DESTINATION: "platform=iOS Simulator,name=iPhone 16,OS=18.6"
   CONFIGURATION: "Debug"
