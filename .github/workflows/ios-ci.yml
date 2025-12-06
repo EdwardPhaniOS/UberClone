@@ -12,8 +12,7 @@ on:
 env:
   PROJECT_FILE: "UberClone/UberClone.xcodeproj" 
   SCHEME_TO_TEST: "Dev"
-  IOS_VERSION: "18.2"
-  IPHONE_DEVICE: "iPhone 16 Pro"
+  DESTINATION: "platform=iOS Simulator,name=iPhone 15,OS=latest"
   CONFIGURATION: "Debug"
 
 jobs:
@@ -44,7 +43,7 @@ jobs:
         
       - name: Build and Test
         env:
-          DESTINATION: "platform=iOS Simulator,OS=${{ env.IOS_VERSION }},name=${{ env.IPHONE_DEVICE }}"
+          DESTINATION: "${{ env.DESTINATION }}"
         run: |
           set -o pipefail && xcodebuild \
             -project "${{ env.PROJECT_FILE }}" \
