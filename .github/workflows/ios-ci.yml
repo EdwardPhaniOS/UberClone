@@ -1,0 +1,126 @@
+name: iOS CI
+
+on:
+  push:
+    branches: dev
+  pull_request:
+    branches: dev
+
+  # Cho phép chạy thủ công từ tab Actions
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    name: Build & Test ${{ matrix.scheme }}
+    runs-on: macos-15-xlarge    # macos-15 hoặc macos-14, thêm -xlarge để nhanh hơn ~30-40%
+
+    strategy:
+      matrix:
+        # Thêm scheme bạn cần ở đây (thường là tên app chính + các scheme test riêng nếu có)
+        scheme: ["YourApp"]      
+        # Nếu bạn muốn test nhiều destination song song thì mở comment dưới
+        # destination: ["platform=iOS Simulator,OS=18.2,name=iPhone 16"]
+        include:
+          - scheme: YourApp
+            destination: platform=iOS Simulator,OS=18.2,name=iPhone 16 Pro
+
+    env:
+      SCHEME: ${{ matrix.scheme }}
+      DESTINATION: ${{ matrix.destination }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # cần cho một số tool tính code coverage chính xác
+
+      # ------------------------------------------------------------------
+      # 1. Cache CocoaPods (nếu vẫn dùng Pods)
+      # ------------------------------------------------------------------
+      - name: CocoaPods cache
+        uses: actions/cache@v4
+        if: hashFiles('Podfile.lock') != ''
+        with:
+          path: Pods
+          key: ${{ runner.os }}-pods-${{ hashFiles('Podfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pods-
+
+      # ------------------------------------------------------------------
+      # 2. Cache SPM (DerivedData + build artifacts)
+      # ------------------------------------------------------------------
+      - name: Cache Swift Package Manager
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/Library/Developer/Xcode/DerivedData
+            .build
+          key: ${{ runner.os }}-spm-${{ hashFiles('Package.resolved') }}-${{ hashFiles('**/*.swift') }}
+          restore-keys: |
+            ${{ runner.os }}-spm-${{ hashFiles('Package.resolved') }}-
+            ${{ runner.os }}-spm-
+
+      # ------------------------------------------------------------------
+      # 3. Install CocoaPods (nếu có)
+      # ------------------------------------------------------------------
+      - name: Install CocoaPods
+        if: hashFiles('Podfile') != ''
+        run: |
+          pod repo update --silent || true
+          pod install --repo-update
+
+      # ------------------------------------------------------------------
+      # 4. Setup Ruby & Bundler (cho Fastlane, SwiftLint, etc.)
+      # ------------------------------------------------------------------
+      - name: Setup Ruby & Bundler
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'        # phiên bản Ruby mới nhất ổn định 2025
+          bundler-cache: true       # tự động cache gems
+
+      # ------------------------------------------------------------------
+      # 5. Select Xcode version
+      # ------------------------------------------------------------------
+      - name: Select Xcode 16.2 (hoặc mới nhất)
+        run: sudo xcode-select -s /Applications/Xcode_16.2.app
+
+      # ------------------------------------------------------------------
+      # 6. Bootstrap (cài SwiftLint, các tool khác nếu cần)
+      # ------------------------------------------------------------------
+      - name: Bootstrap tools
+        run: |
+          brew install swiftlint || true
+          mint bootstrap || true   # nếu dùng Mint
+
+      # ------------------------------------------------------------------
+      # 7. SwiftLint
+      # ------------------------------------------------------------------
+      - name: Run SwiftLint
+        run: swiftlint --strict
+        continue-on-error: false
+
+      # ------------------------------------------------------------------
+      # 8. Build for testing (nhanh hơn build IPA)
+      # ------------------------------------------------------------------
+      - name: Build for testing
+        run: |
+          xcodebuild clean build-for-testing \
+            -workspace YourApp.xcworkspace \
+            -scheme "$SCHEME" \
+            -destination "$DESTINATION" \
+            -onlyUsePackageVersionsFromResolvedFile \
+            | xcpretty
+
+      # ------------------------------------------------------------------
+      # 9. Run Unit Tests + UI Tests + Code Coverage
+      # ------------------------------------------------------------------
+      - name: Run tests
+        run: |
+          xcodebuild test \
+            -workspace YourApp.xcworkspace \
+            -scheme "$SCHEME" \
+            -destination "$DESTINATION" \
+            -enableCodeCoverage YES \
+            -onlyUsePackageVersionsFromResolvedFile \
+            -resultBundlePath TestResults \
+            | xcpretty
