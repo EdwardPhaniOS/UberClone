@@ -12,7 +12,7 @@ on:
 jobs:
   build-and-test:
     name: Build & Test ${{ matrix.scheme }}
-    runs-on: macos-15-xlarge    # macos-15 hoặc macos-14, thêm -xlarge để nhanh hơn ~30-40%
+    runs-on: macos-15-xlarge
 
     strategy:
       matrix:
@@ -22,9 +22,10 @@ jobs:
             destination: platform=iOS Simulator,OS=18.2,name=iPhone 16 Pro
 
     env:
+      PROJECT_FILE: "UberClone/UberClone.xcodeproj" 
       SCHEME: ${{ matrix.scheme }}
       DESTINATION: ${{ matrix.destination }}
-
+      
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
