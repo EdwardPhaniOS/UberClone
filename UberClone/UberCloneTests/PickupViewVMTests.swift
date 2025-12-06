@@ -13,24 +13,26 @@ final class PickupViewVMTests: XCTestCase {
 
   func testInitialization_SetsUpPropertiesCorrectly() {
     // Arrange
-    let sampleTrip = Trip.mock(state: .requested)
-    let pickupCoordinates = sampleTrip.pickupCoordinates!
+//    let sampleTrip = Trip.mock(state: .requested)
+//    let pickupCoordinates = sampleTrip.pickupCoordinates!
+//
+//    let sut = makeSUT(trip: sampleTrip, driverService: MockDriverService())
+//
+//    // Assert
+//    XCTAssertEqual(sut.trip.passengerUid, sampleTrip.passengerUid)
+//    XCTAssertEqual(sut.pickupCoordinates.latitude, pickupCoordinates.latitude)
+//    XCTAssertEqual(sut.pickupCoordinates.longitude, pickupCoordinates.longitude)
+//    XCTAssertEqual(sut.countdown, 10)
+//    XCTAssertNil(sut.error)
+//
+//    let region = sut.cameraPosition.region
+//    XCTAssertNotNil(region)
+//    XCTAssertEqual(region?.center.latitude, pickupCoordinates.latitude)
+//    XCTAssertEqual(region?.center.longitude, pickupCoordinates.longitude)
+//    XCTAssertEqual(region?.span.latitudeDelta, 0.01)
+//    XCTAssertEqual(region?.span.longitudeDelta, 0.01)
 
-    let sut = makeSUT(trip: sampleTrip, driverService: MockDriverService())
-
-    // Assert
-    XCTAssertEqual(sut.trip.passengerUid, sampleTrip.passengerUid)
-    XCTAssertEqual(sut.pickupCoordinates.latitude, pickupCoordinates.latitude)
-    XCTAssertEqual(sut.pickupCoordinates.longitude, pickupCoordinates.longitude)
-    XCTAssertEqual(sut.countdown, 10)
-    XCTAssertNil(sut.error)
-
-    let region = sut.cameraPosition.region
-    XCTAssertNotNil(region)
-    XCTAssertEqual(region?.center.latitude, pickupCoordinates.latitude)
-    XCTAssertEqual(region?.center.longitude, pickupCoordinates.longitude)
-    XCTAssertEqual(region?.span.latitudeDelta, 0.01)
-    XCTAssertEqual(region?.span.longitudeDelta, 0.01)
+    XCTFail("Test CI")
   }
 
   func testAcceptTrip_Success_UpdatesTripAndCallsCompletion() {
