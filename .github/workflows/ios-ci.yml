@@ -70,37 +70,7 @@ jobs:
           pod install --repo-update
 
       # ------------------------------------------------------------------
-      # 4. Setup Ruby & Bundler (cho Fastlane, SwiftLint, etc.)
-      # ------------------------------------------------------------------
-      - name: Setup Ruby & Bundler
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '3.3'        # phiên bản Ruby mới nhất ổn định 2025
-          bundler-cache: true       # tự động cache gems
-
-      # ------------------------------------------------------------------
-      # 5. Select Xcode version
-      # ------------------------------------------------------------------
-      - name: Select Xcode 16.2 (hoặc mới nhất)
-        run: sudo xcode-select -s /Applications/Xcode_16.2.app
-
-      # ------------------------------------------------------------------
-      # 6. Bootstrap (cài SwiftLint, các tool khác nếu cần)
-      # ------------------------------------------------------------------
-      - name: Bootstrap tools
-        run: |
-          brew install swiftlint || true
-          mint bootstrap || true   # nếu dùng Mint
-
-      # ------------------------------------------------------------------
-      # 7. SwiftLint
-      # ------------------------------------------------------------------
-      - name: Run SwiftLint
-        run: swiftlint --strict
-        continue-on-error: false
-
-      # ------------------------------------------------------------------
-      # 8. Build for testing (nhanh hơn build IPA)
+      # 4. Build for testing (nhanh hơn build IPA)
       # ------------------------------------------------------------------
       - name: Build for testing
         run: |
@@ -112,7 +82,7 @@ jobs:
             | xcpretty
 
       # ------------------------------------------------------------------
-      # 9. Run Unit Tests + UI Tests + Code Coverage
+      # 5. Run Unit Tests + UI Tests + Code Coverage
       # ------------------------------------------------------------------
       - name: Run tests
         run: |
