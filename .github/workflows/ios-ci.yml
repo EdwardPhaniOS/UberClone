@@ -9,6 +9,13 @@ on:
   # Cho phép chạy thủ công từ tab Actions
   workflow_dispatch:
 
+env:
+  PROJECT_FILE: "UberClone.xcodeproj" 
+  SCHEME_TO_TEST: "UberClone"
+  IOS_VERSION: "18.2"
+  IPHONE_DEVICE: "iPhone 16 Pro"
+  CONFIGURATION: "Debug"
+
 jobs:
   build-and-test:
     name: Build & Test ${{ matrix.scheme }}
@@ -32,62 +39,57 @@ jobs:
           fetch-depth: 0   # cần cho một số tool tính code coverage chính xác
 
       # ------------------------------------------------------------------
-      # 1. Cache CocoaPods (nếu vẫn dùng Pods)
+      # 1. Cài đặt xcbeautify để output của xcodebuild đẹp hơn
       # ------------------------------------------------------------------
-      - name: CocoaPods cache
-        uses: actions/cache@v4
-        if: hashFiles('Podfile.lock') != ''
-        with:
-          path: Pods
-          key: ${{ runner.os }}-pods-${{ hashFiles('Podfile.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-pods-
+      - name: Install xcbeautify
+        run: brew install xcbeautify
 
       # ------------------------------------------------------------------
-      # 2. Cache SPM (DerivedData + build artifacts)
+      # 2. Cache SPM (chỉ cache dependencies)
+      # Key đã được tối ưu, chỉ invalidate khi Package.resolved thay đổi
       # ------------------------------------------------------------------
-      - name: Cache Swift Package Manager
+      - name: Cache Swift Package Manager dependencies
         uses: actions/cache@v4
         with:
-          path: |
-            ~/Library/Developer/Xcode/DerivedData
-            .build
-          key: ${{ runner.os }}-spm-${{ hashFiles('Package.resolved') }}-${{ hashFiles('**/*.swift') }}
+          path: ~/Library/Developer/Xcode/DerivedData
+          key: ${{ runner.os }}-spm-${{ hashFiles('Package.resolved') }}
           restore-keys: |
-            ${{ runner.os }}-spm-${{ hashFiles('Package.resolved') }}-
             ${{ runner.os }}-spm-
-
+      
       # ------------------------------------------------------------------
-      # 3. Install CocoaPods (nếu có)
+      # 3. Resolve Swift Packages
+      # Tải các dependencies nếu cache không có
       # ------------------------------------------------------------------
-      - name: Install CocoaPods
-        if: hashFiles('Podfile') != ''
+      - name: Resolve Swift Packages
         run: |
-          pod repo update --silent || true
-          pod install --repo-update
-
+          xcodebuild -resolvePackageDependencies \
+            -project "$PROJECT_FILE" \
+            -scheme "$SCHEME_TO_TEST"
+        
       # ------------------------------------------------------------------
-      # 4. Build for testing (nhanh hơn build IPA)
+      # 4. Build and Run Tests
+      # Kết hợp build và test trong một lệnh để tối ưu
       # ------------------------------------------------------------------
-      - name: Build for testing
+      - name: Build and Test
+        env:
+          # Biến DESTINATION được tạo động từ các biến env ở trên
+          DESTINATION: "platform=iOS Simulator,OS=${{ env.IOS_VERSION }},name=${{ env.IPHONE_DEVICE }}"
         run: |
-          xcodebuild \
-            -workspace "$WORKSPACE" \
-            -scheme "$SCHEME" \
+          set -o pipefail && xcodebuild \
+            -project "$PROJECT_FILE" \
+            -scheme "$SCHEME_TO_TEST" \
+            -destination "$DESTINATION" \
             -configuration "$CONFIGURATION" \
-            -destination "$DESTINATION" \
-            clean build | xcpretty
+            -enableCodeCoverage YES \
+            -resultBundlePath TestResults \
+            clean test | xcbeautify
 
       # ------------------------------------------------------------------
-      # 5. Run Unit Tests + UI Tests + Code Coverage
+      # 5. Upload Test Results (quan trọng để debug khi fail)
       # ------------------------------------------------------------------
-      - name: Run tests
-        run: |
-          xcodebuild test \
-            -workspace "$WORKSPACE" \
-            -scheme "$SCHEME" \
-            -destination "$DESTINATION" \
-            -enableCodeCoverage YES \
-            -onlyUsePackageVersionsFromResolvedFile \
-            -resultBundlePath TestResults \
-            | xcpretty
+      - name: Upload Test Results
+        if: always() # Luôn chạy bước này, dù job có fail hay không
+        uses: actions/upload-artifact@v4
+        with:
+          name: TestResults-${{ runner.os }}
+          path: TestResults.xcresult
