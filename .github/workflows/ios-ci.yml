@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: dev
 
-  # Cho phép chạy thủ công từ tab Actions
+  # Allow run manually on using Git Actions tab
   workflow_dispatch:
 
 env:
@@ -18,7 +18,7 @@ env:
 jobs:
   build_and_test:
     name: Build & Test on MacOS
-    runs-on: macos-14
+    runs-on: macos-15
 
     steps:
       - name: Checkout repository
