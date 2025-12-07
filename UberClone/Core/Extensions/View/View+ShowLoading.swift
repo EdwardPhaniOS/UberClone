@@ -17,7 +17,7 @@ extension View {
   }
 }
 
-fileprivate struct Preview: View {
+private struct Preview: View {
   @State var isLoading = false
   
   var body: some View {

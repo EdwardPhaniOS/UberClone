@@ -8,7 +8,7 @@
 import Foundation
 import SwiftUICore
 
-//MARK: Core Types
+// MARK: Core Types
 
 enum LifeTime {
   case singleton
@@ -18,7 +18,7 @@ enum LifeTime {
 struct Registration {
   let lifeTime: LifeTime
   let factory: (Resolver) -> Any
-  var cache: Any? = nil
+  var cache: Any?
   
   init(lifeTime: LifeTime, factory: @escaping (Resolver) -> Any, cache: Any? = nil) {
     self.lifeTime = lifeTime
@@ -31,7 +31,7 @@ protocol Resolver {
   func resolve<T>(type: T.Type) -> T
 }
 
-//MARK: DIContainer
+// MARK: DIContainer
 
 class DIContainer: Resolver {
   static let shared: DIContainer = DIContainer()
@@ -84,7 +84,7 @@ class DIContainer: Resolver {
   }
 }
 
-//MARK: SwiftUI Enviroment
+// MARK: SwiftUI Enviroment
 
 struct DIContainerKey: EnvironmentKey {
   static let defaultValue: DIContainer = .shared
@@ -97,7 +97,7 @@ extension EnvironmentValues {
   }
 }
 
-//MARK: Module Loading
+// MARK: Module Loading
 
 protocol DIModule {
   @MainActor

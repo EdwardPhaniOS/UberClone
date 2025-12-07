@@ -9,7 +9,7 @@ import SwiftUI
 
 extension View {
   func showAlert(item: Binding<AppAlert?>) -> some View {
-    showModal(isPresenting: item) { alert in
+    showModal(isPresenting: item) { _ in
       AlertView(alert: item)
         .transition(
           .move(edge: .bottom)
@@ -19,7 +19,7 @@ extension View {
   }
 }
 
-fileprivate struct Preview: View {
+private struct Preview: View {
   @State var appAlert: AppAlert?
   
   var body: some View {

@@ -6,7 +6,7 @@ import SwiftUI
 struct LocationInputActivationView: View {
 
   var body: some View {
-    HStack() {
+    HStack {
       Rectangle()
         .frame(width: 8, height: 8)
         .foregroundStyle(.black)

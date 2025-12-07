@@ -43,7 +43,7 @@ struct PickupView: View {
 
 private extension PickupView {
   var closeButtonView: some View {
-    HStack{
+    HStack {
       Button("", systemImage: "xmark") {
         viewModel.denyTrip(completion: {
           onCloseButtonPressed?()

@@ -38,7 +38,7 @@ class DefaultPassengerService: PassengerService {
     let publisher = PassthroughSubject<User, Error>()
     
     let geofire = GeoFire(firebaseRef: FirebaseREF.driverLocations)
-    FirebaseREF.driverLocations.observe(.value) { [weak self] snapshot in
+    FirebaseREF.driverLocations.observe(.value) { [weak self] _ in
       guard let self = self else { return }
       
       geofire.query(at: location, withRadius: 50).observe(.keyEntered, with: { driverId, driverLocation in

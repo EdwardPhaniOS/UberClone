@@ -31,7 +31,7 @@ struct LocationInputView: View {
   }
 
   var headerView: some View {
-    ZStack() {
+    ZStack {
       HStack {
         Button("", systemImage: "arrow.backward") {
           onBackButtonPressed?()

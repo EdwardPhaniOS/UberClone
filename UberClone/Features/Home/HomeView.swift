@@ -206,4 +206,3 @@ extension HomeView {
 #Preview("Home View") {
   HomeView(user: User.mock, onMenuButtonPressed: nil)
 }
-

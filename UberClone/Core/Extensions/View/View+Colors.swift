@@ -54,7 +54,7 @@ struct AppColorTheme {
   let miscellaneous: Color
 }
 
-fileprivate struct Preview: View {
+private struct Preview: View {
   var body: some View {
     VStack {
       VStack {
@@ -91,4 +91,3 @@ fileprivate struct Preview: View {
   Preview()
     .preferredColorScheme(.dark)
 }
-

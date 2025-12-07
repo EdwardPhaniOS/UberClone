@@ -9,7 +9,7 @@ enum LoginError: Error {
   var message: String {
     switch self {
     case .missingRequiredFields(let fieldNames):
-      let joinedFieldNames = fieldNames.joined(separator:", ")
+      let joinedFieldNames = fieldNames.joined(separator: ", ")
       return "\(joinedFieldNames) \(fieldNames.count > 1 ? "are" : "is") required."
     }
   }

@@ -24,7 +24,7 @@ enum MenuOption: Int, CaseIterable, CustomStringConvertible {
 struct SideMenuView: View {
   
   var user: User?
-  var selectedOptionCallback: ((MenuOption) -> Void)? = nil
+  var selectedOptionCallback: ((MenuOption) -> Void)?
 
   init(user: User?, selectedOptionCallback: ((MenuOption) -> Void)? = nil) {
     self.user = user

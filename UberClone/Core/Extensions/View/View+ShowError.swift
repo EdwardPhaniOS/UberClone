@@ -9,7 +9,7 @@ import SwiftUI
 
 extension View {
   func showError(item: Binding<Error?>) -> some View {
-    showModal(isPresenting: item) { error in
+    showModal(isPresenting: item) { _ in
       ErrorView(error: item)
         .transition(
           .move(edge: .bottom)
@@ -19,7 +19,7 @@ extension View {
   }
 }
 
-fileprivate struct PreviewView: View {
+private struct PreviewView: View {
   @State var error: Error?
   
   var body: some View {

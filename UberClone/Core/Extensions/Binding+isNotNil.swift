@@ -8,7 +8,7 @@
 import SwiftUI
 
 extension Binding {
-  func isNotNil<Wrapped>() -> Binding<Bool> where Value == Optional<Wrapped> {
+  func isNotNil<Wrapped>() -> Binding<Bool> where Value == Wrapped? {
     Binding<Bool>(get: {
       wrappedValue != nil
     }, set: { newValue in

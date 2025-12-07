@@ -22,7 +22,7 @@ struct AddLocationView: View {
   var body: some View {
     itemListView
       .searchable(text: $viewModel.searchText, prompt: "Search")
-      .onChange(of: viewModel.searchText, { oldValue, newValue in
+      .onChange(of: viewModel.searchText, { _, _ in
         viewModel.onSeachTextChange()
       })
       .showLoading(isLoading: viewModel.isLoading)

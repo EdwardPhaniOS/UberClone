@@ -22,7 +22,7 @@ class HomeViewVM: NSObject, ObservableObject, ErrorDisplayable {
     case destination
   }
   
-  //MARK: - Variables
+  // MARK: - Variables
   @AppStorage("passengerId") private var passengerId: String = ""
   
   @Published var cameraPosition = MapCameraPosition.region(
@@ -40,7 +40,7 @@ class HomeViewVM: NSObject, ObservableObject, ErrorDisplayable {
   @Published var selectedPlacemark: MKPlacemark?
   @Published var inputViewState: InputViewState = .hidden
   @Published var rideActionViewState: RideActionViewState = .notAvailable
-  @Published var routeCoordinates: [CLLocationCoordinate2D]? = nil
+  @Published var routeCoordinates: [CLLocationCoordinate2D]?
   @Published var showPickupView: Bool = false
   @Published var isLoading: Bool = false
   @Published var loadingMessage = ""
@@ -56,8 +56,8 @@ class HomeViewVM: NSObject, ObservableObject, ErrorDisplayable {
   private let driverService: DriverService
   private let userService: UserService
   
-  //MARK: - Init
-  
+  // MARK: - Init
+
   init(user: User?,
        passengerService: PassengerService = Inject().wrappedValue,
        driverService: DriverService = Inject().wrappedValue,
@@ -102,7 +102,7 @@ class HomeViewVM: NSObject, ObservableObject, ErrorDisplayable {
   }
 }
 
-//MARK: Subscribers & Trip Management
+// MARK: Subscribers & Trip Management
 extension HomeViewVM {
   
   private func setSubscribers() {
@@ -293,43 +293,44 @@ extension HomeViewVM {
       switch state {
       case .denied:
         break
-        
       case .requested:
         self.showPickupView = true
-        
       case .accepted:
         showRouteToPassenger()
-        
       case .driverArrived:
         rideActionViewState = .pickupPassenger
-        
       case .inProgress:
-        guard let destinationCoordinates = trip.destinationCoordinates,
-              let driverCoordinates = LocationHandler.shared.location?.coordinate
-        else { return }
-        
-        try await updateSelectedPlacemark(coordinates: destinationCoordinates)
-        
-        self.rideActionViewState = .tripInProgress
-        self.calculateRoute(to: destinationCoordinates)
-        self.setCustomRegion(withAnnotationType: .destination, withCoordinates: destinationCoordinates)
-        self.zoomToFit(coordinates: [driverCoordinates, destinationCoordinates])
-        
+        handleTripProgress(trip: trip)
       case .arrivedAtDestination:
         rideActionViewState = .endTrip
-        
       case .completed:
-        rideActionViewState = .notAvailable
-        selectedPlacemark = nil
-        routeCoordinates = nil
-        zoomToCurrentUser()
-        
+        handleCompletedState()
       @unknown default:
         break
       }
     }
   }
-  
+
+  private func handleInProgressState(trip: Trip) async throws {
+    guard let destinationCoordinates = trip.destinationCoordinates,
+          let driverCoordinates = LocationHandler.shared.location?.coordinate
+    else { return }
+
+    try await updateSelectedPlacemark(coordinates: destinationCoordinates)
+
+    self.rideActionViewState = .tripInProgress
+    self.calculateRoute(to: destinationCoordinates)
+    self.setCustomRegion(withAnnotationType: .destination, withCoordinates: destinationCoordinates)
+    self.zoomToFit(coordinates: [driverCoordinates, destinationCoordinates])
+  }
+
+  private func handleCompletedState() {
+    rideActionViewState = .notAvailable
+    selectedPlacemark = nil
+    routeCoordinates = nil
+    zoomToCurrentUser()
+  }
+
   private func getDriverInfo() {
     guard let driverUid = trip?.driverUid else { return }
     
@@ -422,7 +423,7 @@ extension HomeViewVM {
   
 }
 
-//MARK: Location Input & Search Management
+// MARK: Location Input & Search Management
 extension HomeViewVM {
   
   func showLocationInputView() {
@@ -511,7 +512,7 @@ extension HomeViewVM {
   }
 }
 
-//MARK: - Location Handling
+// MARK: - Location Handling
 private extension HomeViewVM {
   func updateLocations(location: CLLocation) {
     self.cameraPosition = .region(
@@ -557,7 +558,7 @@ private extension HomeViewVM {
   }
 }
 
-//MARK: - Map & Route Handling
+// MARK: - Map & Route Handling
 extension HomeViewVM {
   private func calculateRoute(to destination: CLLocationCoordinate2D) {
     guard let currentCoordinate = LocationHandler.shared.location?.coordinate else { return }
@@ -578,6 +579,7 @@ extension HomeViewVM {
         self.routeCoordinates = coords
         self.zoomToFit(coordinates: coords)
       } else {
+        self.error = error
         self.routeCoordinates = nil
       }
     }

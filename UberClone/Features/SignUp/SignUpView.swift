@@ -34,9 +34,7 @@ struct SignUpView: View {
     .navigationBarBackButtonHidden(true)
     .printFileOnAppear()
     .hideKeyboardOnTap()
-  }
-
-  
+  }  
 }
 
 private extension SignUpView {

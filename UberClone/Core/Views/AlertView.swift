@@ -80,7 +80,7 @@ private extension AlertView {
   }
 }
 
-fileprivate struct Preview: View {
+private struct Preview: View {
   @State private var simpleAlert: AppAlert? = .mock1
   @State private var customActionAlert: AppAlert? = .mock2
   

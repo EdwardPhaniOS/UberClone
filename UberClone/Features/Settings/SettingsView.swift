@@ -113,7 +113,7 @@ extension SettingsView {
   }
 }
 
-fileprivate struct Preview: View {
+private struct Preview: View {
   var body: some View {
     NavigationStack {
       SettingsView(user: User.mock)
@@ -124,4 +124,3 @@ fileprivate struct Preview: View {
 #Preview {
   Preview()
 }
-

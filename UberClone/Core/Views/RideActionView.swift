@@ -154,7 +154,7 @@ private extension RideActionView {
   }
 }
 
-fileprivate struct PreviewView: View {
+private struct PreviewView: View {
   var body: some View {
     RideActionView(state: .requestRide)
   }

@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		353397E12EE53CD000322FD2 /* .swiftlint.yml in Resources */ = {isa = PBXBuildFile; fileRef = 353397E02EE53CD000322FD2 /* .swiftlint.yml */; };
+		353397E22EE53CD000322FD2 /* .swiftlint.yml in Resources */ = {isa = PBXBuildFile; fileRef = 353397E02EE53CD000322FD2 /* .swiftlint.yml */; };
 		353718652EC2336E00E898F0 /* SettingsViewVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 353718642EC2336E00E898F0 /* SettingsViewVM.swift */; };
 		3543DE7B2EBF9E6500B940C0 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3543DE7A2EBF9E6500B940C0 /* SettingsView.swift */; };
 		356038242EC48A240069EB79 /* AuthData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 356038232EC48A240069EB79 /* AuthData.swift */; };
@@ -96,6 +98,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		353397E02EE53CD000322FD2 /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = "<group>"; };
 		353718642EC2336E00E898F0 /* SettingsViewVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewVM.swift; sourceTree = "<group>"; };
 		3543DE7A2EBF9E6500B940C0 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		356038232EC48A240069EB79 /* AuthData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthData.swift; sourceTree = "<group>"; };
@@ -327,6 +330,7 @@
 		35B7DD142EA675880025CC89 = {
 			isa = PBXGroup;
 			children = (
+				353397E02EE53CD000322FD2 /* .swiftlint.yml */,
 				35B7DD2E2EA675980025CC89 /* UberClone */,
 				35AF63E52EDEF8C300F9664D /* UberCloneTests */,
 				35B7DD1E2EA675880025CC89 /* Products */,
@@ -487,6 +491,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 35B7DD282EA675890025CC89 /* Build configuration list for PBXNativeTarget "UberClone" */;
 			buildPhases = (
+				353397D32EE5362A00322FD2 /* SwiftLint */,
 				35B7DD192EA675880025CC89 /* Sources */,
 				35B7DD1A2EA675880025CC89 /* Frameworks */,
 				35B7DD1B2EA675880025CC89 /* Resources */,
@@ -556,6 +561,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				353397E12EE53CD000322FD2 /* .swiftlint.yml in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -563,6 +569,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				353397E22EE53CD000322FD2 /* .swiftlint.yml in Resources */,
 				356038B32EC499610069EB79 /* Colors.xcassets in Resources */,
 				35B7DD2F2EA675980025CC89 /* Assets.xcassets in Resources */,
 				8419AB052EA79181008B50DC /* GoogleService-Info.plist in Resources */,
@@ -570,6 +577,28 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		353397D32EE5362A00322FD2 /* SwiftLint */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = SwiftLint;
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if [[ \"$(uname -m)\" == arm64 ]]; then\n    export PATH=\"/opt/homebrew/bin:$PATH\"\nfi\n\nif which swiftlint > /dev/null; then\n  swiftlint\nelse\n  echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		35AF63E02EDEF8C300F9664D /* Sources */ = {
@@ -738,6 +767,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = B7QMTG2L2X;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Please allow us to access your location so we can find you rides nearby";
 				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "Please allow us to access your location so we can find you rides nearby";
@@ -962,6 +992,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = B7QMTG2L2X;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Please allow us to access your location so we can find you rides nearby";
 				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "Please allow us to access your location so we can find you rides nearby";
@@ -996,6 +1027,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = B7QMTG2L2X;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Please allow us to access your location so we can find you rides nearby";
 				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "Please allow us to access your location so we can find you rides nearby";
@@ -1068,8 +1100,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
 			requirement = {
-				kind = exactVersion;
-				version = 10.0.0;
+				kind = upToNextMajorVersion;
+				minimumVersion = 10.0.0;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */

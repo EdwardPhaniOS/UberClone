@@ -39,7 +39,7 @@ extension View {
   }
 }
 
-fileprivate struct Preview: View {
+private struct Preview: View {
   var body: some View {
     VStack(spacing: 20) {
       Text("Get Started")

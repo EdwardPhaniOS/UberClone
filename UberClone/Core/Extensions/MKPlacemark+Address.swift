@@ -9,7 +9,7 @@ extension MKPlacemark {
     let lines: [String] = [
       subThoroughfare,
       thoroughfare,
-      locality,
+      locality
     ].compactMap { $0 }
     
     return lines.joined(separator: ", ")

@@ -1,0 +1,19 @@
+included:
+  - UberClone
+
+disabled_rules:
+  - force_cast
+  - trailing_whitespace
+  - force_try
+  - line_length
+  - function_body_length
+  - type_body_length
+  - file_length
+  - large_tuple
+  - identifier_name
+
+excluded:
+  - Pods
+  - Carthage
+  - .build
+  - UberCloneTests

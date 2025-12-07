@@ -60,7 +60,7 @@ private extension ErrorView {
   }
 }
 
-fileprivate struct PreView: View {
+private struct PreView: View {
   @State var error: Error? = DefaultAppError(title: "Title", message: "Message")
   
   var body: some View {

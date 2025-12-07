@@ -49,7 +49,7 @@ enum ButtonStyleOption {
   case press, plain
 }
 
-fileprivate struct Preview: View {
+private struct Preview: View {
   var body: some View {
     VStack(spacing: 24) {
       Text("Continue")

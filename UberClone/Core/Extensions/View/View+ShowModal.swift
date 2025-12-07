@@ -47,9 +47,9 @@ struct ModalSupport<ModalContent: View>: ViewModifier {
   }
 }
 
-fileprivate struct Preview: View {
+private struct Preview: View {
   @State private var isPresenting: Bool = false
-  @State private var item: Int? = nil
+  @State private var item: Int?
   
   var body: some View {
     VStack {
@@ -79,7 +79,7 @@ fileprivate struct Preview: View {
   }
 }
 
-fileprivate struct PreviewModalContentView: View {
+private struct PreviewModalContentView: View {
   var body: some View {
     Text("Modal View")
       .frame(width: UIScreen.main.bounds.width/1.2, height: UIScreen.main.bounds.height/2)
