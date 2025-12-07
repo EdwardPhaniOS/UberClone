@@ -2,6 +2,7 @@
 
 A simplified Uber-like ride-hailing app. Demonstrates core concepts such as map integration, location tracking, ride request flow, and basic driver & rider UI.
 
+[![iOS CI](https://github.com/EdwardPhaniOS/UberClone/actions/workflows/ios-ci.yml/badge.svg)](https://github.com/EdwardPhaniOS/UberClone/actions/workflows/ios-ci.yml)
 [![Swift](https://img.shields.io/badge/language-Swift-orange.svg)]() [![iOS](https://img.shields.io/badge/iOS-15%2B-blue.svg)]() <!-- optional badges -->
 
 ## Table of Contents
@@ -30,4 +31,3 @@ A simplified Uber-like ride-hailing app. Demonstrates core concepts such as map 
 1. Clone the repo:
    ```bash
    git clone https://github.com/EdwardPhaniOS/UberClone.git
-   cd UberClone
