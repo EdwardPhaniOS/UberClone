@@ -1,90 +1,103 @@
-//
-//  ServiceManager.swift
-//  UberClone
-//
-//  Created by Vinh Phan on 6/11/25.
-//
-
 import Foundation
-import SwiftUICore
+import SwiftUI
 
-// MARK: Core Types
+// MARK: - Core Types
 
-enum LifeTime {
+enum Lifetime {
   case singleton
   case transient
 }
 
-struct Registration {
-  let lifeTime: LifeTime
-  let factory: (Resolver) -> Any
-  var cache: Any?
-  
-  init(lifeTime: LifeTime, factory: @escaping (Resolver) -> Any, cache: Any? = nil) {
-    self.lifeTime = lifeTime
-    self.factory = factory
-    self.cache = cache
-  }
-}
-
 protocol Resolver {
+  func resolve<T>() -> T
   func resolve<T>(type: T.Type) -> T
 }
 
-// MARK: DIContainer
+extension Resolver {
+  func resolve<T>() -> T {
+    return resolve(type: T.self)
+  }
+}
 
-class DIContainer: Resolver {
-  static let shared: DIContainer = DIContainer()
-  
-  private var registrationDict: [ObjectIdentifier: Registration] = [:]
-  private var queue: DispatchQueue = DispatchQueue(label: "diContainerQueue", attributes: .concurrent)
-  
+// MARK: - DIContainer
+
+final class DIContainer: Resolver {
+
+  static let shared = DIContainer()
+
+  private let syncQueue = DispatchQueue(label: "com.company.DIContainer.syncQueue", attributes: .concurrent)
+
+  private var registrations: [ObjectIdentifier: Registration] = [:]
   private init() {}
-  
+
+  // MARK: - Registration
+
   @discardableResult
-  func register<T>(type: T.Type, lifeTime: LifeTime, factory: @escaping (Resolver) -> T) -> Self {
-    let registration = Registration(lifeTime: lifeTime, factory: factory)
-    let key = ObjectIdentifier(type)
-    
-    queue.async(flags: .barrier, execute: { [weak self] in
-      guard let self = self else { return }
-      self.registrationDict[key] = registration
-    })
-    
+  func register<T>(
+    type: T.Type = T.self,
+    lifetime: Lifetime = .transient,
+    factory: @escaping (Resolver) -> T
+  ) -> Self {
+    syncQueue.sync(flags: .barrier) {
+      let registration = Registration(lifetime: lifetime, factory: factory)
+      registrations[ObjectIdentifier(type)] = registration
+    }
     return self
   }
+
+  // MARK: - Resolution
   
-  func resolve<T>(type: T.Type) -> T {
-    let key = ObjectIdentifier(type)
-    
-    var registration: Registration!
-    queue.sync {
-      registration = registrationDict[key]
-    }
-    
-    if registration == nil {
-      fatalError("No registration for type: \(type)")
-    }
-    
-    if registration.lifeTime == .singleton {
-      if let cache = registration.cache as? T {
-        return cache
+  func resolve<T>(type: T.Type = T.self) -> T {
+    return syncQueue.sync {
+      let key = ObjectIdentifier(type)
+
+      guard let registration = self.registrations[key] else {
+        fatalError("No registration found for type \(String(describing: type))")
       }
-      
-      let createdItem = registration.factory(self) as! T
-      queue.async { [weak self] in
-        guard let self = self else { return }
-        registration.cache = createdItem
-        self.registrationDict[key] = registration
+
+      switch registration.lifetime {
+      case .transient:
+        guard let instance = registration.factory(self) as? T else {
+          fatalError("Factory for \(String(describing: type)) returned incorrect type.")
+        }
+        return instance
+
+      case .singleton:
+        if let cachedInstance = registration.cachedInstance {
+          guard let instance = cachedInstance as? T else {
+            fatalError("Cached instance for \(String(describing: type)) has incorrect type.")
+          }
+          return instance
+        }
+
+        let instance = registration.factory(self)
+        registration.cachedInstance = instance
+
+        guard let finalInstance = instance as? T else {
+          fatalError("Factory for \(String(describing: type)) returned incorrect type.")
+        }
+        return finalInstance
       }
-      return createdItem
-    } else {
-      return registration.factory(self) as! T
     }
   }
 }
 
-// MARK: SwiftUI Enviroment
+// MARK: - Registration Details
+
+private extension DIContainer {
+  class Registration {
+    let lifetime: Lifetime
+    let factory: (Resolver) -> Any
+    var cachedInstance: Any?
+
+    init(lifetime: Lifetime, factory: @escaping (Resolver) -> Any) {
+      self.lifetime = lifetime
+      self.factory = factory
+    }
+  }
+}
+
+// MARK: - SwiftUI Environment Integration
 
 struct DIContainerKey: EnvironmentKey {
   static let defaultValue: DIContainer = .shared
@@ -93,11 +106,11 @@ struct DIContainerKey: EnvironmentKey {
 extension EnvironmentValues {
   var diContainer: DIContainer {
     get { self[DIContainerKey.self] }
-    set { self[DIContainerKey.self] = newValue}
+    set { self[DIContainerKey.self] = newValue }
   }
 }
 
-// MARK: Module Loading
+// MARK: - Module Loading
 
 protocol DIModule {
   @MainActor
@@ -112,10 +125,10 @@ extension DIContainer {
 }
 
 // MARK: - Inject Property Wrapper
-
+@propertyWrapper
 struct Inject<T> {
   let wrappedValue: T
-  
+
   init(resolver: Resolver = DIContainer.shared) {
     self.wrappedValue = resolver.resolve(type: T.self)
   }

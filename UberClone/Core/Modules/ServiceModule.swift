@@ -10,20 +10,20 @@ import Foundation
 @MainActor
 struct ServiceModule: DIModule {
   func load(into container: DIContainer) {
-    container.register(type: DriverService.self, lifeTime: .singleton) { _ in
+    container.register(type: DriverService.self, lifetime: .singleton) { _ in
       return DefaultDriverService()
     }
     
-    container.register(type: UserService.self, lifeTime: .singleton) { _ in
+    container.register(type: UserService.self, lifetime: .singleton) { _ in
       return DefaultUserService()
     }
     
-    container.register(type: PassengerService.self, lifeTime: .singleton) { resolver in
+    container.register(type: PassengerService.self, lifetime: .singleton) { resolver in
       let userService = resolver.resolve(type: UserService.self)
       return DefaultPassengerService(userSerivce: userService)
     }
     
-    container.register(type: AuthService.self, lifeTime: .singleton) { _ in
+    container.register(type: AuthService.self, lifetime: .singleton) { _ in
       return DefaultAuthService()
     }
   }
