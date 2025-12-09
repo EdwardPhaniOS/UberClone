@@ -16,17 +16,13 @@ struct LoginView: View {
   }
 
   var body: some View {
-    ScrollView(content: {
-      VStack(spacing: 48) {
-        titleView
-        inputFieldsView
-        VStack {
-          loginButtonView
-          signUpButtonView
-        }
-        Spacer()
-      }
-    })
+    ViewThatFits {
+      contentView
+
+      ScrollView(content: {
+        contentView
+      })
+    }
     .infinityFrame()
     .padding(.horizontal, 32)
     .padding(.top, 48)
@@ -46,6 +42,19 @@ struct LoginView: View {
 }
 
 private extension LoginView {
+
+  var contentView: some View {
+    VStack(spacing: 48) {
+      titleView
+      inputFieldsView
+      VStack {
+        loginButtonView
+        signUpButtonView
+      }
+      Spacer()
+    }
+  }
+
   var titleView: some View {
     Text("UBER")
       .foregroundStyle(Color.appTheme.text)
