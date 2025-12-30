@@ -66,21 +66,38 @@ class SignUpVM: ObservableObject, ErrorDisplayable {
 
   func validateInput() -> Result<Void, SignUpError> {
     var requiredFields: [String] = []
+    var invalidFields: [String] = []
 
     if email.isEmpty {
       requiredFields.append("Email")
     }
-
+    
     if fullName.isEmpty {
       requiredFields.append("Full Name")
     }
-
+   
     if password.isEmpty {
       requiredFields.append("Password")
+    }
+    
+    if !email.isValidEmail {
+      invalidFields.append("Email")
+    }
+    
+    if !fullName.isValidUserName {
+      invalidFields.append("Full Name")
+    }
+
+    if !password.isValidPassword {
+      invalidFields.append("Password")
     }
 
     if !requiredFields.isEmpty {
       return .failure(.missingRequiredFields(requiredFields))
+    }
+    
+    if !invalidFields.isEmpty {
+      return .failure(.invalidFields(invalidFields))
     }
 
     return .success(Void())

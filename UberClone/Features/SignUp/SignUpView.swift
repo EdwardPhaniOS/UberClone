@@ -58,17 +58,19 @@ private extension SignUpView {
     VStack(spacing: 32) {
       TextField("Email", text: $viewModel.email)
         .textFieldWithUnderline(sfSymbol: "envelope")
+        .autocorrectionDisabled()
       TextField("Full Name", text: $viewModel.fullName)
         .textFieldWithUnderline(sfSymbol: "person")
       SecureField("Password", text: $viewModel.password)
         .textFieldWithUnderline(sfSymbol: "lock")
+        .autocorrectionDisabled()
       VStack {
         HStack {
           Image(systemName: "person.crop.rectangle")
             .foregroundStyle(Color.appTheme.divider)
           Spacer()
         }
-        CustomSegmentedPicker(selection: $viewModel.accountTypeIndex, items: ["Rider", "Driver"])
+        CustomSegmentedPicker(selection: $viewModel.accountTypeIndex, items: ["Passenger", "Driver"])
       }
       
     }

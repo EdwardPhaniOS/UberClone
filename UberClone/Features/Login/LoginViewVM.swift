@@ -39,6 +39,7 @@ class LoginViewVM: ObservableObject, ErrorDisplayable {
 
   func validateInput() -> Result<Void, LoginError> {
     var requiredFields: [String] = []
+    var invalidFields: [String] = []
 
     if email.isEmpty {
       requiredFields.append("Email")
@@ -46,6 +47,22 @@ class LoginViewVM: ObservableObject, ErrorDisplayable {
 
     if password.isEmpty {
       requiredFields.append("Password")
+    }
+    
+    if !email.isValidEmail {
+      invalidFields.append("Email")
+    }
+
+    if !password.isValidPassword {
+      invalidFields.append("Password")
+    }
+
+    if !requiredFields.isEmpty {
+      return .failure(.missingRequiredFields(requiredFields))
+    }
+    
+    if !invalidFields.isEmpty {
+      return .failure(.invalidFields(invalidFields))
     }
 
     if !requiredFields.isEmpty {

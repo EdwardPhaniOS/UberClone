@@ -7,6 +7,7 @@ enum SignUpError: Error {
   
   case missingRequiredFields([String])
   case missingCurrentLocation
+  case invalidFields([String])
 
   var message: String {
     switch self {
@@ -15,6 +16,9 @@ enum SignUpError: Error {
       return "\(joinedFieldNames) \(fieldNames.count > 1 ? "are" : "is") required."
     case .missingCurrentLocation:
       return "Can not determine current location"
+    case .invalidFields(let fieldNames):
+      let joinedFieldNames = fieldNames.joined(separator: ", ")
+      return "\(joinedFieldNames) \(fieldNames.count > 1 ? "are" : "is") invalid."
     }
   }
 }

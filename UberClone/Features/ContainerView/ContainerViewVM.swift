@@ -70,6 +70,7 @@ class ContainerViewVM: NSObject, ObservableObject, ErrorDisplayable {
     Task {
       do {
         try await authService.signOut()
+        user = nil
       } catch {
         print("DEBUG: Error - \(error.localizedDescription)")
       }
